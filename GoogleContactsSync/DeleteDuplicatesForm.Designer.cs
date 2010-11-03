@@ -36,15 +36,16 @@ namespace WebGear.GoogleContactsSync
             this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
-            this.flowLayoutPanel.Size = new System.Drawing.Size(308, 384);
+            this.flowLayoutPanel.Size = new System.Drawing.Size(359, 384);
             this.flowLayoutPanel.TabIndex = 0;
             // 
             // DeleteDuplicatesForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(308, 384);
+            this.ClientSize = new System.Drawing.Size(359, 384);
             this.Controls.Add(this.flowLayoutPanel);
+            this.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "DeleteDuplicatesForm";
             this.Text = "Delete Duplicates Utility";

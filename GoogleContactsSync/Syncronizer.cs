@@ -34,7 +34,7 @@ namespace WebGear.GoogleContactsSync
         {
             get { return _deletedCount; }
         }
-	
+    
 
         public delegate void NotificationHandler(string title, string message, EventType eventType);
         public event NotificationHandler DuplicatesFound;
@@ -136,9 +136,9 @@ namespace WebGear.GoogleContactsSync
             }
         }
 
-        private ILogger _logger;
+        private Logger _logger;
 
-        public ILogger Logger
+        public Logger Logger
         {
             get { return _logger; }
             set { _logger = value; }
@@ -153,7 +153,7 @@ namespace WebGear.GoogleContactsSync
             get { return _syncDelete; }
             set { _syncDelete = value; }
         }
-	
+    
 
         public Syncronizer()
         {
@@ -167,6 +167,7 @@ namespace WebGear.GoogleContactsSync
 
         public void LoginToGoogle(string username, string password)
         {
+            Logger.Log("Connecting to Google...", EventType.Information);
             if (_googleService == null)
                 _googleService = new ContactsService("WebGear.GoogleContactsSync");
 
@@ -183,6 +184,7 @@ namespace WebGear.GoogleContactsSync
 
         public void LoginToOutlook()
         {
+            Logger.Log("Connecting to Outlook...", EventType.Information);
             if (_outlookApp == null)
             {
                 _outlookApp = new Outlook.Application();
@@ -195,6 +197,7 @@ namespace WebGear.GoogleContactsSync
 
         public void LogoffOutlook()
         {
+            Logger.Log("Disconnecting from Outlook...", EventType.Information);
             if (_outlookNamespace != null)
             {
                 _outlookNamespace.Logoff();
@@ -203,6 +206,7 @@ namespace WebGear.GoogleContactsSync
 
         public void LoadOutlookContacts()
         {
+            Logger.Log("Loading Outlook contacts...", EventType.Information);
             Outlook.MAPIFolder contactsFolder = _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
             _outlookContacts = contactsFolder.Items;
 
@@ -253,6 +257,7 @@ namespace WebGear.GoogleContactsSync
 
         public void LoadGoogleContacts()
         {
+            Logger.Log("Loading Google Contacts...", EventType.Information);
             ContactsQuery query = new ContactsQuery(ContactsQuery.CreateContactsUri("default"));
             query.NumberToRetrieve = 256;
             query.StartIndex = 0;
@@ -274,6 +279,7 @@ namespace WebGear.GoogleContactsSync
         }
         public void LoadGoogleGroups()
         {
+            Logger.Log("Loading Google Groups...", EventType.Information);
             GroupsQuery query = new GroupsQuery(GroupsQuery.CreateGroupsUri("default"));
             query.NumberToRetrieve = 256;
             query.StartIndex = 0;
@@ -329,8 +335,10 @@ namespace WebGear.GoogleContactsSync
 
             _totalCount = _matches.Count;
 
+            Logger.Log("Syncing groups...", EventType.Information);
             ContactsMatcher.SyncGroups(this);
 
+            Logger.Log("Syncing contacts...", EventType.Information);
             ContactsMatcher.SyncContacts(this);
 
             SaveContacts(_matches);
@@ -376,7 +384,7 @@ namespace WebGear.GoogleContactsSync
                     //google contact was modified. save.
                     SaveGoogleContact(match);
                     if (Logger != null)
-                        Logger.Log("Saved Google contact: \"" + match.GoogleContact.Title.Text + "\"", EventType.Information);
+                        Logger.Log("Saved Google contact: \"" + match.GoogleContact.Title.Text + "\".", EventType.Information);
                 }
 
                 if (!match.OutlookContact.Saved)// || outlookChanged)
@@ -390,7 +398,7 @@ namespace WebGear.GoogleContactsSync
                     ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                     match.OutlookContact.Save();
                     if (Logger != null)
-                        Logger.Log("Saved Outlook contact: \"" + match.OutlookContact.FileAs + "\"", EventType.Information);
+                        Logger.Log("Saved Outlook contact: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
 
                     //TODO: this will cause the google contact to be updated on next run because Outlook's contact will be marked as saved later that Google's contact.
                 }
@@ -407,7 +415,7 @@ namespace WebGear.GoogleContactsSync
                     // peer google contact was deleted, delete outlook contact
                     match.OutlookContact.Delete();
                     if (Logger != null)
-                        Logger.Log("Deleted Outlook contact: \"" + name + "\"", EventType.Information);
+                        Logger.Log("Deleted Outlook contact: \"" + name + "\".", EventType.Information);
                 }
             }
             else if (match.GoogleContact != null && match.OutlookContact == null)
@@ -418,7 +426,7 @@ namespace WebGear.GoogleContactsSync
                     // peer outlook contact was deleted, delete google contact
                     match.GoogleContact.Delete();
                     if (Logger != null)
-                        Logger.Log("Deleted Google contact: \"" + match.GoogleContact.Title.Text + "\"", EventType.Information);
+                        Logger.Log("Deleted Google contact: \"" + match.GoogleContact.Title.Text + "\".", EventType.Information);
                 }
             }
             else
@@ -474,7 +482,7 @@ namespace WebGear.GoogleContactsSync
                     ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                     match.OutlookContact.Save();
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: save google contact xml for diagnistics
                     throw;
@@ -493,7 +501,7 @@ namespace WebGear.GoogleContactsSync
                 {
                     ContactEntry createdEntry = (ContactEntry)_googleService.Insert(feedUri, googleContact);
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: save google contact xml for diagnistics
                     throw;
@@ -507,7 +515,7 @@ namespace WebGear.GoogleContactsSync
                     //TODO: this will fail if original contact had an empty name or rpimary email address.
                     ContactEntry updatedEntry = googleContact.Update() as ContactEntry;
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: save google contact xml for diagnistics
                     throw;
@@ -638,7 +646,7 @@ namespace WebGear.GoogleContactsSync
                     GroupEntry createdEntry = _googleService.Insert(feedUri, group) as GroupEntry;
                     return createdEntry;
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: save google group xml for diagnistics
                     throw;
@@ -652,7 +660,7 @@ namespace WebGear.GoogleContactsSync
                     GroupEntry updatedEntry = group.Update() as GroupEntry;
                     return updatedEntry;
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: save google group xml for diagnistics
                     throw;

@@ -40,7 +40,7 @@ namespace WebGear.GoogleContactsSync
                     if (!(sync.OutlookContacts[i] is Outlook.ContactItem))
                         continue;
                 }
-                catch (Exception ex)
+                catch
                 {
                     //this is needed because some contacts throw exceptions
                     continue;
@@ -190,7 +190,7 @@ namespace WebGear.GoogleContactsSync
                                 continue;
                             }
 
-                            //don't match by home or business bumbers, because several people may share the saem home or business number
+                            //don't match by home or business bumbers, because several people may share the same home or business number
                             continue;
 
                             //if (FindPhone(olc.PrimaryTelephoneNumber, entry.Phonenumbers) != null)

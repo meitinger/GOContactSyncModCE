@@ -9,9 +9,9 @@ using System.Resources;
 [assembly: AssemblyTitle("GO Contact Sync")]
 [assembly: AssemblyDescription("Synchronize your Outlook and Google contacts")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("WebGear Ltd, New Zealand")]
-[assembly: AssemblyProduct("GO Contact Sync")]
-[assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009")]
+[assembly: AssemblyCompany("WebGear Ltd, New Zealand + Create Software")]
+[assembly: AssemblyProduct("GO Contact Sync, updated by Create Software")]
+[assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009, parts © Create Software (Clément Pit--Claudel)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 //[assembly: InternalsVisibleTo("WebGear.GOContactSync.UnitTests")]
@@ -31,6 +31,6 @@ using System.Resources;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.3")]
-[assembly: AssemblyFileVersion("1.0.0.3")]
-[assembly: NeutralResourcesLanguageAttribute("en-NZ")]
+[assembly: AssemblyVersion("1.5.0.0")]
+[assembly: AssemblyFileVersion("1.5.0.0")]
+[assembly: NeutralResourcesLanguageAttribute("en-GB")]

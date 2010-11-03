@@ -59,73 +59,90 @@ namespace WebGear.GoogleContactsSync
             this.tbSyncProfile = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.lastSyncLabel = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.logGroupBox = new System.Windows.Forms.GroupBox();
             this.syncConsole = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.resetMatchesButton = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.settingsGroupBox = new System.Windows.Forms.GroupBox();
+            this.actionsTableLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.MainPanel = new System.Windows.Forms.Panel();
+            this.MainSplitter = new System.Windows.Forms.Splitter();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.logGroupBox.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.settingsGroupBox.SuspendLayout();
+            this.actionsTableLayout.SuspendLayout();
+            this.MainPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // Password
             // 
-            this.Password.Location = new System.Drawing.Point(86, 44);
+            this.Password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.Password.Location = new System.Drawing.Point(100, 44);
             this.Password.Name = "Password";
             this.Password.PasswordChar = '*';
-            this.Password.Size = new System.Drawing.Size(182, 20);
-            this.Password.TabIndex = 16;
+            this.Password.Size = new System.Drawing.Size(191, 21);
+            this.Password.TabIndex = 3;
             this.Password.TextChanged += new System.EventHandler(this.Password_TextChanged);
             // 
             // UserName
             // 
-            this.UserName.Location = new System.Drawing.Point(86, 18);
+            this.UserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.UserName.Location = new System.Drawing.Point(100, 18);
             this.UserName.Name = "UserName";
-            this.UserName.Size = new System.Drawing.Size(182, 20);
-            this.UserName.TabIndex = 15;
+            this.UserName.Size = new System.Drawing.Size(191, 21);
+            this.UserName.TabIndex = 1;
             this.UserName.TextChanged += new System.EventHandler(this.UserName_TextChanged);
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(6, 44);
+            this.label3.Location = new System.Drawing.Point(7, 44);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 16);
-            this.label3.TabIndex = 14;
+            this.label3.Size = new System.Drawing.Size(75, 16);
+            this.label3.TabIndex = 2;
             this.label3.Text = "Password:";
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(6, 21);
+            this.label2.Location = new System.Drawing.Point(7, 21);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(64, 17);
-            this.label2.TabIndex = 13;
+            this.label2.Size = new System.Drawing.Size(75, 17);
+            this.label2.TabIndex = 0;
             this.label2.Text = "User:";
             // 
             // syncButton
             // 
-            this.syncButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.syncButton.Location = new System.Drawing.Point(210, 510);
+            this.syncButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.syncButton.Location = new System.Drawing.Point(107, 3);
             this.syncButton.Name = "syncButton";
-            this.syncButton.Size = new System.Drawing.Size(75, 23);
-            this.syncButton.TabIndex = 19;
+            this.syncButton.Size = new System.Drawing.Size(99, 25);
+            this.syncButton.TabIndex = 1;
             this.syncButton.Text = "Sync";
             this.syncButton.UseVisualStyleBackColor = true;
             this.syncButton.Click += new System.EventHandler(this.button4_Click);
             // 
             // syncOptionBox
             // 
+            this.syncOptionBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.syncOptionBox.BackColor = System.Drawing.SystemColors.Control;
             this.syncOptionBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.syncOptionBox.CheckOnClick = true;
             this.syncOptionBox.FormattingEnabled = true;
-            this.syncOptionBox.Location = new System.Drawing.Point(6, 73);
+            this.syncOptionBox.IntegralHeight = false;
+            this.syncOptionBox.Location = new System.Drawing.Point(7, 73);
             this.syncOptionBox.Name = "syncOptionBox";
-            this.syncOptionBox.Size = new System.Drawing.Size(262, 75);
-            this.syncOptionBox.TabIndex = 25;
+            this.syncOptionBox.Size = new System.Drawing.Size(285, 100);
+            this.syncOptionBox.TabIndex = 4;
             this.toolTip.SetToolTip(this.syncOptionBox, resources.GetString("syncOptionBox.ToolTip"));
             this.syncOptionBox.SelectedIndexChanged += new System.EventHandler(this.syncOptionBox_SelectedIndexChanged);
             // 
@@ -149,57 +166,57 @@ namespace WebGear.GoogleContactsSync
             this.toolStripMenuItem5,
             this.toolStripMenuItem2});
             this.systemTrayMenu.Name = "systemTrayMenu";
-            this.systemTrayMenu.Size = new System.Drawing.Size(116, 126);
+            this.systemTrayMenu.Size = new System.Drawing.Size(108, 126);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(115, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem4.Text = "Sync";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(112, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(104, 6);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(115, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem1.Text = "Show";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(115, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem3.Text = "Hide";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(112, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(104, 6);
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(115, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem5.Text = "About";
             this.toolStripMenuItem5.Click += new System.EventHandler(this.toolStripMenuItem5_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(115, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem2.Text = "Exit";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
             // autoSyncInterval
             // 
-            this.autoSyncInterval.Location = new System.Drawing.Point(93, 64);
+            this.autoSyncInterval.Location = new System.Drawing.Point(108, 64);
             this.autoSyncInterval.Maximum = new decimal(new int[] {
             1440,
             0,
@@ -211,8 +228,8 @@ namespace WebGear.GoogleContactsSync
             0,
             0});
             this.autoSyncInterval.Name = "autoSyncInterval";
-            this.autoSyncInterval.Size = new System.Drawing.Size(42, 20);
-            this.autoSyncInterval.TabIndex = 26;
+            this.autoSyncInterval.Size = new System.Drawing.Size(49, 21);
+            this.autoSyncInterval.TabIndex = 3;
             this.autoSyncInterval.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.autoSyncInterval.Value = new decimal(new int[] {
             120,
@@ -223,10 +240,10 @@ namespace WebGear.GoogleContactsSync
             // autoSyncCheckBox
             // 
             this.autoSyncCheckBox.AutoSize = true;
-            this.autoSyncCheckBox.Location = new System.Drawing.Point(12, 42);
+            this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
             this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
-            this.autoSyncCheckBox.TabIndex = 27;
+            this.autoSyncCheckBox.TabIndex = 1;
             this.autoSyncCheckBox.Text = "Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
             this.autoSyncCheckBox.CheckedChanged += new System.EventHandler(this.autoSyncCheckBox_CheckedChanged);
@@ -234,19 +251,19 @@ namespace WebGear.GoogleContactsSync
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 66);
+            this.label1.Location = new System.Drawing.Point(10, 66);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
-            this.label1.TabIndex = 29;
+            this.label1.Size = new System.Drawing.Size(89, 13);
+            this.label1.TabIndex = 2;
             this.label1.Text = "Sync Interval:";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(141, 66);
+            this.label4.Location = new System.Drawing.Point(164, 66);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(28, 13);
-            this.label4.TabIndex = 30;
+            this.label4.Size = new System.Drawing.Size(34, 13);
+            this.label4.TabIndex = 4;
             this.label4.Text = "mins";
             // 
             // groupBox1
@@ -259,20 +276,20 @@ namespace WebGear.GoogleContactsSync
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.autoSyncCheckBox);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(11, 393);
+            this.groupBox1.Location = new System.Drawing.Point(6, 279);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(274, 111);
-            this.groupBox1.TabIndex = 31;
+            this.groupBox1.Size = new System.Drawing.Size(299, 111);
+            this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Automization";
             // 
             // runAtStartupCheckBox
             // 
             this.runAtStartupCheckBox.AutoSize = true;
-            this.runAtStartupCheckBox.Location = new System.Drawing.Point(12, 21);
+            this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
             this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
-            this.runAtStartupCheckBox.TabIndex = 32;
+            this.runAtStartupCheckBox.TabIndex = 0;
             this.runAtStartupCheckBox.Text = "Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
             this.runAtStartupCheckBox.CheckedChanged += new System.EventHandler(this.runAtStartupCheckBox_CheckedChanged);
@@ -280,10 +297,10 @@ namespace WebGear.GoogleContactsSync
             // nextSyncLabel
             // 
             this.nextSyncLabel.AutoSize = true;
-            this.nextSyncLabel.Location = new System.Drawing.Point(9, 90);
+            this.nextSyncLabel.Location = new System.Drawing.Point(10, 90);
             this.nextSyncLabel.Name = "nextSyncLabel";
-            this.nextSyncLabel.Size = new System.Drawing.Size(67, 13);
-            this.nextSyncLabel.TabIndex = 31;
+            this.nextSyncLabel.Size = new System.Drawing.Size(79, 13);
+            this.nextSyncLabel.TabIndex = 5;
             this.nextSyncLabel.Text = "Next Sync in";
             // 
             // syncTimer
@@ -293,33 +310,38 @@ namespace WebGear.GoogleContactsSync
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.panel1);
             this.groupBox2.Controls.Add(this.btSyncDelete);
             this.groupBox2.Controls.Add(this.tbSyncProfile);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.syncOptionBox);
-            this.groupBox2.Location = new System.Drawing.Point(11, 229);
+            this.groupBox2.Location = new System.Drawing.Point(6, 99);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(274, 158);
-            this.groupBox2.TabIndex = 32;
+            this.groupBox2.Size = new System.Drawing.Size(299, 174);
+            this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Sync Options";
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(6, 67);
+            this.panel1.Location = new System.Drawing.Point(7, 67);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(260, 1);
-            this.panel1.TabIndex = 36;
+            this.panel1.Size = new System.Drawing.Size(282, 1);
+            this.panel1.TabIndex = 3;
             // 
             // btSyncDelete
             // 
             this.btSyncDelete.AutoSize = true;
-            this.btSyncDelete.Location = new System.Drawing.Point(7, 46);
+            this.btSyncDelete.Location = new System.Drawing.Point(8, 46);
             this.btSyncDelete.Name = "btSyncDelete";
             this.btSyncDelete.Size = new System.Drawing.Size(92, 17);
-            this.btSyncDelete.TabIndex = 35;
+            this.btSyncDelete.TabIndex = 2;
             this.btSyncDelete.Text = "Sync Deletion";
             this.toolTip.SetToolTip(this.btSyncDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
@@ -329,10 +351,12 @@ namespace WebGear.GoogleContactsSync
             // 
             // tbSyncProfile
             // 
-            this.tbSyncProfile.Location = new System.Drawing.Point(86, 19);
+            this.tbSyncProfile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbSyncProfile.Location = new System.Drawing.Point(100, 19);
             this.tbSyncProfile.Name = "tbSyncProfile";
-            this.tbSyncProfile.Size = new System.Drawing.Size(182, 20);
-            this.tbSyncProfile.TabIndex = 34;
+            this.tbSyncProfile.Size = new System.Drawing.Size(191, 21);
+            this.tbSyncProfile.TabIndex = 1;
             this.toolTip.SetToolTip(this.tbSyncProfile, "This is a profile name of your choice.\r\nIt must be unique in each computer\r\nand a" +
                     "ccount you intend to sync with\r\nyour Google Mail account.");
             this.tbSyncProfile.TextChanged += new System.EventHandler(this.tbSyncProfile_TextChanged);
@@ -340,64 +364,73 @@ namespace WebGear.GoogleContactsSync
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 22);
+            this.label5.Location = new System.Drawing.Point(7, 22);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(66, 13);
-            this.label5.TabIndex = 33;
+            this.label5.Size = new System.Drawing.Size(80, 13);
+            this.label5.TabIndex = 0;
             this.label5.Text = "Sync Profile:";
             // 
             // lastSyncLabel
             // 
             this.lastSyncLabel.AutoSize = true;
-            this.lastSyncLabel.Location = new System.Drawing.Point(6, 16);
+            this.lastSyncLabel.Location = new System.Drawing.Point(7, 16);
             this.lastSyncLabel.Name = "lastSyncLabel";
-            this.lastSyncLabel.Size = new System.Drawing.Size(69, 13);
-            this.lastSyncLabel.TabIndex = 32;
+            this.lastSyncLabel.Size = new System.Drawing.Size(80, 13);
+            this.lastSyncLabel.TabIndex = 0;
             this.lastSyncLabel.Text = "Last Sync on";
             // 
-            // groupBox3
+            // logGroupBox
             // 
-            this.groupBox3.Controls.Add(this.syncConsole);
-            this.groupBox3.Controls.Add(this.lastSyncLabel);
-            this.groupBox3.Location = new System.Drawing.Point(11, 91);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(274, 132);
-            this.groupBox3.TabIndex = 33;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Sync Details";
+            this.logGroupBox.Controls.Add(this.syncConsole);
+            this.logGroupBox.Controls.Add(this.lastSyncLabel);
+            this.logGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logGroupBox.Location = new System.Drawing.Point(316, 0);
+            this.logGroupBox.Name = "logGroupBox";
+            this.logGroupBox.Size = new System.Drawing.Size(369, 396);
+            this.logGroupBox.TabIndex = 0;
+            this.logGroupBox.TabStop = false;
+            this.logGroupBox.Text = "Sync Details && Log";
             // 
             // syncConsole
             // 
+            this.syncConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.syncConsole.BackColor = System.Drawing.SystemColors.Info;
-            this.syncConsole.Location = new System.Drawing.Point(7, 33);
+            this.syncConsole.Location = new System.Drawing.Point(6, 33);
             this.syncConsole.Multiline = true;
             this.syncConsole.Name = "syncConsole";
+            this.syncConsole.ReadOnly = true;
             this.syncConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.syncConsole.Size = new System.Drawing.Size(261, 93);
-            this.syncConsole.TabIndex = 33;
-            this.toolTip.SetToolTip(this.syncConsole, "This window shows information\r\nfrom the last sync.");
+            this.syncConsole.Size = new System.Drawing.Size(357, 357);
+            this.syncConsole.TabIndex = 1;
+            this.toolTip.SetToolTip(this.syncConsole, "This window shows information\r\n from the last sync.");
             // 
             // groupBox4
             // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.label2);
             this.groupBox4.Controls.Add(this.label3);
             this.groupBox4.Controls.Add(this.UserName);
             this.groupBox4.Controls.Add(this.Password);
-            this.groupBox4.Location = new System.Drawing.Point(11, 12);
+            this.groupBox4.Location = new System.Drawing.Point(6, 20);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(274, 73);
-            this.groupBox4.TabIndex = 34;
+            this.groupBox4.Size = new System.Drawing.Size(299, 73);
+            this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Google Account";
             // 
             // resetMatchesButton
             // 
-            this.resetMatchesButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.resetMatchesButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.resetMatchesButton.AutoSize = true;
-            this.resetMatchesButton.Location = new System.Drawing.Point(115, 510);
+            this.resetMatchesButton.Location = new System.Drawing.Point(3, 3);
             this.resetMatchesButton.Name = "resetMatchesButton";
-            this.resetMatchesButton.Size = new System.Drawing.Size(89, 23);
-            this.resetMatchesButton.TabIndex = 35;
+            this.resetMatchesButton.Size = new System.Drawing.Size(98, 25);
+            this.resetMatchesButton.TabIndex = 0;
             this.resetMatchesButton.Text = "Reset Matches";
             this.toolTip.SetToolTip(this.resetMatchesButton, "This unlinks Outlook contacts with their\r\ncorresponding Google contatcs. If you\r\n" +
                     "accidentaly delete a contact and you\r\ndont want the deletion to be synchronised," +
@@ -405,44 +438,89 @@ namespace WebGear.GoogleContactsSync
             this.resetMatchesButton.UseVisualStyleBackColor = true;
             this.resetMatchesButton.Click += new System.EventHandler(this.resetMatchesButton_Click);
             // 
-            // toolTip
+            // settingsGroupBox
             // 
-            this.toolTip.IsBalloon = true;
+            this.settingsGroupBox.Controls.Add(this.groupBox1);
+            this.settingsGroupBox.Controls.Add(this.groupBox4);
+            this.settingsGroupBox.Controls.Add(this.groupBox2);
+            this.settingsGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
+            this.settingsGroupBox.Location = new System.Drawing.Point(0, 0);
+            this.settingsGroupBox.Name = "settingsGroupBox";
+            this.settingsGroupBox.Size = new System.Drawing.Size(311, 396);
+            this.settingsGroupBox.TabIndex = 1;
+            this.settingsGroupBox.TabStop = false;
+            this.settingsGroupBox.Text = "Program Settings";
+            // 
+            // actionsTableLayout
+            // 
+            this.actionsTableLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.actionsTableLayout.ColumnCount = 2;
+            this.actionsTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionsTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionsTableLayout.Controls.Add(this.resetMatchesButton, 0, 0);
+            this.actionsTableLayout.Controls.Add(this.syncButton, 1, 0);
+            this.actionsTableLayout.Location = new System.Drawing.Point(488, 414);
+            this.actionsTableLayout.Name = "actionsTableLayout";
+            this.actionsTableLayout.RowCount = 1;
+            this.actionsTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionsTableLayout.Size = new System.Drawing.Size(209, 31);
+            this.actionsTableLayout.TabIndex = 1;
+            // 
+            // MainPanel
+            // 
+            this.MainPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.MainPanel.Controls.Add(this.logGroupBox);
+            this.MainPanel.Controls.Add(this.MainSplitter);
+            this.MainPanel.Controls.Add(this.settingsGroupBox);
+            this.MainPanel.Location = new System.Drawing.Point(12, 12);
+            this.MainPanel.Name = "MainPanel";
+            this.MainPanel.Size = new System.Drawing.Size(685, 396);
+            this.MainPanel.TabIndex = 2;
+            // 
+            // MainSplitter
+            // 
+            this.MainSplitter.Location = new System.Drawing.Point(311, 0);
+            this.MainSplitter.Name = "MainSplitter";
+            this.MainSplitter.Size = new System.Drawing.Size(5, 396);
+            this.MainSplitter.TabIndex = 5;
+            this.MainSplitter.TabStop = false;
             // 
             // SettingsForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AcceptButton = this.syncButton;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 537);
-            this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.syncButton);
-            this.Controls.Add(this.resetMatchesButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.ClientSize = new System.Drawing.Size(709, 457);
+            this.Controls.Add(this.MainPanel);
+            this.Controls.Add(this.actionsTableLayout);
+            this.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SettingsForm";
             this.Text = "GO Contact Sync - Settings";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SettingsForm_FormClosed);
-            this.Resize += new System.EventHandler(this.SettingsForm_Resize);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SettingsForm_FormClosed);
             this.Load += new System.EventHandler(this.SettingsForm_Load);
+            this.Resize += new System.EventHandler(this.SettingsForm_Resize);
             this.systemTrayMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.logGroupBox.ResumeLayout(false);
+            this.logGroupBox.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.settingsGroupBox.ResumeLayout(false);
+            this.actionsTableLayout.ResumeLayout(false);
+            this.actionsTableLayout.PerformLayout();
+            this.MainPanel.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -464,7 +542,7 @@ namespace WebGear.GoogleContactsSync
         private System.Windows.Forms.Label nextSyncLabel;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label lastSyncLabel;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox logGroupBox;
         private System.Windows.Forms.TextBox syncConsole;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button resetMatchesButton;
@@ -482,6 +560,10 @@ namespace WebGear.GoogleContactsSync
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox btSyncDelete;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.GroupBox settingsGroupBox;
+        private System.Windows.Forms.TableLayoutPanel actionsTableLayout;
+        private System.Windows.Forms.Panel MainPanel;
+        private System.Windows.Forms.Splitter MainSplitter;
     }
 }
 

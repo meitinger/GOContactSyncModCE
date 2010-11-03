@@ -105,15 +105,29 @@ namespace WebGear.GoogleContactsSync
             regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
         }
 
-        private bool ValidCredetials
+        private bool ValidCredentials
         {
             get
             {
-                if (UserName.Text.Length != 0 && Password.Text.Length != 0 && tbSyncProfile.Text.Length != 0)
-                    return true;
-                return false;
+                bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
+                bool passwordIsValid = Password.Text.Length != 0;
+                bool syncProfileNameIsValid = tbSyncProfile.Text.Length != 0;
+
+                setBgColor(UserName, userNameIsValid);
+                setBgColor(Password, passwordIsValid);
+                setBgColor(tbSyncProfile, passwordIsValid);
+                return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
             }
         }
+        private void setBgColor(TextBox box, bool isValid)
+        {
+            if (!isValid)
+                box.BackColor = Color.LightPink;
+            else
+                box.BackColor = Color.LightGreen;
+
+        }
+
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -121,7 +135,7 @@ namespace WebGear.GoogleContactsSync
         }
         private void Sync()
         {
-            if (!ValidCredetials)
+            if (!ValidCredentials)
                 return;
 
             //Sync_ThreadStarter();
@@ -134,11 +148,11 @@ namespace WebGear.GoogleContactsSync
             while (!thread.IsAlive)
                 Thread.Sleep(1);
         }
+
         private void Sync_ThreadStarter()
         {
             TimerSwitch(false);
             SetLastSyncText("Syncing...");
-            SetSyncConsoleText(DateTime.Now + " Sync started" + Environment.NewLine);
             SetFormEnabled(false);
 
             if (_sync == null)
@@ -147,8 +161,13 @@ namespace WebGear.GoogleContactsSync
                 _sync.Logger = new Logger();
                 _sync.DuplicatesFound += new Syncronizer.NotificationHandler(_sync_DuplicatesFound);
                 _sync.ErrorEncountered += new Syncronizer.NotificationHandler(_sync_ErrorEncountered);
+                _sync.Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
             }
 
+            _sync.Logger.ClearLog();
+            SetSyncConsoleText("");
+            _sync.Logger.Log("Sync started.", EventType.Information);
+            //SetSyncConsoleText(_sync.Logger.GetText());
             _sync.SyncProfile = tbSyncProfile.Text;
             _sync.SyncOption = _syncOption;
 
@@ -157,12 +176,11 @@ namespace WebGear.GoogleContactsSync
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
                 _sync.LoginToOutlook();
 
-                _sync.Logger.ClearLog();
                 _sync.Sync();
 
                 SetLastSyncText("Last synced at " + lastSync.ToString());
-                AppendSyncConsoleText((_sync.Logger as Logger).messages);
-                AppendSyncConsoleText(DateTime.Now + " Sync complete" + Environment.NewLine);
+                _sync.Logger.Log("Sync complete.", EventType.Information);
+                //SetSyncConsoleText(_sync.Logger.GetText());
 
                 notifyIcon.BalloonTipTitle = "Complete";
                 notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount);
@@ -172,8 +190,8 @@ namespace WebGear.GoogleContactsSync
             catch (Exception ex)
             {
                 _sync.Logger.Log(ex.Message, EventType.Error);
-                AppendSyncConsoleText((_sync.Logger as Logger).messages);
-                AppendSyncConsoleText(DateTime.Now + " Sync failed" + Environment.NewLine);
+                //AppendSyncConsoleText(_sync.Logger.GetText());
+                _sync.Logger.Log("Sync failed.", EventType.Error);
 
                 notifyIcon.BalloonTipTitle = "Error";
                 notifyIcon.BalloonTipText = ex.Message;
@@ -184,6 +202,11 @@ namespace WebGear.GoogleContactsSync
             lastSync = DateTime.Now;
             TimerSwitch(true);
             SetFormEnabled(true);
+        }
+
+        void Logger_LogUpdated(string Message)
+        {
+            AppendSyncConsoleText(Message);
         }
 
         void _sync_ErrorEncountered(string title, string message, EventType eventType)
@@ -210,7 +233,10 @@ namespace WebGear.GoogleContactsSync
                 this.Invoke(h, new object[] { enabled });
             }
             else
-                Enabled = enabled;
+            {
+                settingsGroupBox.Enabled = enabled;
+                actionsTableLayout.Enabled = enabled;
+            }
         }
         public void SetLastSyncText(string text)
         {
@@ -311,7 +337,7 @@ namespace WebGear.GoogleContactsSync
 
         private void SettingsForm_Resize(object sender, EventArgs e)
         {
-            if (FormWindowState.Minimized == WindowState)
+            if (WindowState == FormWindowState.Minimized)
                 Hide();
 
         }
@@ -396,14 +422,7 @@ namespace WebGear.GoogleContactsSync
         }
         private void toolStripMenuItem5_Click(object sender, EventArgs e)
         {
-            AboutForm about = new AboutForm(
-                "GO Contact Sync",
-                "http://www.webgear.co.nz/Products/GOContactSync.aspx",
-                "GO Contact Sync is a tool that synchronizes your contacts between Microsoft Outlook and Google Mail.",
-                "Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009",
-                Image.FromFile("Logo.png")
-                );
-
+            AboutBox about = new AboutBox();
             about.Show();
         }
         private void toolStripMenuItem4_Click(object sender, EventArgs e)
@@ -416,8 +435,11 @@ namespace WebGear.GoogleContactsSync
             if (string.IsNullOrEmpty(UserName.Text) ||
                 string.IsNullOrEmpty(Password.Text) ||
                 string.IsNullOrEmpty(tbSyncProfile.Text))
+            {
                 // this is the first load, show form
                 ShowForm();
+                UserName.Focus(); 
+            }
             else
                 HideForm();
         }
@@ -449,7 +471,7 @@ namespace WebGear.GoogleContactsSync
 
         private void ValidateSyncButton()
         {
-            syncButton.Enabled = ValidCredetials;
+            syncButton.Enabled = ValidCredentials;
         }
 
         private void deleteDuplicatesButton_Click(object sender, EventArgs e)
