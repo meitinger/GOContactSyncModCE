@@ -106,7 +106,7 @@ namespace WebGear.GoogleContactsSync
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(75, 16);
             this.label3.TabIndex = 2;
-            this.label3.Text = "Password:";
+            this.label3.Text = "&Password:";
             // 
             // label2
             // 
@@ -114,7 +114,7 @@ namespace WebGear.GoogleContactsSync
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(75, 17);
             this.label2.TabIndex = 0;
-            this.label2.Text = "User:";
+            this.label2.Text = "&User:";
             // 
             // syncButton
             // 
@@ -242,9 +242,9 @@ namespace WebGear.GoogleContactsSync
             this.autoSyncCheckBox.AutoSize = true;
             this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
-            this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
+            this.autoSyncCheckBox.Size = new System.Drawing.Size(84, 17);
             this.autoSyncCheckBox.TabIndex = 1;
-            this.autoSyncCheckBox.Text = "Auto Sync";
+            this.autoSyncCheckBox.Text = "&Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
             this.autoSyncCheckBox.CheckedChanged += new System.EventHandler(this.autoSyncCheckBox_CheckedChanged);
             // 
@@ -255,7 +255,7 @@ namespace WebGear.GoogleContactsSync
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(89, 13);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Sync Interval:";
+            this.label1.Text = "Sync &Interval:";
             // 
             // label4
             // 
@@ -288,9 +288,9 @@ namespace WebGear.GoogleContactsSync
             this.runAtStartupCheckBox.AutoSize = true;
             this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
-            this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
+            this.runAtStartupCheckBox.Size = new System.Drawing.Size(160, 17);
             this.runAtStartupCheckBox.TabIndex = 0;
-            this.runAtStartupCheckBox.Text = "Run program at startup";
+            this.runAtStartupCheckBox.Text = "&Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
             this.runAtStartupCheckBox.CheckedChanged += new System.EventHandler(this.runAtStartupCheckBox_CheckedChanged);
             // 
@@ -340,9 +340,9 @@ namespace WebGear.GoogleContactsSync
             this.btSyncDelete.AutoSize = true;
             this.btSyncDelete.Location = new System.Drawing.Point(8, 46);
             this.btSyncDelete.Name = "btSyncDelete";
-            this.btSyncDelete.Size = new System.Drawing.Size(92, 17);
+            this.btSyncDelete.Size = new System.Drawing.Size(105, 17);
             this.btSyncDelete.TabIndex = 2;
-            this.btSyncDelete.Text = "Sync Deletion";
+            this.btSyncDelete.Text = "Sync &Deletion";
             this.toolTip.SetToolTip(this.btSyncDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
@@ -368,7 +368,7 @@ namespace WebGear.GoogleContactsSync
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(80, 13);
             this.label5.TabIndex = 0;
-            this.label5.Text = "Sync Profile:";
+            this.label5.Text = "&Sync Profile:";
             // 
             // lastSyncLabel
             // 
@@ -387,7 +387,7 @@ namespace WebGear.GoogleContactsSync
             this.logGroupBox.Location = new System.Drawing.Point(316, 0);
             this.logGroupBox.Name = "logGroupBox";
             this.logGroupBox.Size = new System.Drawing.Size(369, 396);
-            this.logGroupBox.TabIndex = 0;
+            this.logGroupBox.TabIndex = 2;
             this.logGroupBox.TabStop = false;
             this.logGroupBox.Text = "Sync Details && Log";
             // 
@@ -431,7 +431,7 @@ namespace WebGear.GoogleContactsSync
             this.resetMatchesButton.Name = "resetMatchesButton";
             this.resetMatchesButton.Size = new System.Drawing.Size(98, 25);
             this.resetMatchesButton.TabIndex = 0;
-            this.resetMatchesButton.Text = "Reset Matches";
+            this.resetMatchesButton.Text = "&Reset Matches";
             this.toolTip.SetToolTip(this.resetMatchesButton, "This unlinks Outlook contacts with their\r\ncorresponding Google contatcs. If you\r\n" +
                     "accidentaly delete a contact and you\r\ndont want the deletion to be synchronised," +
                     "\r\nclick  this button.");
@@ -447,7 +447,7 @@ namespace WebGear.GoogleContactsSync
             this.settingsGroupBox.Location = new System.Drawing.Point(0, 0);
             this.settingsGroupBox.Name = "settingsGroupBox";
             this.settingsGroupBox.Size = new System.Drawing.Size(311, 396);
-            this.settingsGroupBox.TabIndex = 1;
+            this.settingsGroupBox.TabIndex = 0;
             this.settingsGroupBox.TabStop = false;
             this.settingsGroupBox.Text = "Program Settings";
             // 
@@ -477,7 +477,7 @@ namespace WebGear.GoogleContactsSync
             this.MainPanel.Location = new System.Drawing.Point(12, 12);
             this.MainPanel.Name = "MainPanel";
             this.MainPanel.Size = new System.Drawing.Size(685, 396);
-            this.MainPanel.TabIndex = 2;
+            this.MainPanel.TabIndex = 0;
             // 
             // MainSplitter
             // 
@@ -499,6 +499,7 @@ namespace WebGear.GoogleContactsSync
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(725, 495);
             this.Name = "SettingsForm";
             this.Text = "GO Contact Sync - Settings";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;

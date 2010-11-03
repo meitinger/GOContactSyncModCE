@@ -21,6 +21,7 @@ namespace WebGear.GoogleContactsSync
 
     internal enum ConflictResolution
     {
+        Skip,
         Cancel,
         OutlookWins,
         GoogleWins,

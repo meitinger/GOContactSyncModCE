@@ -123,7 +123,10 @@ namespace WebGear.GoogleContactsSync
                     if( a.DisplayName.ToUpper().Contains( "CONTACTPICTURE")) 
                     {
                         a.SaveAsFile(tempPhotoPath);
-                        return Image.FromFile(tempPhotoPath);
+                        using (Image img = Image.FromFile(tempPhotoPath))
+                        {
+                            return new Bitmap(img);
+                        }
                     }
                 }
                 return null;

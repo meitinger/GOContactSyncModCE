@@ -29,6 +29,9 @@ namespace WebGear.GoogleContactsSync
 
             switch (_form.ShowDialog())
             {
+                case System.Windows.Forms.DialogResult.Ignore:
+                    // skip
+                    return ConflictResolution.Skip;
                 case System.Windows.Forms.DialogResult.Cancel:
                     // cancel
                     return ConflictResolution.Cancel;

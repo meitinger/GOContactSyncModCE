@@ -115,7 +115,7 @@ namespace WebGear.GoogleContactsSync
 
                 setBgColor(UserName, userNameIsValid);
                 setBgColor(Password, passwordIsValid);
-                setBgColor(tbSyncProfile, passwordIsValid);
+                setBgColor(tbSyncProfile, syncProfileNameIsValid);
                 return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
             }
         }
@@ -367,7 +367,9 @@ namespace WebGear.GoogleContactsSync
                 {
                     TimeSpan diff = limit - syncTime;
                     string str = "Next sync in";
-                    if (diff.Minutes != 0)
+                    if (diff.Hours != 0)
+                        str += " " + diff.Hours + " h";
+                    if (diff.Minutes != 0 || diff.Hours != 0)
                         str += " " + diff.Minutes + " min";
                     if (diff.Seconds != 0)
                         str += " " + diff.Seconds + " s";

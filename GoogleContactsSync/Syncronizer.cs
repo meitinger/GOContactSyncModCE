@@ -34,7 +34,7 @@ namespace WebGear.GoogleContactsSync
         {
             get { return _deletedCount; }
         }
-    
+	
 
         public delegate void NotificationHandler(string title, string message, EventType eventType);
         public event NotificationHandler DuplicatesFound;
@@ -482,8 +482,16 @@ namespace WebGear.GoogleContactsSync
                     ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                     match.OutlookContact.Save();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MemoryStream ms = new MemoryStream();
+                    match.GoogleContact.SaveToXml(ms);
+
+                    StreamReader sr = new StreamReader(ms);
+
+                    ms.Seek(0, SeekOrigin.Begin);
+                    Debug.WriteLine(String.Format("Error saving google contact: {0}", ex.Message));
+                    Debug.WriteLine(sr.ReadToEnd());
                     //TODO: save google contact xml for diagnistics
                     throw;
                 }
@@ -543,12 +551,15 @@ namespace WebGear.GoogleContactsSync
             {
                 // add outlook photo to google
                 Image outlookPhoto = Utilities.GetOutlookPhoto(match.OutlookContact);
-                outlookPhoto = Utilities.CropImageGoogleFormat(outlookPhoto);
-                bool saved = Utilities.SaveGooglePhoto(this, match.GoogleContact, outlookPhoto);
-                if (!saved)
-                    throw new Exception("Could not save");
+                if (outlookPhoto != null)
+                {
+                    outlookPhoto = Utilities.CropImageGoogleFormat(outlookPhoto);
+                    bool saved = Utilities.SaveGooglePhoto(this, match.GoogleContact, outlookPhoto);
+                    if (!saved)
+                        throw new Exception("Could not save");
 
-                outlookPhoto.Dispose();
+                    outlookPhoto.Dispose();
+                }
             }
             else
             {

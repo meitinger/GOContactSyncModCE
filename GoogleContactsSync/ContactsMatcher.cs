@@ -190,7 +190,7 @@ namespace WebGear.GoogleContactsSync
                                 continue;
                             }
 
-                            //don't match by home or business bumbers, because several people may share the same home or business number
+                            // don't match by home or business bumbers, because several people may share the same home or business number
                             continue;
 
                             //if (FindPhone(olc.PrimaryTelephoneNumber, entry.Phonenumbers) != null)
@@ -198,8 +198,8 @@ namespace WebGear.GoogleContactsSync
                             //    match.AddGoogleContact(entry);
                             //    continue;
                             //}                            
-                            
 
+                            /*
                             if (FindPhone(olc.HomeTelephoneNumber, entry.Phonenumbers) != null)
                             {
                                 match.AddGoogleContact(entry);
@@ -252,7 +252,8 @@ namespace WebGear.GoogleContactsSync
                             {
                                 match.AddGoogleContact(entry);
                                 //continue;
-                            } 
+                            }
+                            */
                             #endregion
                         }
                         #endregion
@@ -478,8 +479,10 @@ namespace WebGear.GoogleContactsSync
                                 ConflictResolution res = r.Resolve(match.OutlookContact, match.GoogleContact);
                                 switch (res)
                                 {
-                                    case ConflictResolution.Cancel:
+                                    case ConflictResolution.Skip:
                                         break;
+                                    case ConflictResolution.Cancel:
+                                        throw new ApplicationException("Canceled");
                                     case ConflictResolution.OutlookWins:
                                         //TODO: what about categories/groups?
                                         ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
@@ -558,8 +561,10 @@ namespace WebGear.GoogleContactsSync
                             ConflictResolution res = r.Resolve(match.OutlookContact, match.GoogleContact);
                             switch (res)
                             {
-                                case ConflictResolution.Cancel:
+                                case ConflictResolution.Skip:
                                     break;
+                                case ConflictResolution.Cancel:
+                                    throw new ApplicationException("Canceled");
                                 case ConflictResolution.OutlookWins:
                                     ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
                                     sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
