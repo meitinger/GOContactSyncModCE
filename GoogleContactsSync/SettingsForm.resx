@@ -162,6 +162,39 @@ Google To Outlook Only:  Only updates Outlook contacts based on google contacts.
   <metadata name="syncTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>254, 17</value>
   </metadata>
+  <data name="Donate.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        j9a9JRKIDwAAAABJRU5ErkJggg==
+</value>
+  </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>42</value>
   </metadata>

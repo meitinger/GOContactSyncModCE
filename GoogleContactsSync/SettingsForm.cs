@@ -496,6 +496,21 @@ namespace WebGear.GoogleContactsSync
 
             _sync.SyncDelete = btSyncDelete.Checked;
         }
+
+        private void Donate_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://sourceforge.net/project/project_donations.php?group_id=369321");
+        }
+
+        private void Donate_MouseEnter(object sender, EventArgs e)
+        {
+            Donate.BackColor = System.Drawing.Color.LightGray;
+        }
+
+        private void Donate_MouseLeave(object sender, EventArgs e)
+        {
+            Donate.BackColor = System.Drawing.Color.Transparent;
+        }
     }
 
     //internal class EventLogger : ILogger

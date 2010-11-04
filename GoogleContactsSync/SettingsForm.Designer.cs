@@ -68,6 +68,7 @@ namespace WebGear.GoogleContactsSync
             this.actionsTableLayout = new System.Windows.Forms.TableLayoutPanel();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
+            this.Donate = new System.Windows.Forms.PictureBox();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -77,6 +78,7 @@ namespace WebGear.GoogleContactsSync
             this.settingsGroupBox.SuspendLayout();
             this.actionsTableLayout.SuspendLayout();
             this.MainPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Donate)).BeginInit();
             this.SuspendLayout();
             // 
             // Password
@@ -242,7 +244,7 @@ namespace WebGear.GoogleContactsSync
             this.autoSyncCheckBox.AutoSize = true;
             this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
-            this.autoSyncCheckBox.Size = new System.Drawing.Size(84, 17);
+            this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
             this.autoSyncCheckBox.TabIndex = 1;
             this.autoSyncCheckBox.Text = "&Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
@@ -288,7 +290,7 @@ namespace WebGear.GoogleContactsSync
             this.runAtStartupCheckBox.AutoSize = true;
             this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
-            this.runAtStartupCheckBox.Size = new System.Drawing.Size(160, 17);
+            this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
             this.runAtStartupCheckBox.TabIndex = 0;
             this.runAtStartupCheckBox.Text = "&Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
@@ -340,7 +342,7 @@ namespace WebGear.GoogleContactsSync
             this.btSyncDelete.AutoSize = true;
             this.btSyncDelete.Location = new System.Drawing.Point(8, 46);
             this.btSyncDelete.Name = "btSyncDelete";
-            this.btSyncDelete.Size = new System.Drawing.Size(105, 17);
+            this.btSyncDelete.Size = new System.Drawing.Size(92, 17);
             this.btSyncDelete.TabIndex = 2;
             this.btSyncDelete.Text = "Sync &Deletion";
             this.toolTip.SetToolTip(this.btSyncDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -487,12 +489,28 @@ namespace WebGear.GoogleContactsSync
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
+            // Donate
+            // 
+            this.Donate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Donate.BackColor = System.Drawing.Color.Transparent;
+            this.Donate.Image = ((System.Drawing.Image)(resources.GetObject("Donate.Image")));
+            this.Donate.Location = new System.Drawing.Point(12, 414);
+            this.Donate.Name = "Donate";
+            this.Donate.Size = new System.Drawing.Size(34, 34);
+            this.Donate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.Donate.TabIndex = 4;
+            this.Donate.TabStop = false;
+            this.Donate.Click += new System.EventHandler(this.Donate_Click);
+            this.Donate.MouseEnter += new System.EventHandler(this.Donate_MouseEnter);
+            this.Donate.MouseLeave += new System.EventHandler(this.Donate_MouseLeave);
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.syncButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(709, 457);
+            this.Controls.Add(this.Donate);
             this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.actionsTableLayout);
             this.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -521,6 +539,7 @@ namespace WebGear.GoogleContactsSync
             this.actionsTableLayout.ResumeLayout(false);
             this.actionsTableLayout.PerformLayout();
             this.MainPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.Donate)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -565,6 +584,7 @@ namespace WebGear.GoogleContactsSync
         private System.Windows.Forms.TableLayoutPanel actionsTableLayout;
         private System.Windows.Forms.Panel MainPanel;
         private System.Windows.Forms.Splitter MainSplitter;
+        internal System.Windows.Forms.PictureBox Donate;
     }
 }
 
