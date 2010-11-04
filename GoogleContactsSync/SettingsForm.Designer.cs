@@ -66,22 +66,22 @@ namespace WebGear.GoogleContactsSync
             this.proxySettingsLinkLabel = new System.Windows.Forms.LinkLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.resetMatchesLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.Donate = new System.Windows.Forms.PictureBox();
             this.settingsGroupBox = new System.Windows.Forms.GroupBox();
             this.actionsTableLayout = new System.Windows.Forms.TableLayoutPanel();
             this.hideButton = new System.Windows.Forms.Button();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
-            this.Donate = new System.Windows.Forms.PictureBox();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.logGroupBox.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Donate)).BeginInit();
             this.settingsGroupBox.SuspendLayout();
             this.actionsTableLayout.SuspendLayout();
             this.MainPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Donate)).BeginInit();
             this.SuspendLayout();
             // 
             // Password
@@ -247,7 +247,7 @@ namespace WebGear.GoogleContactsSync
             this.autoSyncCheckBox.AutoSize = true;
             this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
-            this.autoSyncCheckBox.Size = new System.Drawing.Size(84, 17);
+            this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
             this.autoSyncCheckBox.TabIndex = 1;
             this.autoSyncCheckBox.Text = "&Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
@@ -294,7 +294,7 @@ namespace WebGear.GoogleContactsSync
             this.reportSyncResultCheckBox.AutoSize = true;
             this.reportSyncResultCheckBox.Location = new System.Drawing.Point(14, 65);
             this.reportSyncResultCheckBox.Name = "reportSyncResultCheckBox";
-            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(226, 17);
+            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(190, 17);
             this.reportSyncResultCheckBox.TabIndex = 6;
             this.reportSyncResultCheckBox.Text = "Re&port Sync Result in System Tray";
             this.reportSyncResultCheckBox.UseVisualStyleBackColor = true;
@@ -304,7 +304,7 @@ namespace WebGear.GoogleContactsSync
             this.runAtStartupCheckBox.AutoSize = true;
             this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
-            this.runAtStartupCheckBox.Size = new System.Drawing.Size(160, 17);
+            this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
             this.runAtStartupCheckBox.TabIndex = 0;
             this.runAtStartupCheckBox.Text = "&Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
@@ -356,7 +356,7 @@ namespace WebGear.GoogleContactsSync
             this.btSyncDelete.AutoSize = true;
             this.btSyncDelete.Location = new System.Drawing.Point(8, 46);
             this.btSyncDelete.Name = "btSyncDelete";
-            this.btSyncDelete.Size = new System.Drawing.Size(105, 17);
+            this.btSyncDelete.Size = new System.Drawing.Size(92, 17);
             this.btSyncDelete.TabIndex = 2;
             this.btSyncDelete.Text = "Sync &Deletion";
             this.toolTip.SetToolTip(this.btSyncDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -465,6 +465,22 @@ namespace WebGear.GoogleContactsSync
                     "\r\nclick  this link.");
             this.resetMatchesLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.resetMatchesLinkLabel_LinkClicked);
             // 
+            // Donate
+            // 
+            this.Donate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Donate.BackColor = System.Drawing.Color.Transparent;
+            this.Donate.Image = ((System.Drawing.Image)(resources.GetObject("Donate.Image")));
+            this.Donate.Location = new System.Drawing.Point(12, 447);
+            this.Donate.Name = "Donate";
+            this.Donate.Size = new System.Drawing.Size(34, 34);
+            this.Donate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.Donate.TabIndex = 4;
+            this.Donate.TabStop = false;
+            this.toolTip.SetToolTip(this.Donate, resources.GetString("Donate.ToolTip"));
+            this.Donate.Click += new System.EventHandler(this.Donate_Click);
+            this.Donate.MouseEnter += new System.EventHandler(this.Donate_MouseEnter);
+            this.Donate.MouseLeave += new System.EventHandler(this.Donate_MouseLeave);
+            // 
             // settingsGroupBox
             // 
             this.settingsGroupBox.Controls.Add(this.groupBox1);
@@ -528,22 +544,6 @@ namespace WebGear.GoogleContactsSync
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
-            // Donate
-            // 
-            this.Donate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Donate.BackColor = System.Drawing.Color.Transparent;
-            this.Donate.Image = ((System.Drawing.Image)(resources.GetObject("Donate.Image")));
-            this.Donate.Location = new System.Drawing.Point(12, 447);
-            this.Donate.Name = "Donate";
-            this.Donate.Size = new System.Drawing.Size(34, 34);
-            this.Donate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.Donate.TabIndex = 4;
-            this.Donate.TabStop = false;
-            this.toolTip.SetToolTip(this.Donate, resources.GetString("Donate.ToolTip"));
-            this.Donate.Click += new System.EventHandler(this.Donate_Click);
-            this.Donate.MouseEnter += new System.EventHandler(this.Donate_MouseEnter);
-            this.Donate.MouseLeave += new System.EventHandler(this.Donate_MouseLeave);
-            // 
             // SettingsForm
             // 
             this.AcceptButton = this.syncButton;
@@ -580,10 +580,10 @@ namespace WebGear.GoogleContactsSync
             this.logGroupBox.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Donate)).EndInit();
             this.settingsGroupBox.ResumeLayout(false);
             this.actionsTableLayout.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.Donate)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
