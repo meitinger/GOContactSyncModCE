@@ -159,6 +159,7 @@
     </Compile>
     <BaseApplicationManifest Include="Properties\app.manifest" />
     <None Include="App.config" />
+    <None Include="COPYING.rtf" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

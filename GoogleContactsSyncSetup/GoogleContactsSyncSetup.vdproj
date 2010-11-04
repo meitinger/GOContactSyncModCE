@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_17571A62FE2F4966A86B8DD7050871B7"
+        "MsmKey" = "8:_17C96A08C0C04AB99C55461B72206B9C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -95,6 +95,12 @@
         {
         "MsmKey" = "8:_C5EC5372C42568A29DB2B96D648F4D25"
         "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EEF5B1E061E94324A394BC6D6E07F65D"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -243,12 +249,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17571A62FE2F4966A86B8DD7050871B7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17C96A08C0C04AB99C55461B72206B9C"
             {
-            "SourcePath" = "8:..\\GoogleContactsSync\\COPYING"
-            "TargetName" = "8:COPYING"
+            "SourcePath" = "8:..\\GoogleContactsSync\\GO Contact Sync Homepage.url"
+            "TargetName" = "8:GO Contact Sync Homepage.url"
             "Tag" = "8:"
-            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Folder" = "8:_99468F6157464557B314B5D0134F2987"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -458,6 +464,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EEF5B1E061E94324A394BC6D6E07F65D"
+            {
+            "SourcePath" = "8:..\\GoogleContactsSync\\COPYING.rtf"
+            "TargetName" = "8:COPYING.rtf"
+            "Tag" = "8:"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -515,7 +541,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:GO Contact Sync Mod"
         "ProductCode" = "8:{D470B831-D85F-43CA-8DEC-A75A748AE29A}"
-        "PackageCode" = "8:{E8DFA513-A578-431E-B58F-B8559C8A0F86}"
+        "PackageCode" = "8:{0E845CF3-6F64-4667-98A1-162489C2F5EA}"
         "UpgradeCode" = "8:{170B4620-F5BB-4D2E-97A1-239D79030F20}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -829,6 +855,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
+                            "Value" = "8:_EEF5B1E061E94324A394BC6D6E07F65D"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "Sunken"
@@ -917,6 +944,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
+                            "Value" = "8:_EEF5B1E061E94324A394BC6D6E07F65D"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "Sunken"
