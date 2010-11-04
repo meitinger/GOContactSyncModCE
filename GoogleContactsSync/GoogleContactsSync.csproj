@@ -117,6 +117,7 @@
     </Compile>
     <Compile Include="DuplicateDataException.cs" />
     <Compile Include="Encryption.cs" />
+    <Compile Include="ErrorHandler.cs" />
     <Compile Include="IConflictResolver.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="SettingsForm.cs">
@@ -157,6 +158,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <BaseApplicationManifest Include="Properties\app.manifest" />
+    <None Include="App.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

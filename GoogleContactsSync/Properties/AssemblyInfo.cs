@@ -6,8 +6,8 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GO Contact Sync")]
-[assembly: AssemblyDescription("Synchronize your Outlook and Google contacts")]
+[assembly: AssemblyTitle("GO Contact Sync Mod")]
+[assembly: AssemblyDescription("Synchronize your Outlook and Google contacts. Visit our Project Homepage at http://googlesyncmod.sourceforge.net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WebGear Ltd, New Zealand + Create Software + Stru.be")]
 [assembly: AssemblyProduct("GO Contact Sync, updated by Create Software and Stru.be")]

@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Threading;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace WebGear.GoogleContactsSync
 {
@@ -85,6 +86,8 @@ namespace WebGear.GoogleContactsSync
                 autoSyncInterval.Value = Convert.ToDecimal(regKeyAppRoot.GetValue("AutoSyncInterval"));
             if (regKeyAppRoot.GetValue("AutoStart") != null)
                 runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
+            if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
+                reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
 
             autoSyncCheckBox_CheckedChanged(null, null);
         }
@@ -103,6 +106,7 @@ namespace WebGear.GoogleContactsSync
             regKeyAppRoot.SetValue("AutoSync", autoSyncCheckBox.Checked.ToString());
             regKeyAppRoot.SetValue("AutoSyncInterval", autoSyncInterval.Value.ToString());
             regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
+            regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
         }
 
         private bool ValidCredentials
@@ -125,9 +129,7 @@ namespace WebGear.GoogleContactsSync
                 box.BackColor = Color.LightPink;
             else
                 box.BackColor = Color.LightGreen;
-
         }
-
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -135,73 +137,90 @@ namespace WebGear.GoogleContactsSync
         }
         private void Sync()
         {
-            if (!ValidCredentials)
-                return;
+            try
+            {
+                if (!ValidCredentials)
+                    return;
 
-            //Sync_ThreadStarter();
+                //Sync_ThreadStarter();
 
-            ThreadStart starter = new ThreadStart(Sync_ThreadStarter);
-            Thread thread = new Thread(starter);
-            thread.Start();
+                ThreadStart starter = new ThreadStart(Sync_ThreadStarter);
+                Thread thread = new Thread(starter);
+                thread.Start();
 
-            // wait for thread to start
-            while (!thread.IsAlive)
-                Thread.Sleep(1);
+                // wait for thread to start
+                while (!thread.IsAlive)
+                    Thread.Sleep(1);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
         }
 
         private void Sync_ThreadStarter()
         {
-            TimerSwitch(false);
-            SetLastSyncText("Syncing...");
-            SetFormEnabled(false);
-
-            if (_sync == null)
-            {
-                _sync = new Syncronizer();
-                _sync.Logger = new Logger();
-                _sync.DuplicatesFound += new Syncronizer.NotificationHandler(_sync_DuplicatesFound);
-                _sync.ErrorEncountered += new Syncronizer.NotificationHandler(_sync_ErrorEncountered);
-                _sync.Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
-            }
-
-            _sync.Logger.ClearLog();
-            SetSyncConsoleText("");
-            _sync.Logger.Log("Sync started.", EventType.Information);
-            //SetSyncConsoleText(_sync.Logger.GetText());
-            _sync.SyncProfile = tbSyncProfile.Text;
-            _sync.SyncOption = _syncOption;
-
             try
             {
-                _sync.LoginToGoogle(UserName.Text, Password.Text);
-                _sync.LoginToOutlook();
+                TimerSwitch(false);
+                SetLastSyncText("Syncing...");
+                SetFormEnabled(false);
 
-                _sync.Sync();
+                if (_sync == null)
+                {
+                    _sync = new Syncronizer();
+                    _sync.Logger = new Logger();
+                    _sync.DuplicatesFound += new Syncronizer.NotificationHandler(_sync_DuplicatesFound);
+                    _sync.ErrorEncountered += new Syncronizer.NotificationHandler(_sync_ErrorEncountered);
+                    _sync.Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
+                }
 
-                SetLastSyncText("Last synced at " + lastSync.ToString());
-                _sync.Logger.Log("Sync complete.", EventType.Information);
+                _sync.Logger.ClearLog();
+                SetSyncConsoleText("");
+                _sync.Logger.Log("Sync started.", EventType.Information);
                 //SetSyncConsoleText(_sync.Logger.GetText());
+                _sync.SyncProfile = tbSyncProfile.Text;
+                _sync.SyncOption = _syncOption;
 
-                notifyIcon.BalloonTipTitle = "Complete";
-                notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount);
-                notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-                notifyIcon.ShowBalloonTip(5000);
+                try
+                {
+                    _sync.LoginToGoogle(UserName.Text, Password.Text);
+                    _sync.LoginToOutlook();
+
+                    _sync.Sync();
+
+                    SetLastSyncText("Last synced at " + lastSync.ToString());
+                    _sync.Logger.Log("Sync complete.", EventType.Information);
+                    //SetSyncConsoleText(_sync.Logger.GetText());
+
+                    if (reportSyncResultCheckBox.Checked)
+                    {
+                        notifyIcon.BalloonTipTitle = "Complete";
+                        notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount);
+                        notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                        notifyIcon.ShowBalloonTip(5000);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _sync.Logger.Log(ex.Message, EventType.Error);
+                    //AppendSyncConsoleText(_sync.Logger.GetText());
+                    _sync.Logger.Log("Sync failed.", EventType.Error);
+
+                    notifyIcon.BalloonTipTitle = "Error";
+                    notifyIcon.BalloonTipText = ex.Message;
+                    notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                    notifyIcon.ShowBalloonTip(5000);
+
+                }
+                lastSync = DateTime.Now;
+                TimerSwitch(true);
+                SetFormEnabled(true);
             }
             catch (Exception ex)
             {
-                _sync.Logger.Log(ex.Message, EventType.Error);
-                //AppendSyncConsoleText(_sync.Logger.GetText());
-                _sync.Logger.Log("Sync failed.", EventType.Error);
-
-                notifyIcon.BalloonTipTitle = "Error";
-                notifyIcon.BalloonTipText = ex.Message;
-                notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-                notifyIcon.ShowBalloonTip(5000);
-
+                ErrorHandler.Handle(ex);
             }
-            lastSync = DateTime.Now;
-            TimerSwitch(true);
-            SetFormEnabled(true);
         }
 
         void Logger_LogUpdated(string Message)
@@ -307,21 +326,35 @@ namespace WebGear.GoogleContactsSync
         }
         private void SettingsForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (_sync != null)
-                _sync.LogoffOutlook();
+            try
+            {
+                if (_sync != null)
+                    _sync.LogoffOutlook();
 
-            SaveSettings();
+                SaveSettings();
 
-            notifyIcon.Dispose();
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
         }
 
         private void syncOptionBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int index = syncOptionBox.SelectedIndex;
-            if (index == -1)
-                return;
+            try
+            {
+                int index = syncOptionBox.SelectedIndex;
+                if (index == -1)
+                    return;
 
-            SetSyncOption(index);
+                SetSyncOption(index);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
         }
         private void SetSyncOption(int index)
         {
@@ -380,22 +413,29 @@ namespace WebGear.GoogleContactsSync
             Sync();
         }
 
-        private void resetMatchesButton_Click(object sender, EventArgs e)
+        private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (_sync == null)
+            try
             {
-                _sync = new Syncronizer();
-                _sync.Logger = new Logger();
+                if (_sync == null)
+                {
+                    _sync = new Syncronizer();
+                    _sync.Logger = new Logger();
+                }
+
+                _sync.LoginToGoogle(UserName.Text, Password.Text);
+                _sync.LoginToOutlook();
+
+                _sync.Load();
+
+                _sync.ResetMatches();
+
+                AppendSyncConsoleText(DateTime.Now + " Contacts unlinked" + Environment.NewLine);
             }
-
-            _sync.LoginToGoogle(UserName.Text, Password.Text);
-            _sync.LoginToOutlook();
-
-            _sync.Load();
-
-            _sync.ResetMatches();
-
-            AppendSyncConsoleText(DateTime.Now + " Contacts unlinked" + Environment.NewLine);
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
         }
 
         private void ShowForm()
@@ -440,7 +480,7 @@ namespace WebGear.GoogleContactsSync
             {
                 // this is the first load, show form
                 ShowForm();
-                UserName.Focus(); 
+                UserName.Focus();
             }
             else
                 HideForm();
@@ -511,6 +551,61 @@ namespace WebGear.GoogleContactsSync
         {
             Donate.BackColor = System.Drawing.Color.Transparent;
         }
+
+        private void hideButton_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void proxySettingsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // TODO: Implement a dialog with proxy settings and use them when connecting with Google
+
+            // Alpha quick'm'dirty workaround solution
+            try
+            {
+                if (MessageBox.Show("The proxy configuration is in beta stage, a more comfortable solution is to come. For now, you have to edit the Applications Config file with administrator privileges.\n\nOpen Configuration file now?",
+                    "Googlel Contact Sync", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
+                {
+                    try
+                    {
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.Arguments = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                        // full path not required, notepad is usually installed in system directory
+                        psi.FileName = "notepad.exe";
+                        // Vista and Win7 UAC Control
+                        psi.Verb = "runas";
+                        Process.Start(psi);
+                    }
+                    catch (Exception)
+                    {
+                        // fallback if notepad is not found/installed
+                        // in default configuration this will open Internet Explorer, but user can then see the path and open an editor himself
+                        Process.Start(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
+        }
+
+        private void SettingsForm_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            ShowHelp();
+        }
+
+        private void SettingsForm_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            ShowHelp();
+        }
+
+        private void ShowHelp()
+        {
+            Process.Start("https://sourceforge.net/projects/googlesyncmod/support");
+        }
+
     }
 
     //internal class EventLogger : ILogger

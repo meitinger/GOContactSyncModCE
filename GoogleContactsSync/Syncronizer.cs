@@ -197,10 +197,18 @@ namespace WebGear.GoogleContactsSync
 
         public void LogoffOutlook()
         {
-            Logger.Log("Disconnecting from Outlook...", EventType.Information);
-            if (_outlookNamespace != null)
+            try
             {
-                _outlookNamespace.Logoff();
+                Logger.Log("Disconnecting from Outlook...", EventType.Information);
+                if (_outlookNamespace != null)
+                {
+                    _outlookNamespace.Logoff();
+                }
+            }
+            catch (Exception)
+            {
+                // if outlook was closed inbetween, we get an System.InvalidCastException or similar exception, that indicates that outlook cannot be acced anymore
+                // so as outlook is closed anyways, we just ignore the exception here
             }
         }
 

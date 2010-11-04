@@ -162,6 +162,10 @@ Google To Outlook Only:  Only updates Outlook contacts based on google contacts.
   <metadata name="syncTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>254, 17</value>
   </metadata>
+  <data name="proxySettingsLinkLabel.ToolTip" xml:space="preserve">
+    <value>By default the systems proxy settings are used. Go to Internet Explorer Settings and setup the proxy in the LAN Configuration.
+If alternate configuration is required or default setting does not work, click this link.</value>
+  </data>
   <data name="Donate.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
@@ -194,6 +198,10 @@ Google To Outlook Only:  Only updates Outlook contacts based on google contacts.
         w/Xih1kMZ8UFcHezKHYwBH/n++zQaZhTbupRm25SarCZU8ei+JhyNJwpdsBXhu+zs3FTPFnH/9r+vwFT
         j9a9JRKIDwAAAABJRU5ErkJggg==
 </value>
+  </data>
+  <data name="Donate.ToolTip" xml:space="preserve">
+    <value>Hi there! There are many ways in which you can help this project! Motivated programmers are very welcome, and if you can't program, donating is a great way to support the unpaid work of the software enthusiasts who brought this to you =) Thanks!
+Click here to go to the donation site of the project.</value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>42</value>

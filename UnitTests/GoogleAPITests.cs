@@ -67,7 +67,7 @@ namespace WebGear.GoogleContactsSync.UnitTests
                 //delete this temp contact
                 createdEntry.Delete();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
