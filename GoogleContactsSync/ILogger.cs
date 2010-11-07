@@ -23,25 +23,23 @@ namespace WebGear.GoogleContactsSync
         }
     }
 
-    class Logger
+    static class Logger
     {
-        public List<LogEntry> messages = new List<LogEntry>();
-        public delegate void LogUpdatedHandler(string Message);
-        public event LogUpdatedHandler LogUpdated;
+		public static List<LogEntry> messages = new List<LogEntry>();
+		public delegate void LogUpdatedHandler(string Message);
+		public static event LogUpdatedHandler LogUpdated;
         
-        public Logger() {}
-
-        private string formatMessage(string message, EventType eventType)
+        private static string formatMessage(string message, EventType eventType)
         {
             return String.Format("{0}:{1}{2}", eventType, Environment.NewLine, message);
         }
 
-        private string GetLogLine(LogEntry entry)
+		private static string GetLogLine(LogEntry entry)
         {
             return String.Format("[{0} | {1}]\t{2}\r\n", entry.date, entry.type, entry.msg);
         }
 
-        public void Log(string message, EventType eventType)
+		public static void Log(string message, EventType eventType)
         {
             LogEntry new_logEntry = new LogEntry(DateTime.Now, eventType, message);
             messages.Add(new_logEntry);
@@ -57,7 +55,7 @@ namespace WebGear.GoogleContactsSync
         }
         */
 
-        public void ClearLog()
+		public static void ClearLog()
         {
             messages.Clear();
         }

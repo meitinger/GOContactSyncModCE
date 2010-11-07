@@ -597,7 +597,7 @@ namespace WebGear.GoogleContactsSync
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button syncButton;
         private System.Windows.Forms.CheckedListBox syncOptionBox;
-        private System.Windows.Forms.NotifyIcon notifyIcon;
+        internal System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.NumericUpDown autoSyncInterval;
         private System.Windows.Forms.CheckBox autoSyncCheckBox;
         private System.Windows.Forms.Label label1;

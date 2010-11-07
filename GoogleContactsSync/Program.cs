@@ -6,6 +6,8 @@ namespace WebGear.GoogleContactsSync
 {
     static class Program
     {
+		private static SettingsForm instance;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -15,8 +17,14 @@ namespace WebGear.GoogleContactsSync
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SettingsForm());
+			instance = new SettingsForm();
+            Application.Run(instance);
         }
+
+		internal static SettingsForm Instance
+		{
+			get { return instance; }
+		}
 
         /// <summary>
         /// Fallback. If there is some try/catch missing we will handle it here, just before the application quits unhandled
