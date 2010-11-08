@@ -864,6 +864,8 @@ namespace WebGear.GoogleContactsSync
 		/// </summary>
 		public void ResetMatches()
 		{
+			Debug.Assert(Contacts != null, "Contacts object is null - this should not happen");
+
 			foreach (ContactMatch match in Contacts)
 			{
 				ResetMatch(match);

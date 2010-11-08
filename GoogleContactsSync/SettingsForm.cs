@@ -206,11 +206,14 @@ namespace WebGear.GoogleContactsSync
 				}
 				lastSync = DateTime.Now;
 				TimerSwitch(true);
-				SetFormEnabled(true);
 			}
 			catch (Exception ex)
 			{
 				ErrorHandler.Handle(ex);
+			}
+			finally
+			{
+				SetFormEnabled(true);
 			}
 		}
 
@@ -411,6 +414,9 @@ namespace WebGear.GoogleContactsSync
 
 		private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
+			SetFormEnabled(false);
+			// force deactivation to show up
+			Application.DoEvents();
 			try
 			{
 				if (_sync == null)
@@ -430,6 +436,10 @@ namespace WebGear.GoogleContactsSync
 			catch (Exception ex)
 			{
 				ErrorHandler.Handle(ex);
+			}
+			finally
+			{
+				SetFormEnabled(true);
 			}
 		}
 
