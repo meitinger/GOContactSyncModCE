@@ -559,7 +559,7 @@ namespace WebGear.GoogleContactsSync
 			try
 			{
 				if (MessageBox.Show("The proxy configuration is in beta stage, a more comfortable solution is to come. For now, you have to edit the Applications Config file with administrator privileges.\n\nOpen Configuration file now?",
-					"Googlel Contact Sync", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
+					"Google Contact Sync", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
 				{
 					StartFileSystemWatcher();
 					try
