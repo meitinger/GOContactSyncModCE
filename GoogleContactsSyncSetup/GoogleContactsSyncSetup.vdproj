@@ -28,13 +28,13 @@
         "Entry"
         {
         "MsmKey" = "8:_2637681C5175679288AE622AD5F3D073"
-        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_2637681C5175679288AE622AD5F3D073"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -70,13 +70,13 @@
         "Entry"
         {
         "MsmKey" = "8:_8D4B2A1AFD772DFFD6856F4F74B6186B"
-        "OwnerKey" = "8:_2637681C5175679288AE622AD5F3D073"
+        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_8D4B2A1AFD772DFFD6856F4F74B6186B"
-        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
+        "OwnerKey" = "8:_2637681C5175679288AE622AD5F3D073"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -88,13 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_C5EC5372C42568A29DB2B96D648F4D25"
-        "OwnerKey" = "8:_4A752224454C3423EB491D7F591A0BE3"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_C5EC5372C42568A29DB2B96D648F4D25"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "OwnerKey" = "8:_4A752224454C3423EB491D7F591A0BE3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -112,25 +112,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4A752224454C3423EB491D7F591A0BE3"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_C5EC5372C42568A29DB2B96D648F4D25"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
+        "OwnerKey" = "8:_4A752224454C3423EB491D7F591A0BE3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_2637681C5175679288AE622AD5F3D073"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7B3493E4F508AD39B56225A3A22A7CA1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -254,7 +254,7 @@
             "SourcePath" = "8:..\\GoogleContactsSync\\GO Contact Sync Homepage.url"
             "TargetName" = "8:GO Contact Sync Homepage.url"
             "Tag" = "8:"
-            "Folder" = "8:_99468F6157464557B314B5D0134F2987"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -522,6 +522,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_A72DB3C16CB8415995E753C547CE660E"
+                    {
+                    "Name" = "8:Google Contact Sync"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_1448C2FC44994A39A8815C682D4344AA"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }
@@ -540,23 +551,23 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:GO Contact Sync Mod"
-        "ProductCode" = "8:{D470B831-D85F-43CA-8DEC-A75A748AE29A}"
-        "PackageCode" = "8:{0E845CF3-6F64-4667-98A1-162489C2F5EA}"
+        "ProductCode" = "8:{DA6A4E27-24FB-425B-814F-4EDD81547F25}"
+        "PackageCode" = "8:{99140BC6-DEA3-4F0F-830B-B1DA87BAB4C4}"
         "UpgradeCode" = "8:{170B4620-F5BB-4D2E-97A1-239D79030F20}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.0"
+        "ProductVersion" = "8:2.1"
         "Manufacturer" = "8:WebGear, Create Software, Stru.be"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://googlesyncmod.sourceforge.net/"
-        "Title" = "8:GO Contact Sync"
+        "Title" = "8:GO Contact Sync Mod"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Mikhail Diatchenko, Clément Pit--Claudel (Create Software), Stefan Strube (Stru.be)"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:GO Contact Sync is a tool that synchronizes your contacts between Microsoft Microsoft Outlook and Google Mail. It supports contact categories and contact photos."
+        "ARPCOMMENTS" = "8:GO Contact Sync Mod is a tool that synchronizes your contacts between Microsoft Microsoft Outlook and Google Mail. It supports contact categories and contact photos."
         "ARPURLINFOABOUT" = "8:http://googlesyncmod.sourceforge.net/"
         "ARPPRODUCTICON" = "8:_449A09D626FD4A6C9AEE1F387A23D13C"
         "ARPIconIndex" = "3:0"
@@ -670,9 +681,23 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
-            "Folder" = "8:_99468F6157464557B314B5D0134F2987"
+            "Folder" = "8:_A72DB3C16CB8415995E753C547CE660E"
             "WorkingFolder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
             "Icon" = "8:_449A09D626FD4A6C9AEE1F387A23D13C"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_69AAA32BA8EA48B9803CEBAB1540A9AE"
+            {
+            "Name" = "8:Visit GO Contact Sync Mod on Sourceforge"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_17C96A08C0C04AB99C55461B72206B9C"
+            "Folder" = "8:_A72DB3C16CB8415995E753C547CE660E"
+            "WorkingFolder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
         }
@@ -1182,7 +1207,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8A4A20DC9841455BB5FD97B9DF38A24E"
             {
-            "SourcePath" = "8:..\\GoogleContactsSync\\obj\\Release\\GOContactSync.exe"
+            "SourcePath" = "8:..\\GoogleContactsSync\\obj\\Debug\\GOContactSync.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
