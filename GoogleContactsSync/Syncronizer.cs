@@ -183,7 +183,14 @@ namespace WebGear.GoogleContactsSync
 			{
 				if (_outlookApp == null)
 				{
-					_outlookApp = new Outlook.Application();
+					try
+					{
+						_outlookApp = new Outlook.Application();
+					}
+					catch (Exception ex)
+					{
+						throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
+					}
 
 					_outlookNamespace = _outlookApp.GetNamespace("mapi");
 				}
@@ -204,7 +211,7 @@ namespace WebGear.GoogleContactsSync
 				}
 				catch (Exception ex)
 				{
-					string message = String.Format("Cannot connect to Outlook: {0}.\nPlease restart GO Contact Sync and try again. If error persists, please inform developers on SourceForge.", ex.Message);
+					string message = String.Format("Cannot connect to Outlook: {0}. \nPlease restart GO Contact Sync Mod and try again. If error persists, please inform developers on SourceForge.", ex.Message);
 					// Error again? We need full stacktrace, display it!
 					ErrorHandler.Handle(new ApplicationException(message, ex));
 				}
@@ -305,7 +312,7 @@ namespace WebGear.GoogleContactsSync
 			}
 			catch (System.Net.WebException ex)
 			{
-				string message = string.Format("Cannot connect to Google: {0}\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
+				string message = string.Format("Cannot connect to Google: {0}. \nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
 				Logger.Log(message, EventType.Error);
 			}
 		}
@@ -387,7 +394,11 @@ namespace WebGear.GoogleContactsSync
 				catch (Exception ex)
 				{
 					if (ErrorEncountered != null)
-						ErrorEncountered("Error", ex, EventType.Error);
+					{
+						string message = String.Format("Failed to synchronize contact: {0}. \nPlease check the contact for too much or invalid data in the notes field. \nIf the problem persists, please try recreating the contact or report the error on SourceForge.", match.OutlookContact.FullNameAndCompany);
+						Exception newEx = new Exception(message, ex);
+						ErrorEncountered("Error", newEx, EventType.Error);
+					}
 					else
 						throw;
 				}
@@ -476,7 +487,7 @@ namespace WebGear.GoogleContactsSync
 				catch (Exception ex)
 				{
 					string xml = GetContactXml(match.GoogleContact);
-					string newEx = String.Format("Error saving NEW Google contact: {0}\n{1}", ex.Message, xml);
+					string newEx = String.Format("Error saving NEW Google contact: {0}. \n{1}", ex.Message, xml);
 					throw new ApplicationException(newEx, ex);
 				}
 			}
@@ -498,7 +509,7 @@ namespace WebGear.GoogleContactsSync
 				{
 					//match.GoogleContact.Summary
 					string xml = GetContactXml(match.GoogleContact);
-					string newEx = String.Format("Error saving EXISTING Google contact: {0}\n{1}", ex.Message, xml);
+					string newEx = String.Format("Error saving EXISTING Google contact: {0}. \n{1}", ex.Message, xml);
 					throw new ApplicationException(newEx, ex);
 				}
 			}

@@ -95,9 +95,14 @@ namespace WebGear.GoogleContactsSync
 					continue;
 				}
 
+				if (olc.Body != null && olc.Body.Length > 62000)
+				{
+					// notes field too large
+					Logger.Log(string.Format("Skipping outlook contact ({0}). Reduce the notes field to a maximum of 62.000 characters.", olc.FileAs), EventType.Warning);
+				}
 				// only match if there is either an email or telephone or else
 				// a matching google contact will be created at each sync
-				if (olc.Email1Address != null ||
+				else if (olc.Email1Address != null ||
 					olc.Email2Address != null ||
 					olc.Email3Address != null ||
 					olc.PrimaryTelephoneNumber != null ||
@@ -276,7 +281,7 @@ namespace WebGear.GoogleContactsSync
 				else
 				{
 					// no telephone and email
-					Logger.Log(string.Format("Skipping outlook contact ({0})", olc.FileAs), EventType.Warning);
+					Logger.Log(string.Format("Skipping outlook contact ({0}). Add e-mail address or phone number to synchronize.", olc.FileAs), EventType.Warning);
 				}
 			}
 

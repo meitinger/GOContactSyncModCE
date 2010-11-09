@@ -314,6 +314,17 @@ namespace WebGear.GoogleContactsSync
 			}
 		}
 
+		// Fix for WinXP and older systems, that do not continue with shutdown until all programs have closed
+		// FormClosing would hold system shutdown, when it sets the cancel to true
+		private static int WM_QUERYENDSESSION = 0x11;
+		protected override void WndProc(ref System.Windows.Forms.Message m)
+		{
+			if (m.Msg == WM_QUERYENDSESSION)
+				requestClose = true;
+
+			// If this is WM_QUERYENDSESSION, the form must exit and not just hide
+			base.WndProc(ref m);
+		} 
 		private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			if (!requestClose)
@@ -609,7 +620,7 @@ namespace WebGear.GoogleContactsSync
 				{
 					this.BeginInvoke((MethodInvoker)delegate
 					{
-						MessageBox.Show(this, "If you have changed your proxy configuration, restart the Program to take effect.", "GO Contact Sync");
+						MessageBox.Show(this, "If you have changed your proxy configuration, restart the Program to take effect.", "GO Contact Sync Mod");
 					});
 					// cleanup after we've notified the user
 					fsw.EnableRaisingEvents = false;

@@ -200,7 +200,11 @@ If alternate configuration is required or default setting does not work, click t
 </value>
   </data>
   <data name="Donate.ToolTip" xml:space="preserve">
-    <value>Hi there! There are many ways in which you can help this project! Motivated programmers are very welcome, and if you can't program, donating is a great way to support the unpaid work of the software enthusiasts who brought this to you =) Thanks!
+    <value>Hi there! There are many ways in which you can help this project! 
+Motivated programmers are very welcome, and if you can't program, 
+donating is a great way to support the unpaid work of the software 
+enthusiasts who brought this to you =) Thanks!
+
 Click here to go to the donation site of the project.</value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
