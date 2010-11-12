@@ -9,6 +9,8 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Drawing;
 using System.IO;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
+using System.Windows.Forms;
 
 namespace WebGear.GoogleContactsSync
 {
@@ -16,6 +18,7 @@ namespace WebGear.GoogleContactsSync
 	{
 		public const int OutlookUserPropertyMaxLength = 32;
 		public const string OutlookUserPropertyTemplate = "g/con/{0}/";
+		private static object _syncRoot = new object();
 
 		private int _totalCount;
 		public int TotalCount
@@ -194,8 +197,16 @@ namespace WebGear.GoogleContactsSync
 
 					_outlookNamespace = _outlookApp.GetNamespace("mapi");
 				}
-				/// TODO: RedemptioN?
-				_outlookNamespace.Logon("Outlook", null, true, false);
+
+				// Get default profile name from registry, as this is not always "Outlook" and would popup a dialog to choose profile
+				// no matter if default profile is set or not. So try to read the default profile, fallback is still "Outlook"
+				string profileName = "Outlook";
+				using (RegistryKey k = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Outlook\SocialConnector", false))
+				{
+					if (k != null)
+						profileName = k.GetValue("PrimaryOscProfile", "Outlook").ToString();
+				}
+				_outlookNamespace.Logon(profileName, null, true, false);
 			}
 			catch (System.Runtime.InteropServices.COMException)
 			{
@@ -358,29 +369,36 @@ namespace WebGear.GoogleContactsSync
 
 		public void Sync()
 		{
-			_syncedCount = 0;
-			_deletedCount = 0;
-
-			Load();
-
-			if (_matches == null)
-				return;
-
-			if (_syncProfile.Length == 0)
+			lock (_syncRoot)
 			{
-				Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
-				return;
+				_syncedCount = 0;
+				_deletedCount = 0;
+
+				Load();
+
+#if debug
+			this.DebugContacts();
+#endif
+
+				if (_matches == null)
+					return;
+
+				if (_syncProfile.Length == 0)
+				{
+					Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
+					return;
+				}
+
+				_totalCount = _matches.Count;
+
+				Logger.Log("Syncing groups...", EventType.Information);
+				ContactsMatcher.SyncGroups(this);
+
+				Logger.Log("Syncing contacts...", EventType.Information);
+				ContactsMatcher.SyncContacts(this);
+
+				SaveContacts(_matches);
 			}
-
-			_totalCount = _matches.Count;
-
-			Logger.Log("Syncing groups...", EventType.Information);
-			ContactsMatcher.SyncGroups(this);
-
-			Logger.Log("Syncing contacts...", EventType.Information);
-			ContactsMatcher.SyncContacts(this);
-
-			SaveContacts(_matches);
 		}
 
 		public void SaveContacts(ContactMatchList contacts)
@@ -875,17 +893,23 @@ namespace WebGear.GoogleContactsSync
 		/// </summary>
 		public void ResetMatches()
 		{
-			Debug.Assert(Contacts != null, "Contacts object is null - this should not happen");
-
-			foreach (ContactMatch match in Contacts)
+			Debug.Assert(Contacts != null, "Contacts object is null - this should not happen. Please inform Developers.");
+			lock (_syncRoot)
 			{
-				ResetMatch(match);
-			}
+				foreach (ContactMatch match in Contacts)
+				{
+					ResetMatch(match);
+				}
 
-			Contacts.Clear();
+				Debug.Assert(Contacts != null, "Contacts object is null after reset - this should not happen. Please inform Developers.");
+				Contacts.Clear();
+			}
 		}
 		public void ResetMatch(ContactMatch match)
 		{
+			if (match == null)
+				throw new ArgumentNullException("match", "Given ContactMatch is null");
+
 			if (match.GoogleContact != null)
 			{
 				ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, match.GoogleContact);
@@ -1053,6 +1077,17 @@ namespace WebGear.GoogleContactsSync
 					return i;
 			}
 			return -1;
+		}
+
+		internal void DebugContacts()
+		{
+			string msg = "DEBUG INFORMATION\nPlease submit to developer:\n\n{0}\n{1}\n{2}";
+
+			string oCount = "Outlook Contact Count: " + _outlookContacts.Count;
+			string gCount = "Google Contact Count: " + _googleContacts.Count;
+			string mCount = "Matches Count: " + _matches.Count;
+
+			MessageBox.Show(string.Format(msg, oCount, gCount, mCount), "DEBUG INFO", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 	}
 
