@@ -266,7 +266,8 @@ namespace WebGear.GoogleContactsSync
             if (outlookContact.Categories == null)
                 return new string[] { };
 
-            string[] categories = outlookContact.Categories.Split(',');
+            char[] listseparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator.ToCharArray();
+            string[] categories = outlookContact.Categories.Split(listseparator);
             for (int i = 0; i < categories.Length; i++)
             {
                 categories[i] = categories[i].Trim();
