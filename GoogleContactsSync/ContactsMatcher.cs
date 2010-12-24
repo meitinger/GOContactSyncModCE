@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
 using Google.GData.Client;
 using Google.GData.Contacts;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using System.Collections.ObjectModel;
 
 namespace WebGear.GoogleContactsSync
 {
@@ -33,11 +32,14 @@ namespace WebGear.GoogleContactsSync
 			//if no match - try to match by properties
 			//if no match - create a new match pair without google contact. 
 			//foreach (Outlook._ContactItem olc in outlookContacts)
+			Outlook.ContactItem olc;
 			for (int i = 1; i <= sync.OutlookContacts.Count; i++)
 			{
+				olc = null;
 				try
 				{
-					if (!(sync.OutlookContacts[i] is Outlook.ContactItem))
+					olc = sync.OutlookContacts[i] as Outlook.ContactItem;
+					if (olc == null)
 						continue;
 				}
 				catch
@@ -46,7 +48,28 @@ namespace WebGear.GoogleContactsSync
 					continue;
 				}
 
-				Outlook.ContactItem olc = sync.OutlookContacts[i] as Outlook.ContactItem;
+				// sometimes contacts throw Exception when accessing their properties, so we give it a controlled try first.
+				try
+				{
+					string email1Address = olc.Email1Address;
+				}
+				catch
+				{
+					string message;
+					try
+					{
+						message = string.Format("Can't access contact details for outlook contact {0}.", olc.FileAs);
+					}
+					catch
+					{
+						message = null;
+					}
+
+					if (olc != null && message != null) // it's useless to say "we couldn't access some contacts properties
+					{
+						Logger.Log(message, EventType.Warning);
+					}
+				}
 
 				// check if a duplicate
 				Collection<Outlook.ContactItem> duplicates;
