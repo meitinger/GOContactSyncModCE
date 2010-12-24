@@ -10,6 +10,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Remoting;
 
 namespace WebGear.GoogleContactsSync
 {
@@ -198,6 +199,17 @@ namespace WebGear.GoogleContactsSync
 						notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount);
 						notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
 						notifyIcon.ShowBalloonTip(5000);
+					}
+				}
+				catch (Google.GData.Client.GDataRequestException ex)
+				{
+					if (ex.InnerException is RemotingException)
+					{
+						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+ex.Message, EventType.Warning);
+					}
+					else
+					{
+						ErrorHandler.Handle(ex);
 					}
 				}
 				catch (Exception ex)
