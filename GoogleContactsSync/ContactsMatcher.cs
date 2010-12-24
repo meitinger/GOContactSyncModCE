@@ -69,6 +69,8 @@ namespace WebGear.GoogleContactsSync
 					{
 						Logger.Log(message, EventType.Warning);
 					}
+
+					continue;
 				}
 
 				// check if a duplicate
