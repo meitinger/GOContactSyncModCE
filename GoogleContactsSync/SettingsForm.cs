@@ -203,9 +203,9 @@ namespace WebGear.GoogleContactsSync
 				}
 				catch (Google.GData.Client.GDataRequestException ex)
 				{
-					if (ex.InnerException is RemotingException)
+					if (ex.InnerException is System.Net.WebException)
 					{
-						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+ex.Message, EventType.Warning);
+						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message, EventType.Warning);
 					}
 					else
 					{
