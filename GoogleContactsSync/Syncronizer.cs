@@ -11,6 +11,7 @@ using System.IO;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace WebGear.GoogleContactsSync
 {
@@ -195,7 +196,14 @@ namespace WebGear.GoogleContactsSync
 						throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
 					}
 
-					_outlookNamespace = _outlookApp.GetNamespace("mapi");
+					try
+					{
+						_outlookNamespace = _outlookApp.GetNamespace("mapi");
+					}
+					catch (COMException comEx)
+					{
+						throw new NotSupportedException("Could not conncet to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", comEx);
+					}
 				}
 
 				// Get default profile name from registry, as this is not always "Outlook" and would popup a dialog to choose profile
