@@ -6,7 +6,7 @@ using Google.GData.Contacts;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
 	internal static class ContactsMatcher
 	{
@@ -21,7 +21,7 @@ namespace WebGear.GoogleContactsSync
 		/// <param name="outlookContacts"></param>
 		/// <param name="googleContacts"></param>
 		/// <returns>Returns a list of match pairs (outlook contact + google contact) for all contact. Those that weren't matche will have it's peer set to null</returns>
-		public static ContactMatchList MatchContacts(Syncronizer sync)
+		public static ContactMatchList MatchContacts(Syncronizer sync, out DuplicateDataException duplicatesFound)
 		{
 			ContactMatchList result = new ContactMatchList(Math.Max(sync.OutlookContacts.Count, sync.GoogleContacts.Capacity));
 			int googleContactsMatched = 0;
@@ -82,7 +82,7 @@ namespace WebGear.GoogleContactsSync
 					{
 						if (!listingDuplicates)
 						{
-							duplicatesList = "Outlook contacts with the same email have been found. Please delete duplicates of:";
+							duplicatesList = "Outlook contacts with the same email have been found and cannot be synchronized. Please delete duplicates of:";
 							listingDuplicates = true;
 						}
 						string str = olc.FileAs + " (" + olc.Email1Address + ")";
@@ -312,7 +312,11 @@ namespace WebGear.GoogleContactsSync
 
 			if (listingDuplicates)
 			{
-				throw new DuplicateDataException(duplicatesList);
+				duplicatesFound = new DuplicateDataException(duplicatesList);
+			}
+			else
+			{
+				duplicatesFound = null;
 			}
 
 			//return result;

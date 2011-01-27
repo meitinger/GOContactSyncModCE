@@ -13,7 +13,7 @@ using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
 	internal class Syncronizer
 	{
@@ -363,15 +363,13 @@ namespace WebGear.GoogleContactsSync
 			LoadGoogleContacts();
 			LoadGoogleGroups();
 
-			try
+			DuplicateDataException duplicateDataException;
+			_matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
+			if (duplicateDataException != null)
 			{
-				_matches = ContactsMatcher.MatchContacts(this);
-			}
-			catch (DuplicateDataException ex)
-			{
-				Logger.Log(ex.Message, EventType.Error);
+				Logger.Log(duplicateDataException.Message, EventType.Error);
 				if (DuplicatesFound != null)
-					DuplicatesFound("Outlook duplicates found", ex.Message, EventType.Error);
+					DuplicatesFound("Outlook duplicates found", duplicateDataException.Message, EventType.Error);
 			}
 		}
 
@@ -444,7 +442,7 @@ namespace WebGear.GoogleContactsSync
 				{
 					//google contact was modified. save.
 					SaveGoogleContact(match);
-					Logger.Log("Saved Google contact: \"" + match.GoogleContact.Title.Text + "\".", EventType.Information);
+					Logger.Log("Updated Google contact from Outlook: \"" + match.GoogleContact.Title.Text + "\".", EventType.Information);
 				}
 
 				if (!match.OutlookContact.Saved)// || outlookChanged)
@@ -452,12 +450,33 @@ namespace WebGear.GoogleContactsSync
 					match.OutlookContact.Save();
 					ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
 
-					ContactEntry updatedEntry = match.GoogleContact.Update() as ContactEntry;
+					ContactEntry updatedEntry;
+					try
+					{
+						updatedEntry = match.GoogleContact.Update() as ContactEntry;
+					}
+					catch (GDataRequestException tmpEx)
+					{
+						// check if it's the known HTCData problem, or if there is any invalid XML element or any unescaped XML sequence
+						if (tmpEx.ResponseString.Contains("HTCData") || tmpEx.ResponseString.Contains("&#39") || match.GoogleContact.Content.Content.Contains("<"))
+						{
+							bool wasDirty = match.GoogleContact.Content.Dirty;
+							// XML escape the content
+							match.GoogleContact.Content.Content = EscapeXml(match.GoogleContact.Content.Content);
+							// set dirty to back, cause we don't want the changed content go back to Google without reason
+							match.GoogleContact.Content.Dirty = wasDirty;
+							updatedEntry = match.GoogleContact.Update() as ContactEntry;
+						}
+						else if (!String.IsNullOrEmpty(tmpEx.ResponseString))
+							throw new ApplicationException(tmpEx.ResponseString, tmpEx);
+						else
+							throw;
+					}
 					match.GoogleContact = updatedEntry;
 
 					ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
 					match.OutlookContact.Save();
-					Logger.Log("Saved Outlook contact: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
+					Logger.Log("Updated Outlook contact from Google: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
 
 					//TODO: this will cause the google contact to be updated on next run because Outlook's contact will be marked as saved later that Google's contact.
 				}
@@ -491,6 +510,11 @@ namespace WebGear.GoogleContactsSync
 				//TODO: ignore for now: throw new ArgumentNullException("To save contacts both ContactMatch peers must be present.");
 				Logger.Log("Both Google and Outlook contact: \"" + match.GoogleContact.Title.Text + "\" have been changed! Not implemented yet.", EventType.Warning);
 			}
+		}
+		private string EscapeXml(string xml)
+		{
+			string encodedXml = System.Security.SecurityElement.Escape(xml);
+			return encodedXml;
 		}
 		public void SaveGoogleContact(ContactMatch match)
 		{
@@ -624,80 +648,7 @@ namespace WebGear.GoogleContactsSync
 			//Utilities.DeleteTempPhoto();
 		}
 
-		///// <summary>
-		///// Syncs groups. googleChanged and outlookChanged are needed because not always
-		///// when a google contact's groups have changed does it become dirty.
-		///// </summary>
-		///// <param name="match"></param>
-		///// <param name="googleChanged"></param>
-		///// <param name="outlookChanged"></param>
-		//public void SaveContactGroups(ContactMatch match, out bool googleChanged, out bool outlookChanged)
-		//{
-		//    // get google groups
-		//    Collection<GroupEntry> groups = Utilities.GetGoogleGroups(this, match.GoogleContact);
-
-		//    // get outlook categories
-		//    string[] cats = Utilities.GetOutlookGroups(match.OutlookContact);
-
-		//    googleChanged = false;
-		//    outlookChanged = false;
-
-		//    if (groups.Count == 0 && cats.Length == 0)
-		//        return;
-
-		//    switch (SyncOption)
-		//    {
-		//        case SyncOption.MergeOutlookWins:
-		//            //overwrite google contact
-		//            OverwriteGoogleContactGroups(match.GoogleContact, groups, cats);
-		//            googleChanged = true;
-		//            break;
-		//        case SyncOption.MergeGoogleWins:
-		//            //overwrite outlook contact
-		//            OverwriteOutlookContactGroups(match.OutlookContact, cats, groups);
-		//            outlookChanged = true;
-		//            break;
-		//        case SyncOption.GoogleToOutlookOnly:
-		//            //overwrite outlook contact
-		//            OverwriteOutlookContactGroups(match.OutlookContact, cats, groups);
-		//            outlookChanged = true;
-		//            break;
-		//        case SyncOption.OutlookToGoogleOnly:
-		//            //overwrite google contact
-		//            OverwriteGoogleContactGroups(match.GoogleContact, groups, cats);
-		//            googleChanged = true;
-		//            break;
-		//        case SyncOption.MergePrompt:
-		//            //TODO: we can not rely on previously chosen option as it may be different for each contact.
-		//            if (CResolution == null)
-		//            {
-		//                //promp for sync option
-		//                ConflictResolver r = new ConflictResolver();
-		//                CResolution = r.Resolve(match.OutlookContact, match.GoogleContact);
-		//            }
-		//            switch (CResolution)
-		//            {
-		//                case ConflictResolution.Cancel:
-		//                    break;
-		//                case ConflictResolution.OutlookWins:
-		//                    //overwrite google contact
-		//                    OverwriteGoogleContactGroups(match.GoogleContact, groups, cats);
-		//                    //TODO: we don't actually know if groups has changed. if all groups were the same it hasn't changed
-		//                    googleChanged = true;
-		//                    break;
-		//                case ConflictResolution.GoogleWins:
-		//                    //overwrite outlook contact
-		//                    OverwriteOutlookContactGroups(match.OutlookContact, cats, groups);
-		//                    //TODO: we don't actually know if groups has changed. if all groups were the same it hasn't changed
-		//                    outlookChanged = true;
-		//                    break;
-		//                default:
-		//                    break;
-		//            }
-		//            break;
-		//    }
-		//}
-
+		
 		public GroupEntry SaveGoogleGroup(GroupEntry group)
 		{
 			//check if this group was not yet inserted on google.
@@ -733,57 +684,7 @@ namespace WebGear.GoogleContactsSync
 			}
 		}
 
-		///// <summary>
-		///// Updates Google contact's groups
-		///// </summary>
-		///// <param name="googleContact"></param>
-		///// <param name="currentGroups"></param>
-		///// <param name="newGroups"></param>
-		//public void OverwriteGoogleContactGroups(ContactEntry googleContact, Collection<GroupEntry> currentGroups, string[] newGroups)
-		//{
-		//    // remove obsolete groups
-		//    Collection<GroupEntry> remove = new Collection<GroupEntry>();
-		//    bool found;
-		//    foreach (GroupEntry group in currentGroups)
-		//    {
-		//        found = false;
-		//        foreach (string cat in newGroups)
-		//        {
-		//            if (group.Title.Text == cat)
-		//            {
-		//                found = true;
-		//                break;
-		//            }
-		//        }
-		//        if (!found)
-		//            remove.Add(group);
-		//    }
-		//    while (remove.Count != 0)
-		//    {
-		//        Utilities.RemoveGoogleGroup(googleContact, remove[0]);
-		//        remove.RemoveAt(0);
-		//    }
-
-		//    // add new groups
-		//    GroupEntry g;
-		//    foreach (string cat in newGroups)
-		//    {
-		//        if (!Utilities.ContainsGroup(this, googleContact, cat))
-		//        {
-		//            // (create and) add group to contact
-		//            g = GetGoogleGroupByName(cat);
-		//            if (g == null)
-		//            {
-		//                g = CreateGroup(cat);
-		//                SaveGoogleGroup(g);
-		//                LoadGoogleGroups();
-		//                g = GetGoogleGroupByName(cat);
-		//            }
-		//            Utilities.AddGoogleGroup(googleContact, g);
-		//        }
-		//    }
-		//}
-
+		
 		/// <summary>
 		/// Updates Google contact's groups
 		/// </summary>
@@ -836,45 +737,6 @@ namespace WebGear.GoogleContactsSync
 				}
 			}
 		}
-
-		///// <summary>
-		///// Updates Outlook contact's categories (groups)
-		///// </summary>
-		///// <param name="outlookContact"></param>
-		///// <param name="currentGroups"></param>
-		///// <param name="newGroups"></param>
-		//public void OverwriteOutlookContactGroups(Outlook.ContactItem outlookContact, string[] currentGroups, Collection<GroupEntry> newGroups)
-		//{
-		//    // remove obsolete groups
-		//    Collection<string> remove = new Collection<string>();
-		//    bool found;
-		//    foreach (string cat in currentGroups)
-		//    {
-		//        found = false;
-		//        foreach (GroupEntry group in newGroups)
-		//        {
-		//            if (group.Title.Text == cat)
-		//            {
-		//                found = true;
-		//                break;
-		//            }
-		//        }
-		//        if (!found)
-		//            remove.Add(cat);
-		//    }
-		//    while (remove.Count != 0)
-		//    {
-		//        Utilities.RemoveOutlookGroup(outlookContact, remove[0]);
-		//        remove.RemoveAt(0);
-		//    }
-
-		//    // add new groups
-		//    foreach (GroupEntry group in newGroups)
-		//    {
-		//        if (!Utilities.ContainsGroup(outlookContact, group.Title.Text))
-		//            Utilities.AddOutlookGroup(outlookContact, group.Title.Text);
-		//    }
-		//}
 
 		/// <summary>
 		/// Updates Outlook contact's categories (groups)
@@ -1020,39 +882,11 @@ namespace WebGear.GoogleContactsSync
 
 			return col;
 
-			//Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
-			//foreach (Outlook.ContactItem outlookContact in OutlookContacts)
-			//{
-			//    try
-			//    {
-			//        if (!(outlookContact is Outlook.ContactItem))
-			//            continue;
-			//    }
-			//    catch (Exception ex)
-			//    {
-			//        //this is needed because some contacts throw exceptions
-			//        continue;
-			//    }
-
-			//    if (outlookContact != null && (
-			//        outlookContact.Email1Address != null && outlookContact.Email1Address == email))
-			//    {
-			//        col.Add(outlookContact);
-			//    }
-			//}
-			//return col;
 		}
 
 		public GroupEntry GetGoogleGroupById(string id)
 		{
 			return _googleGroups.FindById(new AtomId(id)) as GroupEntry;
-
-			//foreach (GroupEntry group in _googleGroups)
-			//{
-			//    if (group.Id.AbsoluteUri == id)
-			//        return group;
-			//}
-			//return null;
 		}
 
 		public GroupEntry GetGoogleGroupByName(string name)

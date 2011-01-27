@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     partial class AboutBox : Form
     {

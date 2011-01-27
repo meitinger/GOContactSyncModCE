@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Collections.ObjectModel;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     public partial class DeleteDuplicatesForm : Form
     {

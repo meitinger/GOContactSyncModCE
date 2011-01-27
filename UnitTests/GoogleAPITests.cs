@@ -7,7 +7,7 @@ using Google.GData.Client;
 using Google.GData.Extensions;
 using System.Configuration;
 
-namespace WebGear.GoogleContactsSync.UnitTests
+namespace GoContactSyncMod.UnitTests
 {
     [TestFixture]
     public class GoogleAPITests

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using System.Reflection;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     static class ErrorHandler
     {
@@ -26,9 +27,17 @@ namespace WebGear.GoogleContactsSync
 				// this can fail if form was disposed or not created yet, so catch the exception - balloon is not that important to risk followup error
 			}
 
-            string message = "Sorry, an unexpected error occured.\nPlease support us fixing this problem. Go to\nhttps://sourceforge.net/projects/googlesyncmod/ and use the Tracker!\nHint: You can copy this message by pressing CTRL-C in the dialog box.\n\nError Details:\n{0}";
-            message = string.Format(message, ex.ToString());
-            MessageBox.Show(message, "Google Contact Sync");
+            string message = "Sorry, an unexpected error occured.\nPlease support us fixing this problem. Go to\nhttps://sourceforge.net/projects/googlesyncmod/ and use the Tracker!\nHint: You can copy this message by pressing CTRL-C in the dialog box.\nPlease check first if error has already been reported.\nProgram Version: {0}\n\nError Details:\n{1}";
+			message = string.Format(message, AssemblyVersion, ex.ToString());
+            MessageBox.Show(message, "GO Contact Sync Mod");
         }
+
+		private static string AssemblyVersion
+		{
+			get
+			{
+				return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			}
+		}
     }
 }

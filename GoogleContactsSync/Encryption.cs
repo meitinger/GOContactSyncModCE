@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     //class AccountEncryption
     internal partial class Encryption

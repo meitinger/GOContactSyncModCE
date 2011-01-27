@@ -1,4 +1,4 @@
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     partial class SettingsForm
     {
@@ -130,7 +130,7 @@ namespace WebGear.GoogleContactsSync
 			this.syncButton.Name = "syncButton";
 			this.syncButton.Size = new System.Drawing.Size(98, 25);
 			this.syncButton.TabIndex = 1;
-			this.syncButton.Text = "&Sync";
+			this.syncButton.Text = "S&ync";
 			this.syncButton.UseVisualStyleBackColor = true;
 			this.syncButton.Click += new System.EventHandler(this.button4_Click);
 			// 

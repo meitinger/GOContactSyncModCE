@@ -9,7 +9,7 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Threading;
 using System.Collections.ObjectModel;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     internal static class Utilities
     {

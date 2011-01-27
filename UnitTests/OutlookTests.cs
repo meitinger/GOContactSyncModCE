@@ -5,7 +5,7 @@ using NUnit.Framework;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Configuration;
 
-namespace WebGear.GoogleContactsSync.UnitTests
+namespace GoContactSyncMod.UnitTests
 {
     [TestFixture]
     public class OutlookTests

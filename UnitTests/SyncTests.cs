@@ -14,7 +14,7 @@ using System.IO;
 using System.Drawing;
 using System.Configuration;
 
-namespace WebGear.GoogleContactsSync.UnitTests
+namespace GoContactSyncMod.UnitTests
 {
     [TestFixture]
     public class SyncTests

@@ -1,4 +1,4 @@
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     partial class ContactPreview
     {

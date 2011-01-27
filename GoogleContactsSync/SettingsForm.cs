@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
 	internal partial class SettingsForm : Form
 	{
@@ -90,6 +90,8 @@ namespace WebGear.GoogleContactsSync
 				runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
 			if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
 				reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
+			if (regKeyAppRoot.GetValue("SyncDeletion") != null)
+				btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
 
 			autoSyncCheckBox_CheckedChanged(null, null);
 		}
@@ -109,6 +111,7 @@ namespace WebGear.GoogleContactsSync
 			regKeyAppRoot.SetValue("AutoSyncInterval", autoSyncInterval.Value.ToString());
 			regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
 			regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
+			regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
 		}
 
 		private bool ValidCredentials
@@ -592,7 +595,7 @@ namespace WebGear.GoogleContactsSync
 			try
 			{
 				if (MessageBox.Show("The proxy configuration is in beta stage, a more comfortable solution is to come. For now, you have to edit the Applications Config file with administrator privileges.\n\nOpen Configuration file now?",
-					"Google Contact Sync", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
+					"GO Contact Sync Mod", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
 				{
 					StartFileSystemWatcher();
 					try
@@ -655,7 +658,8 @@ namespace WebGear.GoogleContactsSync
 
 		private void ShowHelp()
 		{
-			Process.Start("https://sourceforge.net/projects/googlesyncmod/support");
+			// go to the page showing the help and howto instructions
+			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
 
 	}

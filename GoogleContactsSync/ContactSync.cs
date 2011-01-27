@@ -6,7 +6,7 @@ using Google.GData.Contacts;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
 	internal static class ContactSync
 	{

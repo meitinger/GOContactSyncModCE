@@ -6,7 +6,7 @@ using Google.GData.Client;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace WebGear.GoogleContactsSync
+namespace GoContactSyncMod
 {
     internal interface IConflictResolver
     {
