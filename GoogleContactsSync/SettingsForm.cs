@@ -169,6 +169,7 @@ namespace GoContactSyncMod
 			{
 				TimerSwitch(false);
 				SetLastSyncText("Syncing...");
+                notifyIcon.Text = "Go Contact Sync Mod\nSyncing...";
 				SetFormEnabled(false);
 
 				if (_sync == null)
@@ -192,6 +193,7 @@ namespace GoContactSyncMod
 
 					_sync.Sync();
 
+                    lastSync = DateTime.Now;
 					SetLastSyncText("Last synced at " + lastSync.ToString());
 					Logger.Log("Sync complete.", EventType.Information);
 					//SetSyncConsoleText(Logger.GetText());
@@ -199,8 +201,18 @@ namespace GoContactSyncMod
 					if (reportSyncResultCheckBox.Checked)
 					{
 						notifyIcon.BalloonTipTitle = "Complete";
-						notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount);
-						notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                        notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.\n Skipped: {4}.\n Errors: {5}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
+                        Logger.Log(notifyIcon.BalloonTipText, EventType.Information);
+                        string toolTip = string.Format("Go Contact Sync Mod\nLast sync completed: {0}\nWarnings: {1}.", DateTime.Now.ToString("HH:mm"), _sync.ErrorCount + _sync.SkippedCount);
+                        if (toolTip.Length >= 64)
+                            toolTip = toolTip.Substring(0,63);
+                        notifyIcon.Text = toolTip;
+                        if (_sync.ErrorCount > 0)
+                            notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                        else if (_sync.SkippedCount > 0)
+                            notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+                        else
+						    notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
 						notifyIcon.ShowBalloonTip(5000);
 					}
 				}
@@ -219,7 +231,7 @@ namespace GoContactSyncMod
 				{
 					ErrorHandler.Handle(ex);
 				}
-				lastSync = DateTime.Now;
+				
 				TimerSwitch(true);
 			}
 			catch (Exception ex)
@@ -289,7 +301,13 @@ namespace GoContactSyncMod
 				this.Invoke(h, new object[] { text });
 			}
 			else
+            {
 				syncConsole.Text = text;
+                //Scroll to bottom to always see the last log entry
+                syncConsole.SelectionStart = syncConsole.TextLength;
+                syncConsole.ScrollToCaret();
+            }
+
 		}
 		public void AppendSyncConsoleText(string text)
 		{
@@ -299,7 +317,12 @@ namespace GoContactSyncMod
 				this.Invoke(h, new object[] { text });
 			}
 			else
+            {
 				syncConsole.Text += text;
+                //Scroll to bottom to always see the last log entry
+                syncConsole.SelectionStart = syncConsole.TextLength;
+                syncConsole.ScrollToCaret();
+            }
 		}
 		public void TimerSwitch(bool value)
 		{
@@ -439,7 +462,10 @@ namespace GoContactSyncMod
 		}
 
 		private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
+        {
+            Logger.ClearLog();
+            SetSyncConsoleText("");
+
 			SetFormEnabled(false);
 			// force deactivation to show up
 			Application.DoEvents();
@@ -452,7 +478,9 @@ namespace GoContactSyncMod
 
 				_sync.LoginToGoogle(UserName.Text, Password.Text);
 				_sync.LoginToOutlook();
+                _sync.SyncProfile = tbSyncProfile.Text;
 
+                //Load matches, but match them by properties, not sync id
 				_sync.Load();
 
 				_sync.ResetMatches();
@@ -469,11 +497,11 @@ namespace GoContactSyncMod
 			}
 		}
 
-		private void ShowForm()
-		{
-			Show();
-			WindowState = FormWindowState.Normal;
-		}
+        private void ShowForm()
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
 		private void HideForm()
 		{
 			WindowState = FormWindowState.Minimized;
@@ -483,6 +511,7 @@ namespace GoContactSyncMod
 		private void toolStripMenuItem1_Click(object sender, EventArgs e)
 		{
 			ShowForm();
+            this.Activate();
 		}
 		private void toolStripMenuItem3_Click(object sender, EventArgs e)
 		{
@@ -661,6 +690,7 @@ namespace GoContactSyncMod
 			// go to the page showing the help and howto instructions
 			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
+     
 
 	}
 
