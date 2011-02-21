@@ -13,7 +13,10 @@ namespace GoContactSyncMod
 {
     internal static class Utilities
     {
-        private static string tempPhotoPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempOutlookContactPhoto.jpg";
+        //private static string tempPhotoPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempOutlookContactPhoto.jpg";
+        //private static string tempPhotoPath = Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + @"\" + System.Windows.Forms.Application.ProductName + @"\TempOutlookContactPhoto.jpg";
+        private static string tempPhotoPath = Path.GetTempPath() + @"\TempOutlookContactPhoto.jpg";
+
 
         public static byte[] BitmapToBytes(Bitmap bitmap)
         {
@@ -47,6 +50,7 @@ namespace GoContactSyncMod
                 Bitmap pic = new Bitmap(image);
                 Stream s = client.OpenWrite(googleContact.PhotoEditUri.AbsoluteUri, "PUT");
                 byte[] bytes = BitmapToBytes(pic);
+                
                 s.Write(bytes, 0, bytes.Length);
                 s.Flush();
                 s.Close();
@@ -120,9 +124,13 @@ namespace GoContactSyncMod
                 foreach (Outlook.Attachment a in outlookContact.Attachments)
                 {
                     // CH Fixed this to Contains, due to outlook picture that looks like "ContactPicture_138382.jpg"
-                    if( a.DisplayName.ToUpper().Contains( "CONTACTPICTURE")) 
+                    if (a.DisplayName.ToUpper().Contains("CONTACTPICTURE") || a.DisplayName.ToUpper().Contains("CONTACTPHOTO"))
                     {
-                        a.SaveAsFile(tempPhotoPath);
+
+                        //TODO: Check why always the first added picture is returned
+                        //If you add another picture, still the old picture is saved to tempPhotoPath
+                        a.SaveAsFile(tempPhotoPath);                     
+
                         using (Image img = Image.FromFile(tempPhotoPath))
                         {
                             return new Bitmap(img);
