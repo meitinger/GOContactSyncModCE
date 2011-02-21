@@ -99,6 +99,8 @@ namespace GoContactSyncMod
         public static string GetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact)
         {
             Outlook.UserProperty idProp = outlookContact.UserProperties[sync.OutlookPropertyNameId];
+            if (idProp == null)
+                return null;
             string id = (string)idProp.Value;
             if (id == null)
                 throw new Exception();
@@ -107,22 +109,25 @@ namespace GoContactSyncMod
         public static void ResetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact)
         {
             Outlook.UserProperty idProp = outlookContact.UserProperties[sync.OutlookPropertyNameId];
+            Outlook.UserProperty lastSyncProp = outlookContact.UserProperties[sync.OutlookPropertyNameSynced];
 
-            if (idProp == null)
+            if (idProp == null && lastSyncProp == null)
                 return;
 
             IEnumerator en = outlookContact.UserProperties.GetEnumerator();
             int index = 1; // 1 based collection
             while (en.MoveNext())
             {
-                if (en.Current as Outlook.UserProperty == idProp)
+                if (en.Current as Outlook.UserProperty == idProp || en.Current as Outlook.UserProperty == lastSyncProp)
                 {
                     outlookContact.UserProperties.Remove(index);
-                    return;
+                    //Don't return to remove both properties, googleId and lastSynced
+                    //return;
                 }
                 index++;
             }
-            throw new Exception("Did not find prop.");
+
+            //throw new Exception("Did not find prop.");
         }
     }
 }
