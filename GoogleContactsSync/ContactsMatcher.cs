@@ -25,9 +25,11 @@ namespace GoContactSyncMod
 		{
             Logger.Log("Matching Outlook and Google contacts...", EventType.Information);
 			ContactMatchList result = new ContactMatchList(Math.Max(sync.OutlookContacts.Count, sync.GoogleContacts.Capacity));
-            string duplicateGoogleMatches = "";         
-
+            
+            string duplicateGoogleMatches = "";
+            string duplicateOutlookContacts = "";
             sync.GoogleContactDuplicates = new Collection<ContactMatch>();
+            sync.OutlookContactDuplicates = new Collection<ContactMatch>();
 
 			//for each outlook contact try to get google contact id from user properties
 			//if no match - try to match by properties
@@ -276,7 +278,40 @@ namespace GoContactSyncMod
 
                 if (match.AllGoogleContactMatches == null || match.AllGoogleContactMatches.Count == 0)
                 {
-                    Logger.Log(string.Format("No match found for outlook contact ({0})", olc.FileAs), EventType.Information);
+                    //Check, if this Outlook contact has a match in the google duplicates
+                    bool duplicateFound = false;
+                    foreach (ContactMatch duplicate in sync.GoogleContactDuplicates)
+                    {
+                        if (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.OutlookContact.FullName, StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.IsNullOrEmpty(olc.Email1Address) &&  (olc.Email1Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email1Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email1Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                      ) ||
+                        !string.IsNullOrEmpty(olc.Email2Address) && (olc.Email2Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email2Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email2Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                      ) ||
+                        !string.IsNullOrEmpty(olc.Email3Address) && (olc.Email3Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email3Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                      olc.Email3Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                      ) ||
+                        olc.MobileTelephoneNumber != null && olc.MobileTelephoneNumber.Equals(duplicate.OutlookContact.MobileTelephoneNumber)
+                        )
+                        {
+                            duplicateFound = true;
+                            sync.OutlookContactDuplicates.Add(match);
+                            if (string.IsNullOrEmpty(duplicateOutlookContacts))
+                                duplicateOutlookContacts = "Outlook contacts matching with duplicate Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete duplicates of:";
+
+                            string str = olc.FileAs + " (" + olc.Email1Address + ", " + olc.MobileTelephoneNumber + ")";
+                            if (!duplicateOutlookContacts.Contains(str))
+                                duplicateOutlookContacts += Environment.NewLine + str;
+                        }
+                    }
+
+                    if (!duplicateFound)
+                        Logger.Log(string.Format("No match found for outlook contact ({0})", olc.FileAs), EventType.Information);
                 }
                 else
                 {
@@ -311,8 +346,8 @@ namespace GoContactSyncMod
             }
             #endregion
 
-            if (!string.IsNullOrEmpty(duplicateGoogleMatches))
-                duplicatesFound = new DuplicateDataException(duplicateGoogleMatches);
+            if (!string.IsNullOrEmpty(duplicateGoogleMatches) && !string.IsNullOrEmpty(duplicateOutlookContacts))
+                duplicatesFound = new DuplicateDataException(duplicateGoogleMatches + Environment.NewLine + Environment.NewLine + duplicateOutlookContacts);
             else
                 duplicatesFound = null;
 

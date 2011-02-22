@@ -78,12 +78,12 @@ namespace GoContactSyncMod
 			get { return _outlookContacts; }
 		}
 
-        //private Collection<Outlook.ContactItem> _outlookContactDuplicates;
-        //public Collection<Outlook.ContactItem> OutlookContactDuplicates
-        //{
-        //    get { return _outlookContactDuplicates; }
-        //    set { _outlookContactDuplicates = value; }
-        //}
+        private Collection<ContactMatch> _outlookContactDuplicates;
+        public Collection<ContactMatch> OutlookContactDuplicates
+        {
+            get { return _outlookContactDuplicates; }
+            set { _outlookContactDuplicates = value; }
+        }
 
         private Collection<ContactMatch> _googleContactDuplicates;
         public Collection<ContactMatch> GoogleContactDuplicates
@@ -418,15 +418,27 @@ namespace GoContactSyncMod
 #endif
 
 				if (_matches == null)
-					return;	
-			
+					return;
+
+                _totalCount = _matches.Count;
+
                 //Remove Google duplicates from matches to be synced
                 if (_googleContactDuplicates != null)
                     foreach (ContactMatch match in _googleContactDuplicates)
                         if (_matches.Contains(match))
+                        {
+                            _skippedCount++;
                             _matches.Remove(match);
+                        }
 
-				_totalCount = _matches.Count;
+                //Remove Outlook duplicates from matches to be synced
+                if (_outlookContactDuplicates != null)
+                    foreach (ContactMatch match in _outlookContactDuplicates)
+                        if (_matches.Contains(match))
+                        {
+                            _skippedCount++;
+                            _matches.Remove(match);
+                        }
 
 				Logger.Log("Syncing groups...", EventType.Information);
 				ContactsMatcher.SyncGroups(this);
