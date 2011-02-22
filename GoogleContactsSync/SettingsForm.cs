@@ -185,7 +185,8 @@ namespace GoContactSyncMod
 				//SetSyncConsoleText(Logger.GetText());
 				_sync.SyncProfile = tbSyncProfile.Text;
 				_sync.SyncOption = _syncOption;
-
+                
+                string toolTip = "Go Contact Sync Mod\n";
 				try
 				{
 					_sync.LoginToGoogle(UserName.Text, Password.Text);
@@ -203,7 +204,9 @@ namespace GoContactSyncMod
 						notifyIcon.BalloonTipTitle = "Complete";
                         notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.\n Skipped: {4}.\n Errors: {5}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
                         Logger.Log(notifyIcon.BalloonTipText, EventType.Information);
-                        string toolTip = string.Format("Go Contact Sync Mod\nLast sync completed: {0}\nWarnings: {1}.", DateTime.Now.ToString("HH:mm"), _sync.ErrorCount + _sync.SkippedCount);
+                        toolTip += string.Format("Last sync completed: {0}", DateTime.Now.ToString("HH:mm"));
+                        if (_sync.ErrorCount + _sync.SkippedCount > 0)
+                            toolTip+= string.Format("\nWarnings: {0}.",  _sync.ErrorCount + _sync.SkippedCount);
                         if (toolTip.Length >= 64)
                             toolTip = toolTip.Substring(0,63);
                         notifyIcon.Text = toolTip;
@@ -218,6 +221,7 @@ namespace GoContactSyncMod
 				}
 				catch (Google.GData.Client.GDataRequestException ex)
 				{
+                    notifyIcon.Text = toolTip + "Sync failed";
 					if (ex.InnerException is System.Net.WebException)
 					{
 						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message, EventType.Warning);
@@ -229,6 +233,7 @@ namespace GoContactSyncMod
 				}
 				catch (Exception ex)
 				{
+                    notifyIcon.Text = toolTip + "Sync failed";
 					ErrorHandler.Handle(ex);
 				}
 				
