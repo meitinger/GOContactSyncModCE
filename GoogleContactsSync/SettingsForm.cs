@@ -169,7 +169,7 @@ namespace GoContactSyncMod
 			{
 				TimerSwitch(false);
 				SetLastSyncText("Syncing...");
-                notifyIcon.Text = "Go Contact Sync Mod\nSyncing...";
+                notifyIcon.Text = Application.ProductName + "\nSyncing...";
 				SetFormEnabled(false);
 
 				if (_sync == null)
@@ -186,7 +186,6 @@ namespace GoContactSyncMod
 				_sync.SyncProfile = tbSyncProfile.Text;
 				_sync.SyncOption = _syncOption;
                 
-                string toolTip = "Go Contact Sync Mod\n";
 				try
 				{
 					_sync.LoginToGoogle(UserName.Text, Password.Text);
@@ -199,17 +198,11 @@ namespace GoContactSyncMod
 					Logger.Log("Sync complete.", EventType.Information);
 					//SetSyncConsoleText(Logger.GetText());
 
-					if (reportSyncResultCheckBox.Checked)
+                    if (reportSyncResultCheckBox.Checked)
 					{
-						notifyIcon.BalloonTipTitle = "Complete";
+                        notifyIcon.BalloonTipTitle = Application.ProductName;
                         notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.\n Skipped: {4}.\n Errors: {5}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
-                        Logger.Log(notifyIcon.BalloonTipText, EventType.Information);
-                        toolTip += string.Format("Last sync completed: {0}", DateTime.Now.ToString("HH:mm"));
-                        if (_sync.ErrorCount + _sync.SkippedCount > 0)
-                            toolTip+= string.Format("\nWarnings: {0}.",  _sync.ErrorCount + _sync.SkippedCount);
-                        if (toolTip.Length >= 64)
-                            toolTip = toolTip.Substring(0,63);
-                        notifyIcon.Text = toolTip;
+                        
                         if (_sync.ErrorCount > 0)
                             notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
                         else if (_sync.SkippedCount > 0)
@@ -218,10 +211,18 @@ namespace GoContactSyncMod
 						    notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
 						notifyIcon.ShowBalloonTip(5000);
 					}
+                    Logger.Log(notifyIcon.BalloonTipText, EventType.Information);
+                    string toolTip = string.Format("{0}\nLast sync completed: {1}", Application.ProductName, DateTime.Now.ToString("HH:mm"));
+                    if (_sync.ErrorCount + _sync.SkippedCount > 0)
+                        toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
+                    if (toolTip.Length >= 64)
+                        toolTip = toolTip.Substring(0, 63);
+                    notifyIcon.Text = toolTip;
+
 				}
 				catch (Google.GData.Client.GDataRequestException ex)
 				{
-                    notifyIcon.Text = toolTip + "Sync failed";
+                    notifyIcon.Text = Application.ProductName + "\nSync failed";
 					if (ex.InnerException is System.Net.WebException)
 					{
 						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message, EventType.Warning);
@@ -233,7 +234,7 @@ namespace GoContactSyncMod
 				}
 				catch (Exception ex)
 				{
-                    notifyIcon.Text = toolTip + "Sync failed";
+                    notifyIcon.Text = Application.ProductName + "\nSync failed";
 					ErrorHandler.Handle(ex);
 				}
 				
