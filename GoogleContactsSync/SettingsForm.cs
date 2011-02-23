@@ -219,10 +219,12 @@ namespace GoContactSyncMod
                     if (toolTip.Length >= 64)
                         toolTip = toolTip.Substring(0, 63);
                     notifyIcon.Text = toolTip;
-
+                    
+                    TimerSwitch(true);
 				}
 				catch (Google.GData.Client.GDataRequestException ex)
 				{
+                    SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
 					if (ex.InnerException is System.Net.WebException)
 					{
@@ -235,11 +237,12 @@ namespace GoContactSyncMod
 				}
 				catch (Exception ex)
 				{
+                    SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
 					ErrorHandler.Handle(ex);
 				}
 				
-				TimerSwitch(true);
+
 			}
 			catch (Exception ex)
 			{
@@ -470,18 +473,24 @@ namespace GoContactSyncMod
 
 		private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Logger.ClearLog();
-            SetSyncConsoleText("");
 
-			SetFormEnabled(false);
 			// force deactivation to show up
 			Application.DoEvents();
 			try
 			{
+                TimerSwitch(false);
+                SetLastSyncText("Resetting matches...");
+                notifyIcon.Text = Application.ProductName + "\nResetting matches...";
+                SetFormEnabled(false);
+
 				if (_sync == null)
 				{
 					_sync = new Syncronizer();
 				}
+
+                Logger.ClearLog();
+                SetSyncConsoleText("");
+                Logger.Log("Reset Matches started.", EventType.Information);
 
 				_sync.LoginToGoogle(UserName.Text, Password.Text);
 				_sync.LoginToOutlook();
@@ -492,7 +501,10 @@ namespace GoContactSyncMod
 
 				_sync.ResetMatches();
 
-				AppendSyncConsoleText(DateTime.Now + " Contacts unlinked" + Environment.NewLine);
+                lastSync = DateTime.Now;
+                SetLastSyncText("Matches reset at " + lastSync.ToString());
+                Logger.Log("Matches reset.", EventType.Information);
+                TimerSwitch(true);
 			}
 			catch (Exception ex)
 			{
