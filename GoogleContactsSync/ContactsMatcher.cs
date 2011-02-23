@@ -12,8 +12,11 @@ namespace GoContactSyncMod
 	{
 		/// <summary>
 		/// Time tolerance in seconds - used when comparing date modified.
+        /// Less than 60 seconds doesn't make sense, as the lastSync is saved without seconds and if it is compared
+        /// with the LastUpdate dates of Google and Outlook, in the worst case you compare e.g. 15:59 with 16:00 and 
+        /// after truncating to minutes you compare 15:00 wiht 16:00
 		/// </summary>
-		public static int TimeTolerance = 20;
+		public static int TimeTolerance = 60 ;
 
 		/// <summary>
 		/// Matches outlook and google contact by a) google id b) properties.
@@ -530,7 +533,7 @@ namespace GoContactSyncMod
 
                 //determine if this contact pair were syncronized
                 //DateTime? lastUpdated = GetOutlookPropertyValueDateTime(match.OutlookContact, sync.OutlookPropertyNameUpdated);
-                DateTime? lastSynced = GetOutlookPropertyValueDateTime(match.OutlookContact, sync.OutlookPropertyNameSynced);
+                DateTime? lastSynced = ContactPropertiesUtils.GetOutlookLastSync(sync,  match.OutlookContact);
                 if (lastSynced.HasValue)
                 {
                     //contact pair was syncronysed before.
@@ -542,8 +545,8 @@ namespace GoContactSyncMod
                     DateTime lastUpdatedGoogle = match.GoogleContact.Updated.AddSeconds(-match.GoogleContact.Updated.Second);
 
                     //check if both outlok and google contacts where updated sync last sync
-                    if (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance
-                        && lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance)
+                    if (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance
+                        && lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance)
                     {
                         //both contacts were updated.
                         //options: 1) ignore 2) loose one based on SyncOption
@@ -596,15 +599,15 @@ namespace GoContactSyncMod
 
                     //check if outlook contact was updated (with X second tolerance)
                     if (sync.SyncOption != SyncOption.GoogleToOutlookOnly &&
-                        (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance ||
-                         lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance &&
+                        (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance ||
+                         lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance &&
                          sync.SyncOption == SyncOption.OutlookToGoogleOnly
                         )
                        )
                     {
                         //outlook contact was changed or changed Google contact will be overwritten
 
-                        if (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance && 
+                        if (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance && 
                             sync.SyncOption == SyncOption.OutlookToGoogleOnly)
                             Logger.Log("Google contact has been updated since last sync, but Outlook contact is overwriting Google because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
 
@@ -618,15 +621,15 @@ namespace GoContactSyncMod
 
                     //check if google contact was updated (with X second tolerance)
                     if (sync.SyncOption != SyncOption.OutlookToGoogleOnly &&
-                        (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance ||
-                         lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance &&
+                        (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance ||
+                         lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance &&
                          sync.SyncOption == SyncOption.GoogleToOutlookOnly
                         )
                        )
                     {
                         //google contact was changed or changed Outlook contact will be overwritten
 
-                        if (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds >= TimeTolerance &&
+                        if (lastUpdatedOutlook.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance &&
                             sync.SyncOption == SyncOption.GoogleToOutlookOnly)
                             Logger.Log("Outlook contact has been updated since last sync, but Google contact is overwriting Outlook because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
                         
@@ -713,16 +716,7 @@ namespace GoContactSyncMod
 			}
 
 			return null;
-		}
-
-		public static DateTime? GetOutlookPropertyValueDateTime(Outlook.ContactItem outlookContact, string propertyName)
-		{
-			Outlook.UserProperty prop = outlookContact.UserProperties[propertyName];
-			if (prop != null)
-				return (DateTime)prop.Value;
-			return null;
-		}
-        
+		}       
 
 
 		/// <summary>

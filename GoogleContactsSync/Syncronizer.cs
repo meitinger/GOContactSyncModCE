@@ -557,6 +557,7 @@ namespace GoContactSyncMod
 
         private void SaveOutlookContact(ContactMatch match)
         {
+            ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
             match.OutlookContact.Save();
             ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
 
@@ -693,7 +694,7 @@ namespace GoContactSyncMod
 					throw;
 				}
 			}
-		}
+		}         
 
         //public void SaveContactPhotos(ContactMatch match)
         //{
@@ -751,6 +752,7 @@ namespace GoContactSyncMod
                         throw new Exception("Could not save");
 
                     //Just save the Outlook Contact to have the same lastUpdate date as Google
+                    ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                     match.OutlookContact.Save();
                     outlookPhoto.Dispose();
                 }
@@ -774,6 +776,7 @@ namespace GoContactSyncMod
                 // add google photo to outlook
                 Image googlePhoto = Utilities.GetGooglePhoto(this, match.GoogleContact);
                 Utilities.SetOutlookPhoto(match.OutlookContact, googlePhoto);
+                ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                 match.OutlookContact.Save();
 
                 googlePhoto.Dispose();
@@ -781,6 +784,7 @@ namespace GoContactSyncMod
             else if (hasOutlookPhoto)
             {
                 match.OutlookContact.RemovePicture();
+                ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
                 match.OutlookContact.Save();
             }
         }

@@ -482,6 +482,7 @@ namespace GoContactSyncMod
                 SetLastSyncText("Resetting matches...");
                 notifyIcon.Text = Application.ProductName + "\nResetting matches...";
                 SetFormEnabled(false);
+                this.hideButton.Enabled = false;
 
 				if (_sync == null)
 				{
@@ -513,6 +514,7 @@ namespace GoContactSyncMod
 			finally
 			{
 				SetFormEnabled(true);
+                this.hideButton.Enabled = true;
 			}
 		}
 

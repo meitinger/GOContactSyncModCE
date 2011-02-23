@@ -73,6 +73,13 @@ namespace GoContactSyncMod
             }
         }
 
+        /// <summary>
+        /// Sets the syncId of the Outlook contact and the last sync date. 
+        /// Please assure to always call this function when saving OutlookItem
+        /// </summary>
+        /// <param name="sync"></param>
+        /// <param name="outlookContact"></param>
+        /// <param name="googleContact"></param>
         public static void SetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact, ContactEntry googleContact)
         {
             if (googleContact.Id.Uri == null)
@@ -90,11 +97,25 @@ namespace GoContactSyncMod
                 prop = outlookContact.UserProperties.Add(OutlookPropertyNameUpdated, Outlook.OlUserPropertyType.olDateTime, null, null);
             prop.Value = googleContact.Updated;*/
 
+            //Also set the OutlookLastSync date when setting a match between Outlook and Google to assure the lastSync updated when Outlook contact is saved afterwards
+            SetOutlookLastSync(sync, outlookContact);
+        }
+
+        public static void SetOutlookLastSync(Syncronizer sync, Outlook.ContactItem outlookContact)
+        {
             //save sync datetime
-            prop = outlookContact.UserProperties[sync.OutlookPropertyNameSynced];
+            Outlook.UserProperty prop = outlookContact.UserProperties[sync.OutlookPropertyNameSynced];
             if (prop == null)
                 prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameSynced, Outlook.OlUserPropertyType.olDateTime, null, null);
             prop.Value = DateTime.Now;
+        }
+
+        public static DateTime? GetOutlookLastSync(Syncronizer sync, Outlook.ContactItem outlookContact)
+        {
+            Outlook.UserProperty prop = outlookContact.UserProperties[sync.OutlookPropertyNameSynced];
+            if (prop != null)
+                return (DateTime)prop.Value;
+            return null;
         }
         public static string GetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact)
         {
@@ -114,19 +135,24 @@ namespace GoContactSyncMod
             if (idProp == null && lastSyncProp == null)
                 return;
 
+            List<int> indexesToBeRemoved = new List<int>();
             IEnumerator en = outlookContact.UserProperties.GetEnumerator();
-            int index = 1; // 1 based collection
-            while (en.MoveNext())
+            en.Reset();
+            int index = 1; // 1 based collection            
+            while (en.MoveNext())            
             {
                 if (en.Current as Outlook.UserProperty == idProp || en.Current as Outlook.UserProperty == lastSyncProp)
                 {
-                    outlookContact.UserProperties.Remove(index);
+                    indexesToBeRemoved.Add(index);
+                    //outlookContact.UserProperties.Remove(index);
                     //Don't return to remove both properties, googleId and lastSynced
                     //return;
                 }
                 index++;
             }
 
+            for (int i = indexesToBeRemoved.Count-1; i>=0 ; i--)
+                outlookContact.UserProperties.Remove(indexesToBeRemoved[i]);
             //throw new Exception("Did not find prop.");
         }
     }

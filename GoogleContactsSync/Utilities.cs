@@ -94,7 +94,7 @@ namespace GoContactSyncMod
             try
             {
                 outlookContact.AddPicture(fullImagePath);
-                outlookContact.Save();
+                //outlookContact.Save();
                 return true;
             }
             catch
