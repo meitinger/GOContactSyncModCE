@@ -43,7 +43,8 @@ namespace GoContactSyncMod
         {
             LogEntry new_logEntry = new LogEntry(DateTime.Now, eventType, message);
             messages.Add(new_logEntry);
-            LogUpdated(GetLogLine(new_logEntry));
+            if (LogUpdated != null)
+                LogUpdated(GetLogLine(new_logEntry));
         }
 
         /*
