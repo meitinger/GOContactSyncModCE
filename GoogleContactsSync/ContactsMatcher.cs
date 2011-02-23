@@ -165,8 +165,8 @@ namespace GoContactSyncMod
                     if (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(entry.Title.Text, StringComparison.InvariantCultureIgnoreCase) ||
                         !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(entry.Title.Text, StringComparison.InvariantCultureIgnoreCase) ||                        
                         !string.IsNullOrEmpty(olc.Email1Address) && FindEmail(olc.Email1Address, entry.Emails) != null ||
-                        !string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email1Address, entry.Emails) != null ||
-                        !string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email1Address, entry.Emails) != null ||
+                        !string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email2Address, entry.Emails) != null ||
+                        !string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email3Address, entry.Emails) != null ||
                         olc.MobileTelephoneNumber != null && FindPhone(olc.MobileTelephoneNumber, entry.Phonenumbers) != null
                         )
                     {
@@ -287,8 +287,8 @@ namespace GoContactSyncMod
                             (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Title.Text, StringComparison.InvariantCultureIgnoreCase) ||
                              !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.AllGoogleContactMatches[0].Title.Text, StringComparison.InvariantCultureIgnoreCase) ||
                              !string.IsNullOrEmpty(olc.Email1Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
-                             !string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
-                             !string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
+                             !string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email2Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
+                             !string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email3Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
                              olc.MobileTelephoneNumber != null && FindPhone(olc.MobileTelephoneNumber, duplicate.AllGoogleContactMatches[0].Phonenumbers) != null
                             ) ||
                             !string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
