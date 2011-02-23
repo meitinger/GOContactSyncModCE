@@ -102,11 +102,13 @@ namespace GoContactSyncMod
 
 		public static void SetAddresses(Outlook.ContactItem source, ContactEntry destination)
 		{
+            destination.PostalAddresses.Clear();
+
 			if (!string.IsNullOrEmpty(source.HomeAddress))
 			{
 				PostalAddress postalAddress = new PostalAddress();
 				postalAddress.Value = source.HomeAddress;
-				postalAddress.Primary = true;
+                postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsHome;
 				destination.PostalAddresses.Add(postalAddress);
 			}
@@ -132,6 +134,8 @@ namespace GoContactSyncMod
 
 		public static void SetIMs(Outlook.ContactItem source, ContactEntry destination)
 		{
+            destination.IMs.Clear();
+
 			if (!string.IsNullOrEmpty(source.IMAddress))
 			{
 				//IMAddress are expected to be in form of ([Protocol]: [Address]; [Protocol]: [Address])
@@ -156,6 +160,8 @@ namespace GoContactSyncMod
 
 		public static void SetEmails(Outlook.ContactItem source, ContactEntry destination)
 		{
+            destination.Emails.Clear();
+
 			if (!string.IsNullOrEmpty(source.Email1Address))
 			{
 				EMail primaryEmail = new EMail(source.Email1Address);
@@ -182,7 +188,9 @@ namespace GoContactSyncMod
 		}
 
 		public static void SetPhoneNumbers(Outlook.ContactItem source, ContactEntry destination)
-		{           
+		{
+            destination.Phonenumbers.Clear();
+
 			if (!string.IsNullOrEmpty(source.PrimaryTelephoneNumber))
 			{
 				PhoneNumber phoneNumber = new PhoneNumber(source.PrimaryTelephoneNumber);
@@ -282,6 +290,8 @@ namespace GoContactSyncMod
 
 		public static void SetCompanies(Outlook.ContactItem source, ContactEntry destination)
 		{
+            destination.Organizations.Clear();
+
 			if (!string.IsNullOrEmpty(source.Companies))
 			{
 				//Companies are expected to be in form of "[Company]; [Company]".
@@ -310,6 +320,9 @@ namespace GoContactSyncMod
 
 		public static void SetPhoneNumber(PhoneNumber phone, Outlook.ContactItem destination)
 		{
+            if (phone.Primary)
+                destination.PrimaryTelephoneNumber = phone.Value;
+
             if (phone.Rel == ContactsRelationships.IsHome)
             {
                 if (destination.HomeTelephoneNumber == null)
@@ -401,19 +414,14 @@ namespace GoContactSyncMod
 			if (slave.Title.Text == null)
 				slave.Title.Text = master.CompanyName;
 
-			slave.Emails.Clear();
 			SetEmails(master, slave);
 
-			slave.PostalAddresses.Clear();
 			SetAddresses(master, slave);
-
-			slave.Phonenumbers.Clear();
+			
 			SetPhoneNumbers(master, slave);
-
-			slave.Organizations.Clear();
+			
 			SetCompanies(master, slave);
 
-			slave.IMs.Clear();
 			SetIMs(master, slave);
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
@@ -457,7 +465,7 @@ namespace GoContactSyncMod
             slave.BusinessTelephoneNumber = null; //secondary: destination.Business2TelephoneNumber
 
 			foreach (PhoneNumber phone in master.Phonenumbers)
-			{
+			{                
 				SetPhoneNumber(phone, slave);
 			}
 
