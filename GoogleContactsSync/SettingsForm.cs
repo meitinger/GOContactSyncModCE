@@ -198,10 +198,11 @@ namespace GoContactSyncMod
 					Logger.Log("Sync complete.", EventType.Information);
 					//SetSyncConsoleText(Logger.GetText());
 
+                    string message = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.\n Skipped: {4}.\n Errors: {5}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
                     if (reportSyncResultCheckBox.Checked)
 					{
                         notifyIcon.BalloonTipTitle = Application.ProductName;
-                        notifyIcon.BalloonTipText = string.Format("{0}. Sync complete.\n Synced: {2} out of {1}.\n Deleted: {3}.\n Skipped: {4}.\n Errors: {5}.", DateTime.Now, _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
+                        notifyIcon.BalloonTipText = message;
                         
                         if (_sync.ErrorCount > 0)
                             notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
@@ -211,7 +212,7 @@ namespace GoContactSyncMod
 						    notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
 						notifyIcon.ShowBalloonTip(5000);
 					}
-                    Logger.Log(notifyIcon.BalloonTipText, EventType.Information);
+                    Logger.Log(message, EventType.Information);
                     string toolTip = string.Format("{0}\nLast sync completed: {1}", Application.ProductName, DateTime.Now.ToString("HH:mm"));
                     if (_sync.ErrorCount + _sync.SkippedCount > 0)
                         toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
