@@ -91,6 +91,7 @@ namespace GoContactSyncMod
 				if (olc.Body != null && olc.Body.Length > 62000)
 				{
 					// notes field too large
+                    sync.SkippedCount++;
 					Logger.Log(string.Format("Skipping outlook contact ({0}). Reduce the notes field to a maximum of 62.000 characters.", olc.FileAs), EventType.Warning);
                     continue;
 				}
@@ -282,27 +283,35 @@ namespace GoContactSyncMod
                     bool duplicateFound = false;
                     foreach (ContactMatch duplicate in sync.GoogleContactDuplicates)
                     {
-                        if (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
-                        !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.OutlookContact.FullName, StringComparison.InvariantCultureIgnoreCase) ||
-                        !string.IsNullOrEmpty(olc.Email1Address) &&  (olc.Email1Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email1Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email1Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
-                                                                      ) ||
-                        !string.IsNullOrEmpty(olc.Email2Address) && (olc.Email2Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email2Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email2Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
-                                                                      ) ||
-                        !string.IsNullOrEmpty(olc.Email3Address) && (olc.Email3Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email3Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                      olc.Email3Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
-                                                                      ) ||
-                        olc.MobileTelephoneNumber != null && olc.MobileTelephoneNumber.Equals(duplicate.OutlookContact.MobileTelephoneNumber)
+                        if (duplicate.AllGoogleContactMatches.Count > 0 &&
+                            (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Title.Text, StringComparison.InvariantCultureIgnoreCase) ||
+                             !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.AllGoogleContactMatches[0].Title.Text, StringComparison.InvariantCultureIgnoreCase) ||
+                             !string.IsNullOrEmpty(olc.Email1Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
+                             !string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
+                             !string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email1Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
+                             olc.MobileTelephoneNumber != null && FindPhone(olc.MobileTelephoneNumber, duplicate.AllGoogleContactMatches[0].Phonenumbers) != null
+                            ) ||
+                            !string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
+                            !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.OutlookContact.FullName, StringComparison.InvariantCultureIgnoreCase) ||
+                            !string.IsNullOrEmpty(olc.Email1Address) && (olc.Email1Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email1Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email1Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                          ) ||
+                            !string.IsNullOrEmpty(olc.Email2Address) && (olc.Email2Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email2Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email2Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                          ) ||
+                            !string.IsNullOrEmpty(olc.Email3Address) && (olc.Email3Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email3Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                          olc.Email3Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
+                                                                          ) ||
+                            olc.MobileTelephoneNumber != null && olc.MobileTelephoneNumber.Equals(duplicate.OutlookContact.MobileTelephoneNumber)                                                        
                         )
                         {
                             duplicateFound = true;
                             sync.OutlookContactDuplicates.Add(match);
                             if (string.IsNullOrEmpty(duplicateOutlookContacts))
-                                duplicateOutlookContacts = "Outlook contacts matching with duplicate Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete duplicates of:";
+                                duplicateOutlookContacts = "Outlook contact found that has been already identified as duplicate Google contact (either same email, Mobile or FullName) and cannot be synchronized. Please delete or resolve duplicates of:";
 
                             string str = olc.FileAs + " (" + olc.Email1Address + ", " + olc.MobileTelephoneNumber + ")";
                             if (!duplicateOutlookContacts.Contains(str))
@@ -331,7 +340,7 @@ namespace GoContactSyncMod
                         if (match.AllGoogleContactMatches.Count > 1)
                         {//Create message for duplicatesFound exception
                             if (string.IsNullOrEmpty(duplicateGoogleMatches))
-                                duplicateGoogleMatches = "Outlook contacts matching with multiple Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete duplicates of:";
+                                duplicateGoogleMatches = "Outlook contacts matching with multiple Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete or resolve duplicates of:";
 
                             string str = olc.FileAs + " (" + olc.Email1Address + ", " + olc.MobileTelephoneNumber + ")";
                             if (!duplicateGoogleMatches.Contains(str))
