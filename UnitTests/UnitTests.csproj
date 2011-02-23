@@ -8,8 +8,8 @@
     <ProjectGuid>{96D645AD-D2E3-414A-B170-E3E25A7723BE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebGear.GoogleContactsSync.UnitTests</RootNamespace>
-    <AssemblyName>GOContactSync.UnitTests</AssemblyName>
+    <RootNamespace>GoContactsSyncMod.UnitTests</RootNamespace>
+    <AssemblyName>GOContactSyncMod.UnitTests</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
