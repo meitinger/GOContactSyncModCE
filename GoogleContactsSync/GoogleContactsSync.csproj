@@ -148,7 +148,9 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <BaseApplicationManifest Include="Properties\app.manifest" />
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="COPYING.rtf" />
     <Compile Include="Syncronizer.cs" />
     <Compile Include="Utilities.cs" />
