@@ -377,7 +377,9 @@ namespace GoContactSyncMod
             {
                 foreach (Group a in feed.Entries)
                 {
-                    _googleGroups.Add(a);
+                    //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
+                    if (!string.IsNullOrEmpty(a.SystemGroup))
+                        _googleGroups.Add(a);
                 }
                 query.StartIndex += query.NumberToRetrieve;
                 feed = _googleService.Get<Group>(feed, FeedRequestType.Next);
