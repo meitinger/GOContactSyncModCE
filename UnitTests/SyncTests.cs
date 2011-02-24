@@ -13,6 +13,7 @@ using System.Net;
 using System.IO;
 using System.Drawing;
 using System.Configuration;
+using Google.Contacts;
 
 namespace GoContactSyncMod.UnitTests
 {
@@ -81,7 +82,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.PrimaryTelephoneNumber = "123";
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -126,7 +127,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.PrimaryTelephoneNumber = "123";
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -138,7 +139,7 @@ namespace GoContactSyncMod.UnitTests
             ContactsMatcher.SyncContacts(sync);
             foreach (ContactMatch m in sync.Contacts)
             {
-                if (m.GoogleContact.Title.Text == name)
+                if (m.GoogleContact.Title == name)
                 {
                     googleContact = m.GoogleContact;
                     break;
@@ -170,7 +171,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.PrimaryTelephoneNumber = "123";
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -187,7 +188,7 @@ namespace GoContactSyncMod.UnitTests
             match = null;
             foreach (ContactMatch m in sync.Contacts)
             {
-                if (m.GoogleContact.Title.Text == name)
+                if (m.GoogleContact.Title == name)
                 {
                     match = m;
                     break;
@@ -205,7 +206,7 @@ namespace GoContactSyncMod.UnitTests
             googleContact = null;
             foreach (ContactMatch m in sync.Contacts)
             {
-                if (m.GoogleContact.Title.Text == name)
+                if (m.GoogleContact.Title == name)
                 {
                     googleContact = m.GoogleContact;
                     break;
@@ -232,7 +233,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.PrimaryTelephoneNumber = "123";
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -280,7 +281,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.PrimaryTelephoneNumber = "123";
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -365,7 +366,7 @@ namespace GoContactSyncMod.UnitTests
             // outlook contact should now have a photo
             Assert.IsNotNull(Utilities.GetOutlookPhoto(outlookContact));
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -424,7 +425,7 @@ namespace GoContactSyncMod.UnitTests
             sync.Load();
             ContactsMatcher.SyncGroups(sync);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -494,7 +495,7 @@ namespace GoContactSyncMod.UnitTests
             //Outlook contact should now have a group
             Assert.AreEqual(groupName, outlookContact.Categories);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -567,7 +568,7 @@ namespace GoContactSyncMod.UnitTests
             //Outlook contact should now have a group
             Assert.AreEqual(groupName, outlookContact.Categories);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -628,7 +629,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.Categories = groupName;
             outlookContact.Save();
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -675,7 +676,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.Save();
 
             // same test for delete google contact...
-            googleContact = new ContactEntry();
+            googleContact = new Contact();
             ContactSync.MergeContacts(outlookContact, googleContact);
             match = new ContactMatch(outlookContact, googleContact);
 
@@ -738,7 +739,7 @@ namespace GoContactSyncMod.UnitTests
         //    outlookContact.PrimaryTelephoneNumber = "123";
         //    outlookContact.Save();
 
-        //    ContactEntry googleContact = new ContactEntry();
+        //    Contact googleContact = new Contact();
         //    ContactSync.UpdateContact(outlookContact, googleContact);
         //    ContactMatch match = new ContactMatch(outlookContact, googleContact);
 
@@ -799,7 +800,7 @@ namespace GoContactSyncMod.UnitTests
                 outlookContact.Email1Address = emails[i];
                 outlookContact.Save();
 
-                ContactEntry googleContact = new ContactEntry();
+                Contact googleContact = new Contact();
                 ContactSync.MergeContacts(outlookContact, googleContact);
                 match = new ContactMatch(outlookContact, googleContact);
 
@@ -834,17 +835,17 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsNotNull(match);
             Assert.IsNull(match.GoogleContact);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
 
             //ContactSync.UpdateContact(outlookContact, googleContact);
 
-            googleContact.Title.Text = outlookContact.FileAs;
+            googleContact.Title = outlookContact.FileAs;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.FullName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.FullName;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.CompanyName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.CompanyName;
 
             ContactSync.SetEmails(outlookContact, googleContact);
 
@@ -859,8 +860,8 @@ namespace GoContactSyncMod.UnitTests
             googleContact.Content.Content = outlookContact.Body;
 
             Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
-            ContactEntry createdEntry = (ContactEntry)sync.GoogleService.Insert(feedUri, googleContact);
-
+            Contact createdEntry = ((Contact)sync.GoogleService.Insert(feedUri, googleContact));
+            
             ContactPropertiesUtils.SetOutlookGoogleContactId(sync, match.OutlookContact, createdEntry);
             match.GoogleContact = createdEntry;
             match.OutlookContact.Save();
@@ -880,17 +881,17 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsNotNull(match);
             Assert.IsNull(match.GoogleContact);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
 
             //ContactSync.UpdateContact(outlookContact, googleContact);
 
-            googleContact.Title.Text = outlookContact.FileAs;
+            googleContact.Title = outlookContact.FileAs;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.FullName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.FullName;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.CompanyName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.CompanyName;
 
             ContactSync.SetEmails(outlookContact, googleContact);
 
@@ -905,7 +906,7 @@ namespace GoContactSyncMod.UnitTests
             googleContact.Content.Content = outlookContact.Body;
 
             Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
-            ContactEntry createdEntry = (ContactEntry)sync.GoogleService.Insert(feedUri, googleContact);
+            Contact createdEntry = (Contact)sync.GoogleService.Insert(feedUri, googleContact);
 
             ContactPropertiesUtils.SetOutlookGoogleContactId(sync, match.OutlookContact, createdEntry);
             match.GoogleContact = createdEntry;
@@ -926,17 +927,17 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsNotNull(match);
             Assert.IsNull(match.GoogleContact);
 
-            ContactEntry googleContact = new ContactEntry();
+            Contact googleContact = new Contact();
 
             //ContactSync.UpdateContact(outlookContact, googleContact);
 
-            googleContact.Title.Text = outlookContact.FileAs;
+            googleContact.Title = outlookContact.FileAs;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.FullName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.FullName;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.CompanyName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.CompanyName;
 
             //SetEmails(outlookContact, googleContact);
 
@@ -951,7 +952,7 @@ namespace GoContactSyncMod.UnitTests
             //googleContact.Content.Content = outlookContact.Body;
 
             Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
-            ContactEntry createdEntry = (ContactEntry)sync.GoogleService.Insert(feedUri, googleContact);
+            Contact createdEntry = (Contact)sync.GoogleService.Insert(feedUri, googleContact);
 
             ContactPropertiesUtils.SetOutlookGoogleContactId(sync, match.OutlookContact, createdEntry);
             match.GoogleContact = createdEntry;
@@ -972,17 +973,17 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsNotNull(match);
             Assert.IsNotNull(match.GoogleContact);
 
-            ContactEntry googleContact = match.GoogleContact;
+            Contact googleContact = match.GoogleContact;
 
             ContactSync.MergeContacts(outlookContact, googleContact);
 
-            googleContact.Title.Text = outlookContact.FileAs;
+            googleContact.Title = outlookContact.FileAs;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.FullName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.FullName;
 
-            if (googleContact.Title.Text == null)
-                googleContact.Title.Text = outlookContact.CompanyName;
+            if (googleContact.Title == null)
+                googleContact.Title = outlookContact.CompanyName;
 
             ContactSync.SetEmails(outlookContact, googleContact);
 
@@ -996,7 +997,7 @@ namespace GoContactSyncMod.UnitTests
 
             //googleContact.Content.Content = outlookContact.Body;
 
-            ContactEntry updatedEntry = googleContact.Update() as ContactEntry;
+            Contact updatedEntry = googleContact.Update() as Contact;
 
             ContactPropertiesUtils.SetOutlookGoogleContactId(sync, match.OutlookContact, updatedEntry);
             match.GoogleContact = updatedEntry;
@@ -1038,7 +1039,7 @@ namespace GoContactSyncMod.UnitTests
             }
             return null;
         }
-        internal ContactMatch FindMatch(Outlook.ContactItem outlookContact, ContactMatchList matches)
+        internal ContactMatch FindMatch(Outlook.ContactItem outlookContact, List<ContactMatch> matches)
         {
             foreach (ContactMatch match in matches)
             {

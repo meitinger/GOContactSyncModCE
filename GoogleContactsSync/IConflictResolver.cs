@@ -5,6 +5,7 @@ using Google.GData.Contacts;
 using Google.GData.Client;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
+using Google.Contacts;
 
 namespace GoContactSyncMod
 {
@@ -16,7 +17,7 @@ namespace GoContactSyncMod
         /// <param name="outlookContact"></param>
         /// <param name="googleContact"></param>
         /// <returns>Returns true is a conflict was resolved. If cancel was pressed then returns false</returns>
-        ConflictResolution Resolve(Outlook.ContactItem outlookContact, ContactEntry googleContact);
+        ConflictResolution Resolve(Outlook.ContactItem outlookContact, Contact googleContact);
     }
 
     internal enum ConflictResolution

@@ -8,6 +8,7 @@ using Google.GData.Contacts;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Threading;
 using System.Collections.ObjectModel;
+using Google.Contacts;
 
 namespace GoContactSyncMod
 {
@@ -26,9 +27,9 @@ namespace GoContactSyncMod
             return stream.ToArray();
         }
 
-        public static bool HasPhoto(ContactEntry googleContact)
+        public static bool HasPhoto(Contact googleContact)
         {
-            if (googleContact.PhotoUri == null)
+            if (googleContact.PhotoEtag == null)
                 return false;
             return true;
         }
@@ -37,20 +38,20 @@ namespace GoContactSyncMod
             return outlookContact.HasPicture;
         }
 
-        public static bool SaveGooglePhoto(Syncronizer sync, ContactEntry googleContact, Image image)
+        public static bool SaveGooglePhoto(Syncronizer sync, Contact googleContact, Image image)
         {
-            if (googleContact.PhotoEditUri == null)
+            if (googleContact.ContactEntry.PhotoUri == null)
                 throw new Exception("Must reload contact from google.");
 
             try
             {
                 WebClient client = new WebClient();
-                client.Headers.Add(HttpRequestHeader.Authorization, "GoogleLogin auth=" + sync.AuthToken);
+                client.Headers.Add(HttpRequestHeader.Authorization, "GoogleLogin auth=" + sync.GoogleService.Service.QueryClientLoginToken());
                 client.Headers.Add(HttpRequestHeader.ContentType, "image/*");
                 Bitmap pic = new Bitmap(image);
-                Stream s = client.OpenWrite(googleContact.PhotoEditUri.AbsoluteUri, "PUT");
+                Stream s = client.OpenWrite(googleContact.ContactEntry.PhotoUri.AbsoluteUri, "PUT");
                 byte[] bytes = BitmapToBytes(pic);
-                
+
                 s.Write(bytes, 0, bytes.Length);
                 s.Flush();
                 s.Close();
@@ -64,7 +65,7 @@ namespace GoContactSyncMod
             }
             return true;
         }
-        public static Image GetGooglePhoto(Syncronizer sync, ContactEntry googleContact)
+        public static Image GetGooglePhoto(Syncronizer sync, Contact googleContact)
         {
             if (!HasPhoto(googleContact))
                 return null;
@@ -72,7 +73,7 @@ namespace GoContactSyncMod
             try
             {
                 WebClient client = new WebClient();
-                client.Headers.Add(HttpRequestHeader.Authorization, "GoogleLogin auth=" + sync.AuthToken);
+                client.Headers.Add(HttpRequestHeader.Authorization, "GoogleLogin auth=" + sync.GoogleService.Service.QueryClientLoginToken());
                 Stream stream = client.OpenRead(googleContact.PhotoUri.AbsoluteUri);
                 BinaryReader reader = new BinaryReader(stream);
                 Image image = Image.FromStream(stream);
@@ -129,7 +130,7 @@ namespace GoContactSyncMod
 
                         //TODO: Check why always the first added picture is returned
                         //If you add another picture, still the old picture is saved to tempPhotoPath
-                        a.SaveAsFile(tempPhotoPath);                     
+                        a.SaveAsFile(tempPhotoPath); 
 
                         using (Image img = Image.FromFile(tempPhotoPath))
                         {
@@ -199,18 +200,18 @@ namespace GoContactSyncMod
             catch { }
         }
 
-        public static bool ContainsGroup(Syncronizer sync, ContactEntry googleContact, string groupName)
+        public static bool ContainsGroup(Syncronizer sync, Contact googleContact, string groupName)
         {
-            GroupEntry groupEntry = sync.GetGoogleGroupByName(groupName);
-            if (groupEntry == null)
+            Group group = sync.GetGoogleGroupByName(groupName);
+            if (group == null)
                 return false;
-            return ContainsGroup(googleContact, groupEntry);
+            return ContainsGroup(googleContact, group);
         }
-        public static bool ContainsGroup(ContactEntry googleContact, GroupEntry groupEntry)
+        public static bool ContainsGroup(Contact googleContact, Group group)
         {
             foreach (GroupMembership m in googleContact.GroupMembership)
             {
-                if (m.HRef == groupEntry.Id.AbsoluteUri)
+                if (m.HRef == group.GroupEntry.Id.AbsoluteUri)
                     return true;
             }
             return false;
@@ -223,12 +224,12 @@ namespace GoContactSyncMod
             return outlookContact.Categories.Contains(group);
         }
 
-        public static Collection<GroupEntry> GetGoogleGroups(Syncronizer sync, ContactEntry googleContact)
+        public static Collection<Group> GetGoogleGroups(Syncronizer sync, Contact googleContact)
         {
             int c = googleContact.GroupMembership.Count;
-            Collection<GroupEntry> groups = new Collection<GroupEntry>();
+            Collection<Group> groups = new Collection<Group>();
             string id;
-            GroupEntry group;
+            Group group;
             for (int i = 0; i < c; i++)
             {
                 id = googleContact.GroupMembership[i].HRef;
@@ -238,18 +239,18 @@ namespace GoContactSyncMod
             }
             return groups;
         }
-        public static void AddGoogleGroup(ContactEntry googleContact, GroupEntry groupEntry)
+        public static void AddGoogleGroup(Contact googleContact, Group group)
         {
-            if (ContainsGroup(googleContact, groupEntry))
+            if (ContainsGroup(googleContact, group))
                 return;
 
             GroupMembership m = new GroupMembership();
-            m.HRef = groupEntry.Id.AbsoluteUri;
+            m.HRef = group.GroupEntry.Id.AbsoluteUri;
             googleContact.GroupMembership.Add(m);
         }
-        public static void RemoveGoogleGroup(ContactEntry googleContact, GroupEntry groupEntry)
+        public static void RemoveGoogleGroup(Contact googleContact, Group group)
         {
-            if (!ContainsGroup(googleContact, groupEntry))
+            if (!ContainsGroup(googleContact, group))
                 return;
 
             // TODO: broken. removes group membership but does not remove contact
@@ -260,7 +261,7 @@ namespace GoContactSyncMod
             for (int i = 0; i < googleContact.GroupMembership.Count; i++)
             {
                 mem = googleContact.GroupMembership[i];
-                if (mem.HRef == groupEntry.Id.AbsoluteUri)
+                if (mem.HRef == group.GroupEntry.Id.AbsoluteUri)
                 {
                     googleContact.GroupMembership.Remove(mem);
                     return;

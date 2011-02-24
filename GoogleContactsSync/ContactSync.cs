@@ -5,20 +5,21 @@ using Google.GData.Client;
 using Google.GData.Contacts;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
+using Google.Contacts;
 
 namespace GoContactSyncMod
 {
 	internal static class ContactSync
 	{
-        //public static void UpdateContact(ContactEntry source, Outlook.ContactItem destination)
+        //public static void UpdateContact(Contact source, Outlook.ContactItem destination)
         //{
         //    //// if no email or number, contact will be updated at each sync
         //    //if (source.Emails.Count == 0 && source.Phonenumbers.Count == 0)
         //    //    return;
 
 
-        //    if (!string.IsNullOrEmpty(source.Title.Text))
-        //        destination.FileAs = source.Title.Text;
+        //    if (!string.IsNullOrEmpty(source.Title))
+        //        destination.FileAs = source.Title;
         //    else
         //        destination.FileAs = source.Emails[0].Address;
 
@@ -69,22 +70,22 @@ namespace GoContactSyncMod
         ///// </summary>
         ///// <param name="source"></param>
         ///// <param name="destination"></param>
-        //public static void UpdateContact(Outlook.ContactItem source, ContactEntry destination)
+        //public static void UpdateContact(Outlook.ContactItem source, Contact destination)
         //{
         //    //// if no email or number, contact will be updated at each sync
         //    //if (string.IsNullOrEmpty(source.Email1Address) && string.IsNullOrEmpty(source.PrimaryTelephoneNumber))
         //    //    return;
 
         //    if (source.FileAs != source.Email1Address)
-        //        destination.Title.Text = source.FileAs;
+        //        destination.Title = source.FileAs;
         //    else
-        //        destination.Title.Text = null;
+        //        destination.Title = null;
 
-        //    if (destination.Title.Text == null)
-        //        destination.Title.Text = source.FullName;
+        //    if (destination.Title == null)
+        //        destination.Title = source.FullName;
 
-        //    if (destination.Title.Text == null)
-        //        destination.Title.Text = source.CompanyName;
+        //    if (destination.Title == null)
+        //        destination.Title = source.CompanyName;
 
         //    SetEmails(source, destination);
 
@@ -100,23 +101,29 @@ namespace GoContactSyncMod
         //    destination.Content.Content = String.Format("<![CDATA[{0}]]>", source.Body);
         //}
 
-		public static void SetAddresses(Outlook.ContactItem source, ContactEntry destination)
+		public static void SetAddresses(Outlook.ContactItem source, Contact destination)
 		{
             destination.PostalAddresses.Clear();
 
-			if (!string.IsNullOrEmpty(source.HomeAddress))
+			if (!string.IsNullOrEmpty(source.OtherAddress))
 			{
-				PostalAddress postalAddress = new PostalAddress();
-				postalAddress.Value = source.HomeAddress;
+				StructuredPostalAddress postalAddress = new StructuredPostalAddress();
+                postalAddress.Street = source.OtherAddressStreet;
+                postalAddress.City = source.OtherAddressCity;
+                postalAddress.Postcode = source.OtherAddressPostalCode;
+                postalAddress.Country = source.OtherAddressCountry;
                 postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsHome;
 				destination.PostalAddresses.Add(postalAddress);
 			}
 
-			if (!string.IsNullOrEmpty(source.BusinessAddress))
+			if (!string.IsNullOrEmpty(source.OtherAddress))
 			{
-				PostalAddress postalAddress = new PostalAddress();
-				postalAddress.Value = source.BusinessAddress;
+				StructuredPostalAddress postalAddress = new StructuredPostalAddress();
+                postalAddress.Street = source.OtherAddressStreet;
+                postalAddress.City = source.OtherAddressCity;
+                postalAddress.Postcode = source.OtherAddressPostalCode;
+                postalAddress.Country = source.OtherAddressCountry;
 				postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsWork;
 				destination.PostalAddresses.Add(postalAddress);
@@ -124,15 +131,18 @@ namespace GoContactSyncMod
 
 			if (!string.IsNullOrEmpty(source.OtherAddress))
 			{
-				PostalAddress postalAddress = new PostalAddress();
-				postalAddress.Value = source.OtherAddress;
+				StructuredPostalAddress postalAddress = new StructuredPostalAddress();
+                postalAddress.Street = source.OtherAddressStreet;
+                postalAddress.City = source.OtherAddressCity;
+                postalAddress.Postcode = source.OtherAddressPostalCode;
+                postalAddress.Country = source.OtherAddressCountry;
 				postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsOther;
 				destination.PostalAddresses.Add(postalAddress);
 			}
 		}
 
-		public static void SetIMs(Outlook.ContactItem source, ContactEntry destination)
+		public static void SetIMs(Outlook.ContactItem source, Contact destination)
 		{
             destination.IMs.Clear();
 
@@ -158,7 +168,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-		public static void SetEmails(Outlook.ContactItem source, ContactEntry destination)
+		public static void SetEmails(Outlook.ContactItem source, Contact destination)
 		{
             destination.Emails.Clear();
 
@@ -187,7 +197,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-		public static void SetPhoneNumbers(Outlook.ContactItem source, ContactEntry destination)
+		public static void SetPhoneNumbers(Outlook.ContactItem source, Contact destination)
 		{
             destination.Phonenumbers.Clear();
 
@@ -288,7 +298,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-		public static void SetCompanies(Outlook.ContactItem source, ContactEntry destination)
+		public static void SetCompanies(Outlook.ContactItem source, Contact destination)
 		{
             destination.Organizations.Clear();
 
@@ -359,32 +369,44 @@ namespace GoContactSyncMod
             //else no phone category matches
 		}
 
-		public static void SetPostalAddress(PostalAddress address, Outlook.ContactItem destination)
+		public static void SetPostalAddress(StructuredPostalAddress address, Outlook.ContactItem destination)
 		{
 			if (address.Rel == ContactsRelationships.IsHome)
 			{
-				destination.HomeAddress = address.Value;
+                destination.BusinessAddressStreet=address.Street;
+                destination.BusinessAddressCity=address.City;
+                destination.BusinessAddressPostalCode=address.Postcode;
+                destination.BusinessAddressCountry=address.Country;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olHome;
 				return;
 			}
 			if (address.Rel == ContactsRelationships.IsWork)
 			{
-				destination.BusinessAddress = address.Value;
+                destination.BusinessAddressStreet = address.Street;
+                destination.BusinessAddressCity = address.City;
+                destination.BusinessAddressPostalCode = address.Postcode;
+                destination.BusinessAddressCountry = address.Country;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olBusiness;
 				return;
 			}
 			if (address.Rel == ContactsRelationships.IsOther)
 			{
-				destination.OtherAddress = address.Value;
+                destination.BusinessAddressStreet = address.Street;
+                destination.BusinessAddressCity = address.City;
+                destination.BusinessAddressPostalCode = address.Postcode;
+                destination.BusinessAddressCountry = address.Country;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olOther;
 				return;
 			}
 		}
 
-	public static void MergeContacts(Outlook.ContactItem master, ContactEntry slave)
+	public static void MergeContacts(Outlook.ContactItem master, Contact slave)
 		{
 			//// if no email or number, contact will be updated at each sync
             //if (string.IsNullOrEmpty(master.Email1Address) && string.IsNullOrEmpty(master.PrimaryTelephoneNumber))
@@ -403,16 +425,38 @@ namespace GoContactSyncMod
 
 			//TODO: convert to merge as opposed to replace
 
-			if (master.FileAs != master.Email1Address)
-				slave.Title.Text = master.FileAs;
-			else
-				slave.Title.Text = null;
+            if (master.FileAs != master.Email1Address)
+            {
+                slave.Title = master.FileAs;
+            }
+            else
+                slave.Title = null;
 
-			if (slave.Title.Text == null)
-				slave.Title.Text = master.FullName;
+			if (slave.Title == null)
+				slave.Title = master.FullName;
 
-			if (slave.Title.Text == null)
-				slave.Title.Text = master.CompanyName;
+			if (slave.Title == null)
+				slave.Title = master.CompanyName;
+
+            Name name = new Name();
+            name.FullName = master.FullName;
+
+            name.NamePrefix = master.Title;
+            name.GivenName = master.FirstName;
+            name.AdditonalName = master.MiddleName;
+            name.FamilyName = master.LastName;
+            name.NameSuffix = master.Suffix;
+            slave.Name = name;
+
+            if (master.Birthday.Year < 1900 || master.Birthday.Year >= 4501)
+                slave.ContactEntry.Birthday = null;
+            else
+                slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
+            slave.ContactEntry.Nickname = master.NickName;
+            slave.Location = master.OfficeLocation;
+            //ToDo:slave.Categories = master.Categories;
+            slave.ContactEntry.Initials = master.Initials;
+            slave.ContactEntry.Language = master.Language;   
 
 			SetEmails(master, slave);
 
@@ -425,24 +469,19 @@ namespace GoContactSyncMod
 			SetIMs(master, slave);
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
-            slave.Content.Content = String.Format("<![CDATA[{0}]]>", master.Body);
+            slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
 		}
 
-		public static void MergeContacts(ContactEntry master, Outlook.ContactItem slave)
+		public static void MergeContacts(Contact master, Outlook.ContactItem slave)
 		{
 			//// if no email or number, contact will be updated at each sync
 			//if (master.Emails.Count == 0 && master.Phonenumbers.Count == 0)
 			//    return;
 
-			if (!string.IsNullOrEmpty(master.Title.Text))
-			{
-				slave.FileAs = master.Title.Text;
-				slave.FullName = master.Title.Text;
-			}
+			if (!string.IsNullOrEmpty(master.Title))
+				slave.FileAs = master.Title;
 			else if (master.Emails.Count > 0)
-			{
 				slave.FileAs = master.Emails[0].Address;
-			}
 			else
 			{
 				if (!String.IsNullOrEmpty(slave.Email1Address))
@@ -457,19 +496,38 @@ namespace GoContactSyncMod
 					return;
 				}
 			}
+            
+            slave.FullName = master.Name.FullName;
+            slave.Title = master.Name.NamePrefix;
+            slave.FirstName = master.Name.GivenName;
+            slave.MiddleName = master.Name.AdditonalName;
+            slave.LastName = master.Name.FamilyName;
+            slave.Suffix = master.Name.NameSuffix;
+            DateTime birthday;
+            DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
 
+            if (birthday != DateTime.MinValue)
+                slave.Birthday = birthday;
+            else
+                slave.Birthday = new DateTime(4501, 1, 1);
+            slave.NickName = master.ContactEntry.Nickname;
+            slave.OfficeLocation = master.Location;
+            //ToDo:slave.Categories = master.Categories;
+            slave.Initials = master.ContactEntry.Initials;
+            slave.Language = master.ContactEntry.Language;            
+            
 			SetEmails(master, slave);
 
             //First delete the destination phone numbers having secondary phone numbers
             slave.HomeTelephoneNumber = null;     //secondary: destination.Home2TelephoneNumber
-            slave.BusinessTelephoneNumber = null; //secondary: destination.Business2TelephoneNumber
-
+            slave.BusinessTelephoneNumber = null; //secondary: destination.Business2Te  
+            
 			foreach (PhoneNumber phone in master.Phonenumbers)
 			{                
 				SetPhoneNumber(phone, slave);
 			}
 
-			foreach (PostalAddress address in master.PostalAddresses)
+			foreach (StructuredPostalAddress address in master.PostalAddresses)
 			{
 				SetPostalAddress(address, slave);
 			}
@@ -502,10 +560,10 @@ namespace GoContactSyncMod
 
             //ToDo: Sync some fields from second Outlook contact tab, e.g. Birthday, Anniversary, NickName, Department, Partner, Web Address URL, Office, ...
 
-			slave.Body = master.Content.Content;
+			slave.Body = master.Content;
 		}
 
-		public static void SetEmails(ContactEntry source, Outlook.ContactItem destination)
+		public static void SetEmails(Contact source, Outlook.ContactItem destination)
 		{
 			if (source.Emails.Count > 0)
 			{

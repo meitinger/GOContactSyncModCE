@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Google.Contacts;
 
 namespace GoContactSyncMod
 {
@@ -21,10 +22,10 @@ namespace GoContactSyncMod
 
         #region IConflictResolver Members
 
-        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.ContactItem outlookContact, Google.GData.Contacts.ContactEntry googleContact)
+        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.ContactItem outlookContact, Contact googleContact)
         {
             _form.messageLabel.Text =
-                "Both the outlook contact and the google contact \"" + googleContact.Title.Text +
+                "Both the outlook contact and the google contact \"" + googleContact.Title +
                 "\" has been changed. Choose which you would like to keep.";
 
             switch (_form.ShowDialog())

@@ -14,7 +14,7 @@ using System.Resources;
 [assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009, parts © Create Software (Clément Pit--Claudel), parts © Stru.be (Stefan Strube), parts © floriwan (Florian Saller) ")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-//[assembly: InternalsVisibleTo("WebGear.GOContactSync.UnitTests")]
+[assembly: InternalsVisibleTo("GOContactSyncMod.UnitTests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

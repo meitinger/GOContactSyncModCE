@@ -190,7 +190,7 @@ namespace GoContactSyncMod
 				{
 					_sync.LoginToGoogle(UserName.Text, Password.Text);
 					_sync.LoginToOutlook();
-
+                    
 					_sync.Sync();
 
                     lastSync = DateTime.Now;

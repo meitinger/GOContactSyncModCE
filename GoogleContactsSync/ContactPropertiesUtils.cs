@@ -5,6 +5,7 @@ using Google.GData.Contacts;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Google.GData.Extensions;
 using System.Collections;
+using Google.Contacts;
 
 namespace GoContactSyncMod
 {
@@ -14,7 +15,7 @@ namespace GoContactSyncMod
         {
             return outlookContact.EntryID;
         }
-        public static string GetGoogleId(ContactEntry googleContact)
+        public static string GetGoogleId(Contact googleContact)
         {
             string id = googleContact.Id.ToString();
             if (id == null)
@@ -22,14 +23,14 @@ namespace GoContactSyncMod
             return id;
         }
 
-        public static void SetGoogleOutlookContactId(string syncProfile, ContactEntry googleContact, Outlook.ContactItem outlookContact)
+        public static void SetGoogleOutlookContactId(string syncProfile, Contact googleContact, Outlook.ContactItem outlookContact)
         {
             if (outlookContact.EntryID == null)
                 throw new Exception("Must save outlook contact before getting id");
 
             SetGoogleOutlookContactId(syncProfile, googleContact, GetOutlookId(outlookContact));
         }
-        public static void SetGoogleOutlookContactId(string syncProfile, ContactEntry googleContact, string outlookContactId)
+        public static void SetGoogleOutlookContactId(string syncProfile, Contact googleContact, string outlookContactId)
         {
             // check if exists
             bool found = false;
@@ -49,7 +50,7 @@ namespace GoContactSyncMod
                 googleContact.ExtendedProperties.Add(prop);
             }
         }
-        public static string GetGoogleOutlookContactId(string syncProfile, ContactEntry googleContact)
+        public static string GetGoogleOutlookContactId(string syncProfile, Contact googleContact)
         {
             // get extended prop
             foreach (Google.GData.Extensions.ExtendedProperty p in googleContact.ExtendedProperties)
@@ -59,7 +60,7 @@ namespace GoContactSyncMod
             }
             return null;
         }
-        public static void ResetGoogleOutlookContactId(string syncProfile, ContactEntry googleContact)
+        public static void ResetGoogleOutlookContactId(string syncProfile, Contact googleContact)
         {
             // get extended prop
             foreach (Google.GData.Extensions.ExtendedProperty p in googleContact.ExtendedProperties)
@@ -80,16 +81,16 @@ namespace GoContactSyncMod
         /// <param name="sync"></param>
         /// <param name="outlookContact"></param>
         /// <param name="googleContact"></param>
-        public static void SetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact, ContactEntry googleContact)
+        public static void SetOutlookGoogleContactId(Syncronizer sync, Outlook.ContactItem outlookContact, Contact googleContact)
         {
-            if (googleContact.Id.Uri == null)
+            if (googleContact.ContactEntry.Id.Uri == null)
                 throw new NullReferenceException("GoogleContact must have a valid Id");
 
             //check if outlook contact aready has google id property.
             Outlook.UserProperty prop = outlookContact.UserProperties[sync.OutlookPropertyNameId];
             if (prop == null)
                 prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameId, Outlook.OlUserPropertyType.olText, null, null);
-            prop.Value = googleContact.Id.Uri.Content;
+            prop.Value = googleContact.ContactEntry.Id.Uri.Content;
 
             //save last google's updated date as property
             /*prop = outlookContact.UserProperties[OutlookPropertyNameUpdated];
