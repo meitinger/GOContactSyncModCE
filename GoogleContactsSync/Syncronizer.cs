@@ -377,9 +377,7 @@ namespace GoContactSyncMod
             {
                 foreach (Group a in feed.Entries)
                 {
-                    //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
-                    if (!string.IsNullOrEmpty(a.SystemGroup))
-                        _googleGroups.Add(a);
+                    _googleGroups.Add(a);
                 }
                 query.StartIndex += query.NumberToRetrieve;
                 feed = _googleService.Get<Group>(feed, FeedRequestType.Next);
@@ -980,8 +978,9 @@ namespace GoContactSyncMod
 
 			List<string> newCats = new List<string>(newGroups.Count);
 			foreach (Group group in newGroups)
-			{
-				newCats.Add(group.Title);
+            {   //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
+                if (!string.IsNullOrEmpty(group.SystemGroup))
+				    newCats.Add(group.Title);
 			}
 
 			slave.Categories = string.Join(", ", newCats.ToArray());
