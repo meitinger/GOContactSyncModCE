@@ -6,6 +6,7 @@ using Google.GData.Contacts;
 using Google.GData.Client;
 using Google.GData.Extensions;
 using System.Configuration;
+using Google.Contacts;
 
 namespace GoContactSyncMod.UnitTests
 {
@@ -17,28 +18,31 @@ namespace GoContactSyncMod.UnitTests
         {
             try
             {
-                ContactsService service = new ContactsService("WebGear.GoogleContactsSync");
-                service.setUserCredentials(ConfigurationManager.AppSettings["Gmail.Username"], 
-                    ConfigurationManager.AppSettings["Gmail.Password"]);
-                
+                //ContactsService service = new ContactsService("WebGear.GoogleContactsSync");
+                //service.setUserCredentials(ConfigurationManager.AppSettings["Gmail.Username"], 
+                //    ConfigurationManager.AppSettings["Gmail.Password"]);
+                RequestSettings rs = new RequestSettings("GoogleContactSyncMod", ConfigurationManager.AppSettings["Gmail.Username"], ConfigurationManager.AppSettings["Gmail.Password"]);
+                ContactsRequest service = new ContactsRequest(rs);
+
+               
                 #region Delete previously created test contact.
                 ContactsQuery query = new ContactsQuery(ContactsQuery.CreateContactsUri("default"));
                 query.NumberToRetrieve = 500;
 
-                ContactsFeed feed = service.Query(query);
+                Feed<Contact> feed = service.Get<Contact>(query);
 
                 foreach (Contact entry in feed.Entries)
                 {
                     if (entry.PrimaryEmail != null && entry.PrimaryEmail.Address == "johndoe@example.com")
                     {
-                        entry.Delete();
+                        service.Delete(entry);
                         break;
                     }
                 } 
                 #endregion
                 
                 Contact newEntry = new Contact();
-                newEntry.Title.Text = "John Doe";
+                newEntry.Title = "John Doe";
                     
                 EMail primaryEmail = new EMail("johndoe@example.com");
                 primaryEmail.Primary = true;
@@ -56,16 +60,16 @@ namespace GoContactSyncMod.UnitTests
                 postalAddress.Rel = ContactsRelationships.IsHome;
                 newEntry.PostalAddresses.Add(postalAddress);
 
-                newEntry.Content.Content = "Who is this guy?";
+                newEntry.Content = "Who is this guy?";
 
                 Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
 
-                Contact createdEntry = (Contact)service.Insert(feedUri, newEntry);
+                Contact createdEntry = service.Insert(feedUri, newEntry);
 
-                Assert.IsNotNull(createdEntry.Id.Uri);
-
-                //delete this temp contact
-                createdEntry.Delete();
+                Assert.IsNotNull(createdEntry.ContactEntry.Id.Uri);
+                
+                //delete test contacts
+                service.Delete(createdEntry);    
             }
             catch (Exception)
             {
