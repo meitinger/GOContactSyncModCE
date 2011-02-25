@@ -509,8 +509,6 @@ namespace GoContactSyncMod
                     //outlook contact was modified. save.
                     SaveOutlookContact(match);
 					Logger.Log("Updated Outlook contact from Google: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
-
-					//TODO: this will cause the google contact to be updated on next run because Outlook's contact will be marked as saved later that Google's contact.
 				}                
 
 				// save photos
@@ -811,8 +809,6 @@ namespace GoContactSyncMod
 
         //    if (hasGooglePhoto)
         //    {
-        //        //ToDo: add google photo to outlook with new API
-        //        //Stream stream = _googleService.GetPhoto(match.GoogleContact);
         //        Image image = new Image(match.GoogleContact.PhotoUri);
         //        Utilities.SetOutlookPhoto(match.OutlookContact, image);
         //        ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
@@ -867,6 +863,8 @@ namespace GoContactSyncMod
             if (hasGooglePhoto)
             {
                 // add google photo to outlook
+                //ToDo: add google photo to outlook with new Google API
+                //Stream stream = _googleService.GetPhoto(match.GoogleContact);
                 Image googlePhoto = Utilities.GetGooglePhoto(this, match.GoogleContact);
                 Utilities.SetOutlookPhoto(match.OutlookContact, googlePhoto);
                 ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
@@ -1145,8 +1143,6 @@ namespace GoContactSyncMod
 		/// <returns></returns>
 		public Collection<Outlook.ContactItem> OutlookContactByEmail(string email)
 		{
-			//TODO: optimise by using OutlookContacts.Find
-
 			Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
 			Outlook.ContactItem item = null;
 			try
