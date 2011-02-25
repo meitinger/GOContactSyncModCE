@@ -525,9 +525,18 @@ namespace GoContactSyncMod
             
 			SetEmails(master, slave);
 
-            //First delete the destination phone numbers having secondary phone numbers
-            slave.HomeTelephoneNumber = null;     //secondary: destination.Home2TelephoneNumber
-            slave.BusinessTelephoneNumber = null; //secondary: destination.Business2Te  
+            //First delete the destination phone numbers
+            slave.HomeTelephoneNumber = null;
+            slave.Home2TelephoneNumber = null;
+            slave.BusinessTelephoneNumber = null;
+            slave.Business2TelephoneNumber = null;
+            slave.MobileTelephoneNumber = null;
+            slave.BusinessFaxNumber = null;
+            slave.HomeFaxNumber = null;
+            slave.PagerNumber = null;
+            slave.RadioTelephoneNumber = null;
+            slave.OtherTelephoneNumber = null;
+            slave.CarTelephoneNumber = null;
             
 			foreach (PhoneNumber phone in master.Phonenumbers)
 			{                
@@ -535,12 +544,32 @@ namespace GoContactSyncMod
 			}
 
             //ToDo: What if the OutlookContact only has e.g. HomeAddress or BusinessAddress properties set, without the structured postal address? Normally this should happen
+            slave.HomeAddress = null;
+            slave.HomeAddressStreet = null;
+            slave.HomeAddressCity = null;
+            slave.HomeAddressPostalCode = null;
+            slave.HomeAddressCountry = null;
+
+            slave.BusinessAddress = null;
+            slave.BusinessAddressStreet = null;
+            slave.BusinessAddressCity = null;
+            slave.BusinessAddressPostalCode = null;
+            slave.BusinessAddressCountry = null;
+
+            slave.OtherAddress = null;
+            slave.OtherAddressStreet = null;
+            slave.OtherAddressCity = null;
+            slave.OtherAddressPostalCode = null;
+            slave.OtherAddressCountry = null;
+
+            slave.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olNone;
 			foreach (StructuredPostalAddress address in master.PostalAddresses)
 			{
 				SetPostalAddress(address, slave);
 			}
 
 			slave.Companies = string.Empty;
+            slave.CompanyName = string.Empty;
 			foreach (Organization company in master.Organizations)
 			{
 				if (string.IsNullOrEmpty(company.Name) && string.IsNullOrEmpty(company.Title))
@@ -571,37 +600,33 @@ namespace GoContactSyncMod
 
 		public static void SetEmails(Contact source, Outlook.ContactItem destination)
 		{
+            destination.Email1Address = string.Empty;
+            destination.Email1DisplayName = string.Empty;
+
+            destination.Email2Address = string.Empty;
+            destination.Email2DisplayName = string.Empty;
+
+            destination.Email3Address = string.Empty;
+            destination.Email3DisplayName = string.Empty;
+
 			if (source.Emails.Count > 0)
 			{
 				destination.Email1Address = source.Emails[0].Address;
 				destination.Email1DisplayName = source.Emails[0].Label;
-			}
-            else
-            {
-                destination.Email1Address = string.Empty;
-                destination.Email1DisplayName = string.Empty;
-            }
+			}            
 
 			if (source.Emails.Count > 1)
             {
 				destination.Email2Address = source.Emails[1].Address;
                 destination.Email2DisplayName = source.Emails[1].Label;
             }
-            else
-            {
-                destination.Email2Address = string.Empty;
-                destination.Email2DisplayName = string.Empty;
-            }
+            
 			if (source.Emails.Count > 2)
             {
 				destination.Email3Address = source.Emails[2].Address;
                 destination.Email3DisplayName = source.Emails[2].Label;
             }
-            else
-            {
-                destination.Email3Address = string.Empty;
-                destination.Email3DisplayName = string.Empty;
-            }
+            
 		}
 
 	}
