@@ -105,25 +105,25 @@ namespace GoContactSyncMod
 		{
             destination.PostalAddresses.Clear();
 
-			if (!string.IsNullOrEmpty(source.OtherAddress))
+			if (!string.IsNullOrEmpty(source.HomeAddress))
 			{
 				StructuredPostalAddress postalAddress = new StructuredPostalAddress();
-                postalAddress.Street = source.OtherAddressStreet;
-                postalAddress.City = source.OtherAddressCity;
-                postalAddress.Postcode = source.OtherAddressPostalCode;
-                postalAddress.Country = source.OtherAddressCountry;
+                postalAddress.Street = source.HomeAddressStreet;
+                postalAddress.City = source.HomeAddressCity;
+                postalAddress.Postcode = source.HomeAddressPostalCode;
+                postalAddress.Country = source.HomeAddressCountry;
                 postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsHome;
 				destination.PostalAddresses.Add(postalAddress);
 			}
 
-			if (!string.IsNullOrEmpty(source.OtherAddress))
+			if (!string.IsNullOrEmpty(source.BusinessAddress))
 			{
 				StructuredPostalAddress postalAddress = new StructuredPostalAddress();
-                postalAddress.Street = source.OtherAddressStreet;
-                postalAddress.City = source.OtherAddressCity;
-                postalAddress.Postcode = source.OtherAddressPostalCode;
-                postalAddress.Country = source.OtherAddressCountry;
+                postalAddress.Street = source.BusinessAddressStreet;
+                postalAddress.City = source.BusinessAddressCity;
+                postalAddress.Postcode = source.BusinessAddressPostalCode;
+                postalAddress.Country = source.BusinessAddressCountry;
 				postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsWork;
 				destination.PostalAddresses.Add(postalAddress);
@@ -454,9 +454,10 @@ namespace GoContactSyncMod
                 slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
             slave.ContactEntry.Nickname = master.NickName;
             slave.Location = master.OfficeLocation;
-            //ToDo:slave.Categories = master.Categories;
+            //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
-            slave.ContactEntry.Language = master.Language;   
+            slave.ContactEntry.Language = master.Language;
+            //ToDo: Sync some fields from second Outlook contact tab, e.g. Anniversary, Department, Partner, Web Address URL, ...
 
 			SetEmails(master, slave);
 
@@ -469,7 +470,12 @@ namespace GoContactSyncMod
 			SetIMs(master, slave);
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
-            slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
+            //slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
+            //floriwan: Maybe better to jusst esapce the XML instead of putting it in CDATA, because this causes a CDATA added to all my contacts
+            if (master.Body != null)
+                slave.Content = String.Format(System.Security.SecurityElement.Escape(master.Body));
+            else
+                slave.Content = null;
 		}
 
 		public static void MergeContacts(Contact master, Outlook.ContactItem slave)
@@ -512,9 +518,10 @@ namespace GoContactSyncMod
                 slave.Birthday = new DateTime(4501, 1, 1);
             slave.NickName = master.ContactEntry.Nickname;
             slave.OfficeLocation = master.Location;
-            //ToDo:slave.Categories = master.Categories;
+            //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
-            slave.Language = master.ContactEntry.Language;            
+            slave.Language = master.ContactEntry.Language;
+            //ToDo: Sync some fields from second Outlook contact tab, e.g. Anniversary, Department, Partner, Web Address URL, ...
             
 			SetEmails(master, slave);
 
@@ -556,9 +563,7 @@ namespace GoContactSyncMod
 				if (!string.IsNullOrEmpty(im.Protocol))
 					slave.IMAddress += im.Protocol + ": " + im.Address;
 				slave.IMAddress += im.Address;
-			}
-
-            //ToDo: Sync some fields from second Outlook contact tab, e.g. Birthday, Anniversary, NickName, Department, Partner, Web Address URL, Office, ...
+			}            
 
 			slave.Body = master.Content;
 		}
