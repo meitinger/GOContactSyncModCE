@@ -373,10 +373,10 @@ namespace GoContactSyncMod
 		{
 			if (address.Rel == ContactsRelationships.IsHome)
 			{
-                destination.BusinessAddressStreet=address.Street;
-                destination.BusinessAddressCity=address.City;
-                destination.BusinessAddressPostalCode=address.Postcode;
-                destination.BusinessAddressCountry=address.Country;
+                destination.HomeAddressStreet=address.Street;
+                destination.HomeAddressCity=address.City;
+                destination.HomeAddressPostalCode=address.Postcode;
+                destination.HomeAddressCountry=address.Country;
 
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olHome;
@@ -395,10 +395,10 @@ namespace GoContactSyncMod
 			}
 			if (address.Rel == ContactsRelationships.IsOther)
 			{
-                destination.BusinessAddressStreet = address.Street;
-                destination.BusinessAddressCity = address.City;
-                destination.BusinessAddressPostalCode = address.Postcode;
-                destination.BusinessAddressCountry = address.Country;
+                destination.OtherAddressStreet = address.Street;
+                destination.OtherAddressCity = address.City;
+                destination.OtherAddressPostalCode = address.Postcode;
+                destination.OtherAddressCountry = address.Country;
 
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olOther;
@@ -534,6 +534,7 @@ namespace GoContactSyncMod
 				SetPhoneNumber(phone, slave);
 			}
 
+            //ToDo: What if the OutlookContact only has e.g. HomeAddress or BusinessAddress properties set, without the structured postal address? Normally this should happen
 			foreach (StructuredPostalAddress address in master.PostalAddresses)
 			{
 				SetPostalAddress(address, slave);
