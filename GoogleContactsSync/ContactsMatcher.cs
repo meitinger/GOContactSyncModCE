@@ -508,38 +508,7 @@ namespace GoContactSyncMod
             }
             else if (match.OutlookContact != null && match.GoogleContact != null)
             {
-                //merge contact details
-
-
-                //TODO: check if there are multiple matches
-                //if (match.AllGoogleContactMatches.Count > 1)
-                //{
-                //    //loop from 2-nd item
-                //    for (int m = 1; m < match.AllGoogleContactMatches.Count; m++)
-                //    {
-                //        Contact entry = match.AllGoogleContactMatches[m];
-                //        try
-                //        {
-                //            Outlook.ContactItem item = sync.OutlookContacts.Find("[" + sync.OutlookPropertyNameId + "] = \"" + entry.Id.Uri.Content + "\"") as Outlook.ContactItem;
-                //            //Outlook.ContactItem item = sync.OutlookContacts.Find("[myTest] = \"value\"") as Outlook.ContactItem;
-                //            if (item != null)
-                //            {
-                //                //do something
-                //            }
-                //        }
-                //        catch (Exception)
-                //        {
-                //            //TODO: should not get here.
-                //        }
-                //    }
-
-                //    //TODO: add info to Outlook contact from extra Google contacts before deleting extra Google contacts.
-
-                //    for (int m = 1; m < match.AllGoogleContactMatches.Count; m++)
-                //    {
-                //        match.AllGoogleContactMatches[m].Delete();
-                //    }
-                //}
+                //merge contact details                
 
                 //determine if this contact pair were syncronized
                 //DateTime? lastUpdated = GetOutlookPropertyValueDateTime(match.OutlookContact, sync.OutlookPropertyNameUpdated);
@@ -589,12 +558,10 @@ namespace GoContactSyncMod
                                     case ConflictResolution.Cancel:
                                         throw new ApplicationException("Canceled");
                                     case ConflictResolution.OutlookWins:
-                                        //TODO: what about categories/groups?
                                         ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
                                         sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
                                         break;
                                     case ConflictResolution.GoogleWins:
-                                        //TODO: what about categories/groups?
                                         ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
                                         sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
                                         break;
