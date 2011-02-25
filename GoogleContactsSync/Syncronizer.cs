@@ -384,14 +384,18 @@ namespace GoContactSyncMod
 
             }     
 			
+            ////Only for debugging or reset purpose: Delete all Gougle Groups:
+            //for (int i = _googleGroups.Count; i > 0;i-- )
+            //    _googleService.Delete(_googleGroups[i-1]);
+
 		}
 
-       
+
 
         /// <summary>
         /// Load the contacts from Google and Outlook and match them
         /// </summary>
-		public void Load()
+        public void Load()
 		{
 			LoadOutlookContacts();
 			LoadGoogleContacts();
@@ -979,7 +983,7 @@ namespace GoContactSyncMod
 			List<string> newCats = new List<string>(newGroups.Count);
 			foreach (Group group in newGroups)
             {   //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
-                if (!string.IsNullOrEmpty(group.SystemGroup))
+                if (string.IsNullOrEmpty(group.SystemGroup))
 				    newCats.Add(group.Title);
 			}
 
