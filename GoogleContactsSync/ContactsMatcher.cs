@@ -101,7 +101,7 @@ namespace GoContactSyncMod
 				}                               
 
 
-				//try to match this contact to one of google contacts, but only if matches shall not be reset
+				//try to match this contact to one of google contacts
 				Outlook.UserProperty idProp = olc.UserProperties[sync.OutlookPropertyNameId];
                 if (idProp != null)
                 {
@@ -126,12 +126,12 @@ namespace GoContactSyncMod
                             if (existingMatch.OutlookContact.UserProperties[sync.OutlookPropertyNameId].Value.Equals(idProp.Value))
                             {
                                 matchIsDuplicate = true;
-                                idProp.Value = "";
-                                outlookContactsWithoutOutlookGoogleId.Add(olc);
+                                idProp.Value = "";                                
                                 break;
                             }
 
                         }
+                        outlookContactsWithoutOutlookGoogleId.Add(olc);
 
                         if (!matchIsDuplicate)
                             result.Add(match);
