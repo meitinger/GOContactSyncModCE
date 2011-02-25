@@ -981,8 +981,8 @@ namespace GoContactSyncMod
 			List<string> newCats = new List<string>(newGroups.Count);
 			foreach (Group group in newGroups)
             {   //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
-                if (string.IsNullOrEmpty(group.SystemGroup))
-				    newCats.Add(group.Title);
+                //if (string.IsNullOrEmpty(group.SystemGroup))
+				 newCats.Add(group.Title);
 			}
 
 			slave.Categories = string.Join(", ", newCats.ToArray());
