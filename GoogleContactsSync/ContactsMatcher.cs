@@ -120,12 +120,12 @@ namespace GoContactSyncMod
                     {
                         //If no match found, is the contact either deleted on Google side or was a copy on Outlook side 
                         //If it is a copy on Outlook side, the idProp.Value must be emptied to assure, the contact is created on Google side and not deleted on Outlook side
-                        bool matchIsDuplicate = false;
+                        //bool matchIsDuplicate = false;
                         foreach (ContactMatch existingMatch in result)
                         {
                             if (existingMatch.OutlookContact.UserProperties[sync.OutlookPropertyNameId].Value.Equals(idProp.Value))
                             {
-                                matchIsDuplicate = true;
+                                //matchIsDuplicate = true;
                                 idProp.Value = "";                                
                                 break;
                             }
@@ -133,8 +133,8 @@ namespace GoContactSyncMod
                         }
                         outlookContactsWithoutOutlookGoogleId.Add(olc);
 
-                        if (!matchIsDuplicate)
-                            result.Add(match);
+                        //if (!matchIsDuplicate)
+                        //    result.Add(match);
                     }
 
                 }
