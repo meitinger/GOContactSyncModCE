@@ -23,11 +23,9 @@ namespace GoContactSyncMod.UnitTests
         Syncronizer sync;
 
         //ToDo: Add a common Test account to the App.config and read it from there, encrypt the password
-        //const string gmailUsername = "<Please insert a valid Gmail.Username here>";
-        //const string gmailPassword = "<Please insert a valid Gmail.Password here>";
-        const string gmailUsername = "saller.flo@googlemail.com";
-        const string gmailPassword = "Goo1&chI-Nic";
-
+        const string gmailUsername = "<Please insert a valid Gmail.Username here>";
+        const string gmailPassword = "<Please insert a valid Gmail.Password here>";
+        
         //Constants for test contact
         const string name = "AN_OUTLOOK_TEST_CONTACT";
         const string email = "email00@outlook.com";
