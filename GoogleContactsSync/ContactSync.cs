@@ -16,6 +16,7 @@ namespace GoContactSyncMod
         private const string relSpouse = "spouse";
         private const string relChild = "child";
         private const string relAnniversary = "anniversary";
+        private const string relHomePage = "home-page";
     
         //public static void UpdateContact(Contact source, Outlook.ContactItem destination)
         //{
@@ -463,7 +464,7 @@ namespace GoContactSyncMod
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
             slave.ContactEntry.Language = master.Language;
-            //ToDo: Sync some fields from second Outlook contact tab, e.g. Department, Web Address URL, ...
+            //ToDo: Sync department from second Outlook contact tab
 
 			SetEmails(master, slave);
 
@@ -520,7 +521,16 @@ namespace GoContactSyncMod
                 rel.Value = master.Children;                
                 slave.ContactEntry.Relations.Add(rel);
             }
-        
+
+            slave.ContactEntry.Websites.Clear();
+            //Just copy the first URL, because Outlook only has 1
+            if (master.WebPage != null)
+            {
+                Website url = new Website();
+                url.Href = master.WebPage;
+                url.Rel = relHomePage;
+                slave.ContactEntry.Websites.Add(url);
+            }
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
             //slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
@@ -574,7 +584,7 @@ namespace GoContactSyncMod
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
             slave.Language = master.ContactEntry.Language;
-            //ToDo: Sync some fields from second Outlook contact tab, e.g. Department, Web Address URL, ...
+            //ToDo: Sync department from second Outlook contact tab
             
 			SetEmails(master, slave);
 
@@ -665,6 +675,10 @@ namespace GoContactSyncMod
                 if (rel.Rel != null && rel.Rel.Equals(relSpouse))
                     slave.Spouse = rel.Value;
             }
+
+            //Just copy the first URL, because Outlook only has 1
+            if (master.ContactEntry.Websites.Count > 0)
+                slave.WebPage = master.ContactEntry.Websites[0].Href;
 
 			slave.Body = master.Content;
 		}
