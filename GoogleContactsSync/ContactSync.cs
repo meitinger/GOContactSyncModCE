@@ -9,8 +9,14 @@ using Google.Contacts;
 
 namespace GoContactSyncMod
 {
+    
 	internal static class ContactSync
 	{
+        private static DateTime outlookDateNone = new DateTime(4501, 1, 1);
+        private const string relSpouse = "spouse";
+        private const string relChild = "child";
+        private const string relAnniversary = "anniversary";
+    
         //public static void UpdateContact(Contact source, Outlook.ContactItem destination)
         //{
         //    //// if no email or number, contact will be updated at each sync
@@ -448,7 +454,7 @@ namespace GoContactSyncMod
             name.NameSuffix = master.Suffix;
             slave.Name = name;
 
-            if (master.Birthday.Year < 1900 || master.Birthday.Year >= 4501)
+            if (master.Birthday.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
                 slave.ContactEntry.Birthday = null;
             else
                 slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
@@ -457,7 +463,7 @@ namespace GoContactSyncMod
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
             slave.ContactEntry.Language = master.Language;
-            //ToDo: Sync some fields from second Outlook contact tab, e.g. Anniversary, Department, Partner, Web Address URL, ...
+            //ToDo: Sync some fields from second Outlook contact tab, e.g. Department, Web Address URL, ...
 
 			SetEmails(master, slave);
 
@@ -468,6 +474,53 @@ namespace GoContactSyncMod
 			SetCompanies(master, slave);
 
 			SetIMs(master, slave);
+
+            //First remove anniversary
+            foreach (Event ev in slave.ContactEntry.Events)
+            {
+                if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
+                {
+                    slave.ContactEntry.Events.Remove(ev);
+                    break;
+                }
+            }
+            //Then add it again if existing
+            if (!master.Anniversary.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
+            {
+                Event ev = new Event();
+                ev.Relation = relAnniversary;
+                ev.When = new When();
+                ev.When.AllDay = true;
+                ev.When.StartTime = master.Anniversary.Date;            
+                slave.ContactEntry.Events.Add(ev);
+            }
+
+            //First remove spouse and child
+            foreach (Relation rel in slave.ContactEntry.Relations)
+            {
+                if (rel.Rel != null && (rel.Rel.Equals(relSpouse) || rel.Rel.Equals(relChild)))
+                {
+                    slave.ContactEntry.Relations.Remove(rel);
+                    break;
+                }
+            }
+            //Then add spouse again if existing
+            if (!string.IsNullOrEmpty(master.Spouse))        
+            {
+                Relation rel = new Relation();
+                rel.Rel = relSpouse;
+                rel.Value = master.Spouse;                
+                slave.ContactEntry.Relations.Add(rel);
+            }
+            //Then add children again if existing
+            if (!string.IsNullOrEmpty(master.Children))               
+            {
+                Relation rel = new Relation();
+                rel.Rel = relChild;
+                rel.Value = master.Children;                
+                slave.ContactEntry.Relations.Add(rel);
+            }
+        
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
             //slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
@@ -515,13 +568,13 @@ namespace GoContactSyncMod
             if (birthday != DateTime.MinValue)
                 slave.Birthday = birthday;
             else
-                slave.Birthday = new DateTime(4501, 1, 1);
+                slave.Birthday = outlookDateNone;
             slave.NickName = master.ContactEntry.Nickname;
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
             slave.Language = master.ContactEntry.Language;
-            //ToDo: Sync some fields from second Outlook contact tab, e.g. Anniversary, Department, Partner, Web Address URL, ...
+            //ToDo: Sync some fields from second Outlook contact tab, e.g. Department, Web Address URL, ...
             
 			SetEmails(master, slave);
 
@@ -594,6 +647,24 @@ namespace GoContactSyncMod
 					slave.IMAddress += im.Protocol + ": " + im.Address;
 				slave.IMAddress += im.Address;
 			}            
+
+            
+            slave.Anniversary = outlookDateNone; //set to empty first
+            foreach (Event ev in master.ContactEntry.Events)
+            {
+                if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
+                    slave.Anniversary = ev.When.StartTime.Date;
+            }
+
+            slave.Children = null;
+            slave.Spouse = null;
+            foreach (Relation rel in master.ContactEntry.Relations)
+            {
+                if (rel.Rel != null && rel.Rel.Equals(relChild))
+                    slave.Children = rel.Value;
+                if (rel.Rel != null && rel.Rel.Equals(relSpouse))
+                    slave.Spouse = rel.Value;
+            }
 
 			slave.Body = master.Content;
 		}
