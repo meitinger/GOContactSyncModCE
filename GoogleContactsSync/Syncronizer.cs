@@ -20,6 +20,7 @@ namespace GoContactSyncMod
 	{
 		public const int OutlookUserPropertyMaxLength = 32;
 		public const string OutlookUserPropertyTemplate = "g/con/{0}/";
+        private const string myContactsGroup = "System Group: My Contacts";
 		private static object _syncRoot = new object();
 
 		private int _totalCount;
@@ -966,6 +967,18 @@ namespace GoContactSyncMod
 					Utilities.AddGoogleGroup(slave, g);
 				}
 			}
+
+            //add system Group My Contacts            
+            if (!Utilities.ContainsGroup(this, slave, myContactsGroup))
+            {
+                // add group to contact
+                g = GetGoogleGroupByName(myContactsGroup);
+                if (g == null)
+                {
+                    throw new Exception(string.Format("Google System Group: My Contacts doesn't exist", myContactsGroup));
+                }
+                Utilities.AddGoogleGroup(slave, g);
+            }
 		}
 
 		/// <summary>
@@ -981,8 +994,8 @@ namespace GoContactSyncMod
 			List<string> newCats = new List<string>(newGroups.Count);
 			foreach (Group group in newGroups)
             {   //Only add groups that are no SystemGroup (e.g. "System Group: Meine Kontakte") automatically tracked by Google
-                //if (string.IsNullOrEmpty(group.SystemGroup))
-				 newCats.Add(group.Title);
+                if (group.Title != null && !group.Title.Equals(myContactsGroup))
+				    newCats.Add(group.Title);
 			}
 
 			slave.Categories = string.Join(", ", newCats.ToArray());
