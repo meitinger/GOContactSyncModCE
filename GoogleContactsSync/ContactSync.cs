@@ -432,8 +432,9 @@ namespace GoContactSyncMod
             //    }					
             //}
 
-			//TODO: convert to merge as opposed to replace
+            //TODO: convert to merge as opposed to replace
 
+            #region Title/FileAs
             if (master.FileAs != master.Email1Address)
             {
                 slave.Title = master.FileAs;
@@ -446,7 +447,9 @@ namespace GoContactSyncMod
 
 			if (slave.Title == null)
 				slave.Title = master.CompanyName;
+            #endregion Title/FileAs
 
+            #region Name
             Name name = new Name();
             name.FullName = master.FullName;
 
@@ -456,11 +459,15 @@ namespace GoContactSyncMod
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
             slave.Name = name;
+            #endregion Name
 
+            #region Birtday
             if (master.Birthday.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
                 slave.ContactEntry.Birthday = null;
             else
                 slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
+            #endregion Birthday
+
             slave.ContactEntry.Nickname = master.NickName;
             slave.Location = master.OfficeLocation;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
@@ -477,6 +484,7 @@ namespace GoContactSyncMod
 
 			SetIMs(master, slave);
 
+            #region anniversary
             //First remove anniversary
             foreach (Event ev in slave.ContactEntry.Events)
             {
@@ -496,7 +504,9 @@ namespace GoContactSyncMod
                 ev.When.StartTime = master.Anniversary.Date;            
                 slave.ContactEntry.Events.Add(ev);
             }
+            #endregion anniversary
 
+            #region spouse and child
             //First remove spouse and child
             foreach (Relation rel in slave.ContactEntry.Relations)
             {
@@ -522,10 +532,12 @@ namespace GoContactSyncMod
                 rel.Value = master.Children;                
                 slave.ContactEntry.Relations.Add(rel);
             }
+            #endregion spouse and child
 
+            #region HomePage
             slave.ContactEntry.Websites.Clear();
             //Just copy the first URL, because Outlook only has 1
-            if (string.IsNullOrEmpty(master.WebPage))
+            if (!string.IsNullOrEmpty(master.WebPage))
             {
                 Website url = new Website();
                 url.Href = master.WebPage;
@@ -533,11 +545,12 @@ namespace GoContactSyncMod
                 url.Primary = true;
                 slave.ContactEntry.Websites.Add(url);
             }
+            #endregion HomePage
 
             // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
             //slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
             //floriwan: Maybe better to jusst esapce the XML instead of putting it in CDATA, because this causes a CDATA added to all my contacts
-            if (master.Body != null)
+            if (!string.IsNullOrEmpty(master.Body))
                 slave.Content = String.Format(System.Security.SecurityElement.Escape(master.Body));
             else
                 slave.Content = null;
@@ -547,9 +560,10 @@ namespace GoContactSyncMod
 		{
 			//// if no email or number, contact will be updated at each sync
 			//if (master.Emails.Count == 0 && master.Phonenumbers.Count == 0)
-			//    return;
+            //    return;
 
-			if (!string.IsNullOrEmpty(master.Title))
+            #region Title/FileAs
+            if (!string.IsNullOrEmpty(master.Title))
 				slave.FileAs = master.Title;
 			else if (master.Emails.Count > 0)
 				slave.FileAs = master.Emails[0].Address;
@@ -566,14 +580,19 @@ namespace GoContactSyncMod
 					Logger.Log("Google Contact '" + master.Summary + "' has neither E-Mail address nor phone number. Cannot merge with Outlook contact: " + slave.FullNameAndCompany, EventType.Error);
 					return;
 				}
-			}
-            
+            }
+            #endregion Title/FileAs
+
+            #region Name
             slave.FullName = master.Name.FullName;
             slave.Title = master.Name.NamePrefix;
             slave.FirstName = master.Name.GivenName;
             slave.MiddleName = master.Name.AdditonalName;
             slave.LastName = master.Name.FamilyName;
             slave.Suffix = master.Name.NameSuffix;
+            #endregion Name
+
+            #region birthday
             DateTime birthday;
             DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
 
@@ -581,6 +600,8 @@ namespace GoContactSyncMod
                 slave.Birthday = birthday;
             else
                 slave.Birthday = outlookDateNone;
+            #endregion birthday
+
             slave.NickName = master.ContactEntry.Nickname;
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
@@ -589,6 +610,7 @@ namespace GoContactSyncMod
             
 			SetEmails(master, slave);
 
+            #region phones
             //First delete the destination phone numbers
             slave.HomeTelephoneNumber = string.Empty;
             slave.Home2TelephoneNumber = string.Empty;
@@ -605,9 +627,11 @@ namespace GoContactSyncMod
 			foreach (PhoneNumber phone in master.Phonenumbers)
 			{                
 				SetPhoneNumber(phone, slave);
-			}
+            }
+            #endregion phones
 
-            //ToDo: What if the OutlookContact only has e.g. HomeAddress or BusinessAddress properties set, without the structured postal address? Normally this should happen
+
+            #region addresses
             slave.HomeAddress = string.Empty;
             slave.HomeAddressStreet = string.Empty;
             slave.HomeAddressCity = string.Empty;
@@ -630,9 +654,11 @@ namespace GoContactSyncMod
 			foreach (StructuredPostalAddress address in master.PostalAddresses)
 			{
 				SetPostalAddress(address, slave);
-			}
+            }
+            #endregion addresses
 
-			slave.Companies = string.Empty;
+            #region companies
+            slave.Companies = string.Empty;
             slave.CompanyName = string.Empty;
             slave.JobTitle = string.Empty;
             slave.Department = string.Empty;
@@ -651,8 +677,10 @@ namespace GoContactSyncMod
 					slave.Companies += "; ";
 				slave.Companies += company.Name;
 			}
+            #endregion companies
 
-			slave.IMAddress = string.Empty;
+            #region IM
+            slave.IMAddress = string.Empty;
 			foreach (IMAddress im in master.IMs)
 			{
 				if (!string.IsNullOrEmpty(slave.IMAddress))
@@ -660,16 +688,19 @@ namespace GoContactSyncMod
 				if (!string.IsNullOrEmpty(im.Protocol))
 					slave.IMAddress += im.Protocol + ": " + im.Address;
 				slave.IMAddress += im.Address;
-			}            
+			}        
+            #endregion IM
 
-            
+            #region anniversary
             slave.Anniversary = outlookDateNone; //set to empty first
             foreach (Event ev in master.ContactEntry.Events)
             {
                 if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
                     slave.Anniversary = ev.When.StartTime.Date;
             }
+            #endregion anniversary
 
+            #region spouse and child
             slave.Children = string.Empty;
             slave.Spouse = string.Empty;
             foreach (Relation rel in master.ContactEntry.Relations)
@@ -679,6 +710,7 @@ namespace GoContactSyncMod
                 if (rel.Rel != null && rel.Rel.Equals(relSpouse))
                     slave.Spouse = rel.Value;
             }
+            #endregion spouse and child
 
             //Just copy the first URL, because Outlook only has 1
             if (master.ContactEntry.Websites.Count > 0)
