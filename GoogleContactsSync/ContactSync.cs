@@ -318,17 +318,19 @@ namespace GoContactSyncMod
 					Organization company = new Organization();
                     company.Name = (destination.Organizations.Count == 0) ? source.CompanyName : null;
                     company.Title = (destination.Organizations.Count == 0)?source.JobTitle : null;
+                    company.Department = (destination.Organizations.Count == 0) ? source.Department : null;
 					company.Primary = destination.Organizations.Count == 0;
 					company.Rel = ContactsRelationships.IsWork;
 					destination.Organizations.Add(company);
 				}
 			}
 
-			if (destination.Organizations.Count == 0 && (!string.IsNullOrEmpty(source.CompanyName) || !string.IsNullOrEmpty(source.JobTitle)))
+			if (destination.Organizations.Count == 0 && (!string.IsNullOrEmpty(source.CompanyName) || !string.IsNullOrEmpty(source.JobTitle) || !string.IsNullOrEmpty(source.Department)))
 			{
 				Organization company = new Organization();
 				company.Name = source.CompanyName;
                 company.Title = source.JobTitle;
+                company.Department = source.Department;
 				company.Primary = true;
 				company.Rel = ContactsRelationships.IsWork;
 				destination.Organizations.Add(company);
@@ -524,11 +526,12 @@ namespace GoContactSyncMod
 
             slave.ContactEntry.Websites.Clear();
             //Just copy the first URL, because Outlook only has 1
-            if (master.WebPage != null)
+            if (string.IsNullOrEmpty(master.WebPage))
             {
                 Website url = new Website();
                 url.Href = master.WebPage;
                 url.Rel = relHomePage;
+                url.Primary = true;
                 slave.ContactEntry.Websites.Add(url);
             }
 
@@ -589,17 +592,17 @@ namespace GoContactSyncMod
 			SetEmails(master, slave);
 
             //First delete the destination phone numbers
-            slave.HomeTelephoneNumber = null;
-            slave.Home2TelephoneNumber = null;
-            slave.BusinessTelephoneNumber = null;
-            slave.Business2TelephoneNumber = null;
-            slave.MobileTelephoneNumber = null;
-            slave.BusinessFaxNumber = null;
-            slave.HomeFaxNumber = null;
-            slave.PagerNumber = null;
-            slave.RadioTelephoneNumber = null;
-            slave.OtherTelephoneNumber = null;
-            slave.CarTelephoneNumber = null;
+            slave.HomeTelephoneNumber = string.Empty;
+            slave.Home2TelephoneNumber = string.Empty;
+            slave.BusinessTelephoneNumber = string.Empty;
+            slave.Business2TelephoneNumber = string.Empty;
+            slave.MobileTelephoneNumber = string.Empty;
+            slave.BusinessFaxNumber = string.Empty;
+            slave.HomeFaxNumber = string.Empty;
+            slave.PagerNumber = string.Empty;
+            slave.RadioTelephoneNumber = string.Empty;
+            slave.OtherTelephoneNumber = string.Empty;
+            slave.CarTelephoneNumber = string.Empty;
             
 			foreach (PhoneNumber phone in master.Phonenumbers)
 			{                
@@ -607,23 +610,23 @@ namespace GoContactSyncMod
 			}
 
             //ToDo: What if the OutlookContact only has e.g. HomeAddress or BusinessAddress properties set, without the structured postal address? Normally this should happen
-            slave.HomeAddress = null;
-            slave.HomeAddressStreet = null;
-            slave.HomeAddressCity = null;
-            slave.HomeAddressPostalCode = null;
-            slave.HomeAddressCountry = null;
+            slave.HomeAddress = string.Empty;
+            slave.HomeAddressStreet = string.Empty;
+            slave.HomeAddressCity = string.Empty;
+            slave.HomeAddressPostalCode = string.Empty;
+            slave.HomeAddressCountry = string.Empty;
 
-            slave.BusinessAddress = null;
-            slave.BusinessAddressStreet = null;
-            slave.BusinessAddressCity = null;
-            slave.BusinessAddressPostalCode = null;
-            slave.BusinessAddressCountry = null;
+            slave.BusinessAddress = string.Empty;
+            slave.BusinessAddressStreet = string.Empty;
+            slave.BusinessAddressCity = string.Empty;
+            slave.BusinessAddressPostalCode = string.Empty;
+            slave.BusinessAddressCountry = string.Empty;
 
-            slave.OtherAddress = null;
-            slave.OtherAddressStreet = null;
-            slave.OtherAddressCity = null;
-            slave.OtherAddressPostalCode = null;
-            slave.OtherAddressCountry = null;
+            slave.OtherAddress = string.Empty;
+            slave.OtherAddressStreet = string.Empty;
+            slave.OtherAddressCity = string.Empty;
+            slave.OtherAddressPostalCode = string.Empty;
+            slave.OtherAddressCountry = string.Empty;
 
             slave.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olNone;
 			foreach (StructuredPostalAddress address in master.PostalAddresses)
@@ -633,22 +636,25 @@ namespace GoContactSyncMod
 
 			slave.Companies = string.Empty;
             slave.CompanyName = string.Empty;
+            slave.JobTitle = string.Empty;
+            slave.Department = string.Empty;
 			foreach (Organization company in master.Organizations)
 			{
-				if (string.IsNullOrEmpty(company.Name) && string.IsNullOrEmpty(company.Title))
+				if (string.IsNullOrEmpty(company.Name) && string.IsNullOrEmpty(company.Title) && string.IsNullOrEmpty(company.Department))
 					continue;
 
 				if (company.Primary)
                 {
 					slave.CompanyName = company.Name;
                     slave.JobTitle = company.Title;
+                    slave.Department = company.Department;
                 }
 				if (!string.IsNullOrEmpty(slave.Companies))
 					slave.Companies += "; ";
 				slave.Companies += company.Name;
 			}
 
-			slave.IMAddress = "";
+			slave.IMAddress = string.Empty;
 			foreach (IMAddress im in master.IMs)
 			{
 				if (!string.IsNullOrEmpty(slave.IMAddress))
@@ -666,8 +672,8 @@ namespace GoContactSyncMod
                     slave.Anniversary = ev.When.StartTime.Date;
             }
 
-            slave.Children = null;
-            slave.Spouse = null;
+            slave.Children = string.Empty;
+            slave.Spouse = string.Empty;
             foreach (Relation rel in master.ContactEntry.Relations)
             {
                 if (rel.Rel != null && rel.Rel.Equals(relChild))
@@ -678,7 +684,7 @@ namespace GoContactSyncMod
 
             //Just copy the first URL, because Outlook only has 1
             if (master.ContactEntry.Websites.Count > 0)
-                slave.WebPage = master.ContactEntry.Websites[0].Href;
+                slave.WebPage = master.ContactEntry.Websites[0].Href; 
 
 			slave.Body = master.Content;
 		}
