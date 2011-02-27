@@ -466,7 +466,6 @@ namespace GoContactSyncMod
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
             slave.ContactEntry.Language = master.Language;
-            //ToDo: Sync department from second Outlook contact tab
 
 			SetEmails(master, slave);
 
@@ -587,7 +586,6 @@ namespace GoContactSyncMod
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
             slave.Language = master.ContactEntry.Language;
-            //ToDo: Sync department from second Outlook contact tab
             
 			SetEmails(master, slave);
 
