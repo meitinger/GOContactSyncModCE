@@ -547,11 +547,11 @@ namespace GoContactSyncMod
             }
             #endregion HomePage
 
-            // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
+            //CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
             //slave.Content = String.Format("<![CDATA[{0}]]>", master.Body);
-            //floriwan: Maybe better to jusst esapce the XML instead of putting it in CDATA, because this causes a CDATA added to all my contacts
+            //floriwan: Maybe better to just escape the XML instead of putting it in CDATA, because this causes a CDATA added to all my contacts
             if (!string.IsNullOrEmpty(master.Body))
-                slave.Content = String.Format(System.Security.SecurityElement.Escape(master.Body));
+                slave.Content = System.Security.SecurityElement.Escape(master.Body);
             else
                 slave.Content = null;
 		}
