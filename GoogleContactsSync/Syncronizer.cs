@@ -339,6 +339,12 @@ namespace GoContactSyncMod
 				ContactsQuery query = new ContactsQuery(ContactsQuery.CreateContactsUri("default"));
 				query.NumberToRetrieve = 256;
 				query.StartIndex = 0;
+
+                //Only load Google Contacts in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts")
+                Group group = GetGoogleGroupByName(myContactsGroup);
+                if (group != null)
+                    query.Group = group.Id;
+
 				//query.ShowDeleted = false;
 				//query.OrderBy = "lastmodified";
                 				
@@ -399,8 +405,8 @@ namespace GoContactSyncMod
         public void Load()
 		{
 			LoadOutlookContacts();
+            LoadGoogleGroups();
 			LoadGoogleContacts();
-			LoadGoogleGroups();
 
 			DuplicateDataException duplicateDataException;
 			_matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
@@ -440,21 +446,47 @@ namespace GoContactSyncMod
 
                 //Remove Google duplicates from matches to be synced
                 if (_googleContactDuplicates != null)
-                    foreach (ContactMatch match in _googleContactDuplicates)
+                {
+                    for (int i = _googleContactDuplicates.Count -1; i>=0; i--)
+                    {
+                        ContactMatch match = _googleContactDuplicates[i];
                         if (_matches.Contains(match))
                         {
                             _skippedCount++;
                             _matches.Remove(match);
                         }
+                    }
+                }
 
                 //Remove Outlook duplicates from matches to be synced
                 if (_outlookContactDuplicates != null)
-                    foreach (ContactMatch match in _outlookContactDuplicates)
+                {
+                    for (int i = _outlookContactDuplicates.Count -1; i>=0;i--)
+                    {
+                        ContactMatch match = _outlookContactDuplicates[i];
                         if (_matches.Contains(match))
                         {
                             _skippedCount++;
                             _matches.Remove(match);
                         }
+                    }
+                }
+
+                ////Remove remaining google contacts not in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts"
+                //Group syncGroup = GetGoogleGroupByName(myContactsGroup);
+                //if (syncGroup != null)
+                //{
+                //    for (int i = _googleContacts.Count -1 ;i >=0; i--)
+                //    {
+                //        Contact googleContact = _googleContacts[i];
+                //        Collection<Group> googleContactGroups = Utilities.GetGoogleGroups(this, googleContact);
+
+                //        if (!googleContactGroups.Contains(syncGroup))
+                //            _googleContacts.Remove(googleContact);
+                        
+                //    }
+                //}                                    
+
 
 				Logger.Log("Syncing groups...", EventType.Information);
 				ContactsMatcher.SyncGroups(this);
