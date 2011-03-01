@@ -9,12 +9,12 @@ using System.Resources;
 [assembly: AssemblyTitle("GO Contact Sync Mod")]
 [assembly: AssemblyDescription("Synchronize your Outlook and Google contacts. Visit our Project Homepage at http://googlesyncmod.sourceforge.net")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("WebGear Ltd, New Zealand + Create Software + Stru.be + Saller")]
+[assembly: AssemblyCompany("WebGear Ltd, New Zealand + Create Software + Stru.be + saller.NET")]
 [assembly: AssemblyProduct("GO Contact Sync Mod")] //forked from GO Contact Sync, updated by Create Software and Stru.be and floriwan
-[assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009, parts © Create Software (Clément Pit--Claudel), parts © Stru.be (Stefan Strube), parts © floriwan (Florian Saller) ")]
+[assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009, parts © Create Software (Clément Pit--Claudel), parts © Stru.be (Stefan Strube), parts © saller.NET (Florian Saller) ")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-//[assembly: InternalsVisibleTo("GOContactSyncMod.UnitTests")]
+[assembly: InternalsVisibleTo("GOContactSyncMod.UnitTests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -31,6 +31,6 @@ using System.Resources;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.0.*")]
-[assembly: AssemblyFileVersion("3.0")]
+[assembly: AssemblyVersion("3.1.*")]
+[assembly: AssemblyFileVersion("3.1")]
 [assembly: NeutralResourcesLanguageAttribute("en-GB")]
