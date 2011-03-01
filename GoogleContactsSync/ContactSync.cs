@@ -280,13 +280,14 @@ namespace GoContactSyncMod
 				destination.Phonenumbers.Add(phoneNumber);
 			}
 
-			if (!string.IsNullOrEmpty(source.RadioTelephoneNumber))
-			{
-				PhoneNumber phoneNumber = new PhoneNumber(source.RadioTelephoneNumber);
-				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
-				phoneNumber.Rel = ContactsRelationships.IsMobile;
-				destination.Phonenumbers.Add(phoneNumber);
-			}
+            //ToDo: Currently IsSatellite is returned as invalid Rel value
+            //if (!string.IsNullOrEmpty(source.RadioTelephoneNumber))
+            //{
+            //    PhoneNumber phoneNumber = new PhoneNumber(source.RadioTelephoneNumber);
+            //    phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+            //    phoneNumber.Rel = ContactsRelationships.IsSatellite;
+            //    destination.Phonenumbers.Add(phoneNumber);
+            //}
 
 			if (!string.IsNullOrEmpty(source.PagerNumber))
 			{
@@ -367,8 +368,8 @@ namespace GoContactSyncMod
 				destination.HomeFaxNumber = phone.Value;
             else if (phone.Rel == ContactsRelationships.IsPager)
 				destination.PagerNumber = phone.Value;
-			else if (phone.Rel == ContactsRelationships.IsSatellite)
-				destination.RadioTelephoneNumber = phone.Value;
+            //else if (phone.Rel == ContactsRelationships.IsSatellite)
+            //    destination.RadioTelephoneNumber = phone.Value;
 			else if (phone.Rel == ContactsRelationships.IsOther)
 				destination.OtherTelephoneNumber = phone.Value;
 			else if (phone.Rel == ContactsRelationships.IsCar)
@@ -472,7 +473,7 @@ namespace GoContactSyncMod
             slave.Location = master.OfficeLocation;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
-            slave.ContactEntry.Language = master.Language;
+            //slave.ContactEntry.Language = master.Language;
 
 			SetEmails(master, slave);
 
@@ -609,7 +610,7 @@ namespace GoContactSyncMod
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
-            slave.Language = master.ContactEntry.Language;
+            //slave.Language = master.ContactEntry.Language; //ToDo: Doesn't work yet with the Google API
             
 			SetEmails(master, slave);
 
@@ -623,7 +624,7 @@ namespace GoContactSyncMod
             slave.BusinessFaxNumber = string.Empty;
             slave.HomeFaxNumber = string.Empty;
             slave.PagerNumber = string.Empty;
-            slave.RadioTelephoneNumber = string.Empty;
+            //slave.RadioTelephoneNumber = string.Empty;
             slave.OtherTelephoneNumber = string.Empty;
             slave.CarTelephoneNumber = string.Empty;
             

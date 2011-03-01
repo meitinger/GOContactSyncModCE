@@ -769,43 +769,5 @@ namespace GoContactSyncMod
 				OutlookContact.Delete();
 		}
 	}
-
-	//public class GroupMatchList : List<GroupMatch>
-	//{
-	//    public GroupMatchList(int capacity) : base(capacity) { }
-	//}
-
-	//public class GroupMatch
-	//{
-	//    public string OutlookGroup;
-	//    public Group GoogleGroup;
-	//    public readonly List<Group> AllGoogleGroupMatches = new List<Group>(1);
-	//    public Group LastGoogleGroup;
-
-	//    public GroupMatch(string outlookGroup, Group googleGroup)
-	//    {
-	//        OutlookGroup = outlookGroup;
-	//        GoogleGroup = googleGroup;
-	//    }
-
-	//    public void AddGoogleGroup(Group googleGroup)
-	//    {
-	//        if (googleGroup == null)
-	//            return;
-	//        //throw new ArgumentNullException("googleContact must not be null.");
-
-	//        if (GoogleGroup == null)
-	//            GoogleGroup = googleGroup;
-
-	//        //this to avoid searching the entire collection. 
-	//        //if last contact it what we are trying to add the we have already added it earlier
-	//        if (LastGoogleGroup == googleGroup)
-	//            return;
-
-	//        if (!AllGoogleGroupMatches.Contains(googleGroup))
-	//            AllGoogleGroupMatches.Add(googleGroup);
-
-	//        LastGoogleGroup = googleGroup;
-	//    }
-	//}
+    		
 }
