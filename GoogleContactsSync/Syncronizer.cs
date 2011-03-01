@@ -20,7 +20,7 @@ namespace GoContactSyncMod
 	{
 		public const int OutlookUserPropertyMaxLength = 32;
 		public const string OutlookUserPropertyTemplate = "g/con/{0}/";
-        private const string myContactsGroup = "System Group: My Contacts";
+        internal const string myContactsGroup = "System Group: My Contacts";
 		private static object _syncRoot = new object();
 
 		private int _totalCount;
