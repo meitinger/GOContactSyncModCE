@@ -89,6 +89,7 @@ namespace GoContactSyncMod
                 if (!IsContactValid(olc))
 				{
 					Logger.Log(string.Format("Invalid outlook contact ({0}). Skipping", olc.FileAs), EventType.Warning);
+                    sync.SkippedCount++;
 					continue;
 				}
 

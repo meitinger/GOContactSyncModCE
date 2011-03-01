@@ -597,8 +597,10 @@ namespace GoContactSyncMod
             DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
 
             if (birthday != DateTime.MinValue)
+            {
                 if (!birthday.Date.Equals(slave.Birthday.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
                     slave.Birthday = birthday.Date;
+            }
             else
                 slave.Birthday = outlookDateNone;
             #endregion birthday
