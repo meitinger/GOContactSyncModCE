@@ -597,7 +597,8 @@ namespace GoContactSyncMod
             DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
 
             if (birthday != DateTime.MinValue)
-                slave.Birthday = birthday;
+                if (!birthday.Date.Equals(slave.Birthday.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
+                    slave.Birthday = birthday.Date;
             else
                 slave.Birthday = outlookDateNone;
             #endregion birthday
@@ -692,12 +693,19 @@ namespace GoContactSyncMod
             #endregion IM
 
             #region anniversary
-            slave.Anniversary = outlookDateNone; //set to empty first
+            bool found = false;
             foreach (Event ev in master.ContactEntry.Events)
             {
                 if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
-                    slave.Anniversary = ev.When.StartTime.Date;
+                {
+                    if (!ev.When.StartTime.Date.Equals(slave.Anniversary.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
+                        slave.Anniversary = ev.When.StartTime.Date;
+                    found = true;
+                    break;
+                }
             }
+            if (!found)
+                slave.Anniversary = outlookDateNone; //set to empty in the end
             #endregion anniversary
 
             #region spouse and child
