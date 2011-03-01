@@ -448,20 +448,16 @@ namespace GoContactSyncMod
 		{
             if (match.GoogleContact == null && match.OutlookContact != null)
             {
-                //no google contact               
-
-                //TODO: found that when a contacts doesn't have anything other that the name - it's not returned in the google contacts list.
+                //no google contact                               
                 Outlook.UserProperty idProp = match.OutlookContact.UserProperties[sync.OutlookPropertyNameId];
                 if (idProp != null && (string)idProp.Value != "")
                 {
+                    //Avoid recreating a GoogleContact already existing
+                    //==> Delete this outlookContact instead if previous match existed but no match exists anymore
+                    //Redundant check if exist, but in case an error occurred in MatchContacts
                     Contact matchingGoogleContact = sync.GetGoogleContactById((string)idProp.Value);
                     if (matchingGoogleContact == null)
-                    {
-                        //TODO: make sure that outlook contacts don't get deleted when deleting corresponding google contact when testing. 
-                        //solution: use ResetMatching() method to unlink this relation
-                        //sync.ResetMatches();
                         return;
-                    }
                 }
 
                 if (sync.SyncOption == SyncOption.GoogleToOutlookOnly)
@@ -480,19 +476,18 @@ namespace GoContactSyncMod
             }
             else if (match.OutlookContact == null && match.GoogleContact != null)
             {
-                
 
+                // no outlook contact
                 string outlookId = ContactPropertiesUtils.GetGoogleOutlookContactId(sync.SyncProfile, match.GoogleContact);
                 if (outlookId != null)
                 {
-                    //TODO: make sure that google contacts don't get deleted when deleting corresponding outlook contact when testing. 
-                    //solution: use ResetMatching() method to unlink this relation
-                    //sync.ResetMatches();                    
+                    //Avoid recreating a OutlookContact already existing
+                    //==> Delete this googleContact instead if previous match existed but no match exists anymore                
                     return;
 
                 }
 
-                // no outlook contact
+
                 if (sync.SyncOption == SyncOption.OutlookToGoogleOnly)
                 {
                     sync.SkippedCount++;
