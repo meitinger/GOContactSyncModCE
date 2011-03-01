@@ -10,7 +10,7 @@ using System.Resources;
 [assembly: AssemblyDescription("Synchronize your Outlook and Google contacts. Visit our Project Homepage at http://googlesyncmod.sourceforge.net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WebGear Ltd, New Zealand + Create Software + Stru.be + saller.NET")]
-[assembly: AssemblyProduct("GO Contact Sync Mod")] //forked from GO Contact Sync, updated by Create Software and Stru.be and floriwan
+[assembly: AssemblyProduct("GO Contact Sync Mod")] //forked from GO Contact Sync, updated by Create Software and Stru.be and saller.NET
 [assembly: AssemblyCopyright("Copyright © Mikhail Diatchenko 2009, © WebGear Ltd, New Zealand 2009, parts © Create Software (Clément Pit--Claudel), parts © Stru.be (Stefan Strube), parts © saller.NET (Florian Saller) ")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
