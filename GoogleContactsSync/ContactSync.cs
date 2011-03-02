@@ -208,18 +208,18 @@ namespace GoContactSyncMod
 		{
             destination.Phonenumbers.Clear();
 
-			if (!string.IsNullOrEmpty(source.PrimaryTelephoneNumber))
-			{
-				PhoneNumber phoneNumber = new PhoneNumber(source.PrimaryTelephoneNumber);
-				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
-				phoneNumber.Rel = ContactsRelationships.IsMobile;
-				destination.Phonenumbers.Add(phoneNumber);
-			}
+            if (!string.IsNullOrEmpty(source.PrimaryTelephoneNumber))
+            {
+                PhoneNumber phoneNumber = new PhoneNumber(source.PrimaryTelephoneNumber);
+                phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+                phoneNumber.Rel = ContactsRelationships.IsMain;
+                destination.Phonenumbers.Add(phoneNumber);
+            }
 
 			if (!string.IsNullOrEmpty(source.MobileTelephoneNumber))
 			{
 				PhoneNumber phoneNumber = new PhoneNumber(source.MobileTelephoneNumber);
-				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+                phoneNumber.Primary = destination.Phonenumbers.Count == 0;
 				phoneNumber.Rel = ContactsRelationships.IsMobile;
 				destination.Phonenumbers.Add(phoneNumber);
 			}
@@ -227,7 +227,7 @@ namespace GoContactSyncMod
 			if (!string.IsNullOrEmpty(source.HomeTelephoneNumber))
 			{
 				PhoneNumber phoneNumber = new PhoneNumber(source.HomeTelephoneNumber);
-				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+                phoneNumber.Primary = destination.Phonenumbers.Count == 0;
 				phoneNumber.Rel = ContactsRelationships.IsHome;
 				destination.Phonenumbers.Add(phoneNumber);
 			}
@@ -243,7 +243,7 @@ namespace GoContactSyncMod
 			if (!string.IsNullOrEmpty(source.BusinessTelephoneNumber))
 			{
 				PhoneNumber phoneNumber = new PhoneNumber(source.BusinessTelephoneNumber);
-				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+                phoneNumber.Primary = destination.Phonenumbers.Count == 0;
 				phoneNumber.Rel = ContactsRelationships.IsWork;
 				destination.Phonenumbers.Add(phoneNumber);
 			}
@@ -340,10 +340,10 @@ namespace GoContactSyncMod
 
 		public static void SetPhoneNumber(PhoneNumber phone, Outlook.ContactItem destination)
 		{
-            if (phone.Primary)
+            //if (phone.Primary)
+            if (phone.Rel == ContactsRelationships.IsMain)
                 destination.PrimaryTelephoneNumber = phone.Value;
-
-            if (phone.Rel == ContactsRelationships.IsHome)
+            else if (phone.Rel == ContactsRelationships.IsHome)
             {
                 if (destination.HomeTelephoneNumber == null)
                     destination.HomeTelephoneNumber = phone.Value;
@@ -567,9 +567,9 @@ namespace GoContactSyncMod
 
             #region Title/FileAs
             if (!string.IsNullOrEmpty(master.Name.FullName))
-				slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n
+				slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
             else if (!string.IsNullOrEmpty(master.Title))
-                slave.FileAs = master.Title;
+                slave.FileAs = master.Title.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
             else if (master.Organizations.Count > 0 && !string.IsNullOrEmpty(master.Organizations[0].Name))
                 slave.FileAs = master.Organizations[0].Name;
             else if (master.Emails.Count > 0 && !string.IsNullOrEmpty(master.Emails[0].Address))

@@ -166,8 +166,9 @@ namespace GoContactSyncMod
                     //1.1 try to match by FullName
                     //2. try to match by primary email
                     //3. try to match by mobile phone number, don't match by home or business bumbers, because several people may share the same home or business number
-                    if (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(entry.Title, StringComparison.InvariantCultureIgnoreCase) ||
-                        !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(entry.Name.FullName, StringComparison.InvariantCultureIgnoreCase) ||                        
+                    if (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(entry.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||  //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
+                        !string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||                        
                         !string.IsNullOrEmpty(olc.Email1Address) && entry.Emails.Count > 0 && olc.Email1Address.Equals(entry.Emails[0].Address) ||
                         //!string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email2Address, entry.Emails) != null ||
                         //!string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email3Address, entry.Emails) != null ||
@@ -288,8 +289,9 @@ namespace GoContactSyncMod
                     foreach (ContactMatch duplicate in sync.GoogleContactDuplicates)
                     {
                         if (duplicate.AllGoogleContactMatches.Count > 0 &&
-                            (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Title, StringComparison.InvariantCultureIgnoreCase) ||
-                             !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.AllGoogleContactMatches[0].Name.FullName, StringComparison.InvariantCultureIgnoreCase) ||
+                            (!string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Title.Replace("\r\n", "\n").Replace("\n","\r\n"), StringComparison.InvariantCultureIgnoreCase) ||  //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
+                             !string.IsNullOrEmpty(olc.FileAs) && olc.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
+                             !string.IsNullOrEmpty(olc.FullName) && olc.FullName.Equals(duplicate.AllGoogleContactMatches[0].Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
                              !string.IsNullOrEmpty(olc.Email1Address) && duplicate.AllGoogleContactMatches[0].Emails.Count > 0 && olc.Email1Address.Equals(duplicate.AllGoogleContactMatches[0].Emails[0].Address) ||
                              //!string.IsNullOrEmpty(olc.Email2Address) && FindEmail(olc.Email2Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
                              //!string.IsNullOrEmpty(olc.Email3Address) && FindEmail(olc.Email3Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
