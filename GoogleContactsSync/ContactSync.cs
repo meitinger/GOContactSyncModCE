@@ -436,29 +436,31 @@ namespace GoContactSyncMod
             //TODO: convert to merge as opposed to replace
 
             #region Title/FileAs
-            if (master.FileAs != master.Email1Address)
-            {
+        
+            
+            if (!string.IsNullOrEmpty(master.FileAs))
                 slave.Title = master.FileAs;
-            }
+            else if (!string.IsNullOrEmpty(master.FullName))
+				slave.Title = master.FullName;
+            else if (!string.IsNullOrEmpty(master.CompanyName))
+				slave.Title = master.CompanyName;
+            else if (slave.Emails.Count > 0 && !string.IsNullOrEmpty(slave.Emails[0].Address))
+                slave.Title = slave.Emails[0].Address;
             else
                 slave.Title = null;
 
-			if (slave.Title == null)
-				slave.Title = master.FullName;
-
-			if (slave.Title == null)
-				slave.Title = master.CompanyName;
+			
             #endregion Title/FileAs
 
             #region Name
-            Name name = new Name();
-            name.FullName = master.FullName;
-
+            Name name = new Name();            
             name.NamePrefix = master.Title;
             name.GivenName = master.FirstName;
             name.AdditonalName = master.MiddleName;
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
+
+            name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
             slave.Name = name;
             #endregion Name
 
@@ -564,28 +566,32 @@ namespace GoContactSyncMod
             //    return;
 
             #region Title/FileAs
-            if (!string.IsNullOrEmpty(master.Title))
-				slave.FileAs = master.Title;
-			else if (master.Emails.Count > 0)
+            if (!string.IsNullOrEmpty(master.Name.FullName))
+				slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n
+            else if (!string.IsNullOrEmpty(master.Title))
+                slave.FileAs = master.Title;
+            else if (master.Organizations.Count > 0 && !string.IsNullOrEmpty(master.Organizations[0].Name))
+                slave.FileAs = master.Organizations[0].Name;
+            else if (master.Emails.Count > 0 && !string.IsNullOrEmpty(master.Emails[0].Address))
 				slave.FileAs = master.Emails[0].Address;
 			else
 			{
 				if (!String.IsNullOrEmpty(slave.Email1Address))
 				{
-					Logger.Log("Google Contact '" + master.Summary + "' has neither E-Mail address nor phone number. Setting E-Mail address of Outlook contact: " + slave.Email1Address, EventType.Warning);
+					Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Setting E-Mail address of Outlook contact: " + slave.Email1Address, EventType.Warning);
 					master.Emails.Add(new EMail(slave.Email1Address));
 					slave.FileAs = master.Emails[0].Address;
 				}
 				else
 				{
-					Logger.Log("Google Contact '" + master.Summary + "' has neither E-Mail address nor phone number. Cannot merge with Outlook contact: " + slave.FullNameAndCompany, EventType.Error);
+					Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Cannot merge with Outlook contact: " + slave.FileAs, EventType.Error);
 					return;
 				}
             }
             #endregion Title/FileAs
 
             #region Name
-            slave.FullName = master.Name.FullName;
+            //slave.FullName = master.Name.FullName; //The Outlook fullName is automatically set, so don't assign it from Google
             slave.Title = master.Name.NamePrefix;
             slave.FirstName = master.Name.GivenName;
             slave.MiddleName = master.Name.AdditonalName;
@@ -671,8 +677,8 @@ namespace GoContactSyncMod
 				if (string.IsNullOrEmpty(company.Name) && string.IsNullOrEmpty(company.Title) && string.IsNullOrEmpty(company.Department))
 					continue;
 
-				if (company.Primary)
-                {
+				if (company.Primary || company.Equals(master.Organizations[0]))
+                {//Per default copy the first company, but if there is a primary existing, use the primary
 					slave.CompanyName = company.Name;
                     slave.JobTitle = company.Title;
                     slave.Department = company.Department;
@@ -723,9 +729,14 @@ namespace GoContactSyncMod
             }
             #endregion spouse and child
 
-            //Just copy the first URL, because Outlook only has 1
-            if (master.ContactEntry.Websites.Count > 0)
-                slave.WebPage = master.ContactEntry.Websites[0].Href; 
+            foreach (Website website in master.ContactEntry.Websites)
+            {               
+                if (website.Primary || website.Equals(master.ContactEntry.Websites[0]))
+                {//Per default copy the first website, but if there is a primary existing, use the primary
+                    slave.WebPage = master.ContactEntry.Websites[0].Href; 
+                }               
+            }
+                
 
 			slave.Body = master.Content;
 		}
