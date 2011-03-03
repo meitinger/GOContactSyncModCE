@@ -119,6 +119,7 @@ namespace GoContactSyncMod.UnitTests
             //outlookContact.RadioTelephoneNumber = "1234567";
             outlookContact.OtherTelephoneNumber = "12345678";
             outlookContact.CarTelephoneNumber = "123456789";
+            outlookContact.AssistantTelephoneNumber = "987";
             #endregion phones
 
             #region Name
@@ -145,10 +146,15 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.IMAddress = "IMs";
             outlookContact.Anniversary = new DateTime(2000,1,1);
             outlookContact.Children = "Children";
-            outlookContact.Spouse = "Spouse";            
+            outlookContact.Spouse = "Spouse";
+            outlookContact.AssistantName = "Assi";
+            outlookContact.ManagerName = "Chef";
             outlookContact.WebPage = "http://www.test.de";
             outlookContact.Body = "<sn>Content & other stuff</sn>\r\n<![CDATA[  \r\n...\r\n&stuff in CDATA < >\r\n  ]]>";
             outlookContact.Save();
+
+
+            sync.SyncOption = SyncOption.GoogleToOutlookOnly;     
 
             Contact googleContact = new Contact();
             sync.UpdateContact(outlookContact, googleContact);
@@ -161,7 +167,7 @@ namespace GoContactSyncMod.UnitTests
             //load the same contact from google.
             sync.Load();
             match = sync.ContactByProperty(name, email);
-            ContactsMatcher.SyncContact(match, sync);
+            //ContactsMatcher.SyncContact(match, sync);
 
             Outlook.ContactItem recreatedOutlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
             ContactSync.UpdateContact(match.GoogleContact, recreatedOutlookContact);
@@ -183,6 +189,7 @@ namespace GoContactSyncMod.UnitTests
             //Assert.AreEqual(outlookContact.RadioTelephoneNumber, recreatedOutlookContact.RadioTelephoneNumber);
             Assert.AreEqual(outlookContact.OtherTelephoneNumber, recreatedOutlookContact.OtherTelephoneNumber);
             Assert.AreEqual(outlookContact.CarTelephoneNumber, recreatedOutlookContact.CarTelephoneNumber);
+            Assert.AreEqual(outlookContact.AssistantTelephoneNumber, recreatedOutlookContact.AssistantTelephoneNumber);
 
             Assert.AreEqual(outlookContact.HomeAddressStreet, recreatedOutlookContact.HomeAddressStreet);
             Assert.AreEqual(outlookContact.HomeAddressCity, recreatedOutlookContact.HomeAddressCity);
@@ -216,7 +223,10 @@ namespace GoContactSyncMod.UnitTests
             Assert.AreEqual(outlookContact.IMAddress, recreatedOutlookContact.IMAddress); 
             Assert.AreEqual(outlookContact.Anniversary, recreatedOutlookContact.Anniversary); 
             Assert.AreEqual(outlookContact.Children, recreatedOutlookContact.Children); 
-            Assert.AreEqual(outlookContact.Spouse, recreatedOutlookContact.Spouse); 
+            Assert.AreEqual(outlookContact.Spouse, recreatedOutlookContact.Spouse);
+            Assert.AreEqual(outlookContact.ManagerName, recreatedOutlookContact.ManagerName);
+            Assert.AreEqual(outlookContact.AssistantName, recreatedOutlookContact.AssistantName); 
+
             Assert.AreEqual(outlookContact.WebPage, recreatedOutlookContact.WebPage); 
             Assert.AreEqual(outlookContact.Body, recreatedOutlookContact.Body); 
 
