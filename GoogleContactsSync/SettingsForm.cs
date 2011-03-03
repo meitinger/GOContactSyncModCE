@@ -226,9 +226,11 @@ namespace GoContactSyncMod
 				{
                     SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
+
+                    string responseString = ex.ResponseString;
 					if (ex.InnerException is System.Net.WebException)
 					{
-						Logger.Log("Cannot connect to Google, please check if for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message, EventType.Warning);
+						Logger.Log("Cannot connect to Google, please check for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString, EventType.Warning);
 					}
 					else
 					{

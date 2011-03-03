@@ -363,8 +363,8 @@ namespace GoContactSyncMod
 	
 			}
 			catch (System.Net.WebException ex)
-			{
-				string message = string.Format("Cannot connect to Google: {0}. \nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
+			{                               
+				string message = string.Format("Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
 				Logger.Log(message, EventType.Error);
 			}
 		}
@@ -607,29 +607,30 @@ namespace GoContactSyncMod
             match.OutlookContact.Save();
             ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
 
-            Contact updatedEntry;
-            try
-            {
-                updatedEntry = _googleService.Update(match.GoogleContact);
-            }
-            catch (GDataRequestException tmpEx)
-            {
-                // check if it's the known HTCData problem, or if there is any invalid XML element or any unescaped XML sequence
-                if (tmpEx.ResponseString.Contains("HTCData") || tmpEx.ResponseString.Contains("&#39") || match.GoogleContact.Content.Contains("<"))
-                {
-                    bool wasDirty = match.GoogleContact.ContactEntry.Dirty;
-                    // XML escape the content
-                    match.GoogleContact.Content = EscapeXml(match.GoogleContact.Content);
-                    // set dirty to back, cause we don't want the changed content go back to Google without reason
-                    match.GoogleContact.ContactEntry.Content.Dirty = wasDirty;
-                    updatedEntry = _googleService.Update(match.GoogleContact);
+            Contact updatedEntry = SaveGoogleContact(match.GoogleContact);
+            //try
+            //{
+            //    updatedEntry = _googleService.Update(match.GoogleContact);
+            //}
+            //catch (GDataRequestException tmpEx)
+            //{
+            //    // check if it's the known HTCData problem, or if there is any invalid XML element or any unescaped XML sequence
+            //    //if (tmpEx.ResponseString.Contains("HTCData") || tmpEx.ResponseString.Contains("&#39") || match.GoogleContact.Content.Contains("<"))
+            //    //{
+            //    //    bool wasDirty = match.GoogleContact.ContactEntry.Dirty;
+            //    //    // XML escape the content
+            //    //    match.GoogleContact.Content = EscapeXml(match.GoogleContact.Content);
+            //    //    // set dirty to back, cause we don't want the changed content go back to Google without reason
+            //    //    match.GoogleContact.ContactEntry.Content.Dirty = wasDirty;
+            //    //    updatedEntry = _googleService.Update(match.GoogleContact);
                     
-                }
-                else if (!String.IsNullOrEmpty(tmpEx.ResponseString))
-                    throw new ApplicationException(tmpEx.ResponseString, tmpEx);
-                else
-                    throw;
-            }
+            //    //}
+            //    //else 
+            //    if (!String.IsNullOrEmpty(tmpEx.ResponseString))
+            //        throw new ApplicationException(tmpEx.ResponseString, tmpEx);
+            //    else
+            //        throw;
+            //}            
             match.GoogleContact = updatedEntry;
 
             ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
@@ -643,63 +644,8 @@ namespace GoContactSyncMod
 		}
 		public void SaveGoogleContact(ContactMatch match)
 		{
-			//check if this contact was not yet inserted on google.
-			if (match.GoogleContact.ContactEntry.Id.Uri == null)
-			{
-				//insert contact.
-				Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
-
-				try
-				{
-					ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
-
-                    //ToDo: This will fail, if another account with the same email already exists
-					Contact createdEntry = _googleService.Insert(feedUri, match.GoogleContact);
-					match.GoogleContact = createdEntry;
-
-					ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-					match.OutlookContact.Save();
-
-                    SaveGooglePhoto(match);
-				}
-				catch (Exception ex)
-				{
-                    string responseString = "";
-                    if (ex is GDataRequestException)
-                        responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
-					string xml = GetContactXml(match.GoogleContact);
-                    string newEx = String.Format("Error saving NEW Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
-					throw new ApplicationException(newEx, ex);
-				}
-			}
-			else
-			{
-				try
-				{
-					//contact already present in google. just update
-					ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
-
-					//TODO: this will fail if original contact had an empty name or primary email address.
-					Contact updated = _googleService.Update(match.GoogleContact);                 
-					match.GoogleContact = updated;
-
-					ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-					match.OutlookContact.Save();
-
-                    SaveGooglePhoto(match);
-				}
-				catch (Exception ex)
-				{
-                    string responseString = "";
-                    if (ex is GDataRequestException)
-                        responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
-
-					//match.GoogleContact.Summary
-					string xml = GetContactXml(match.GoogleContact);
-					string newEx = String.Format("Error saving EXISTING Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
-					throw new ApplicationException(newEx, ex);
-				}
-			}
+            SaveGoogleContact(match.GoogleContact);
+            SaveGooglePhoto(match);			
 		}
 
 		private string GetContactXml(Contact contact)
@@ -716,7 +662,7 @@ namespace GoContactSyncMod
         /// Only save the google contact without photo update
         /// </summary>
         /// <param name="googleContact"></param>
-		public void SaveGoogleContact(Contact googleContact)
+		public Contact SaveGoogleContact(Contact googleContact)
 		{
 			//check if this contact was not yet inserted on google.
 			if (googleContact.ContactEntry.Id.Uri == null)
@@ -727,6 +673,7 @@ namespace GoContactSyncMod
 				try
 				{
 					Contact createdEntry = _googleService.Insert(feedUri, googleContact);
+                    return createdEntry;
 				}
                 catch (Exception ex)
                 {
@@ -743,8 +690,23 @@ namespace GoContactSyncMod
 				try
 				{
 					//contact already present in google. just update
-					//TODO: this will fail if original contact had an empty name or rpimary email address.
+					
+                    // User can create an empty label custom field on the web, but when I retrieve, and update, it throws this:
+                    // Data Request Error Response: [Line 12, Column 44, element gContact:userDefinedField] Missing attribute: &#39;key&#39;
+                    // Even though I didn't touch it.  So, I will search for empty keys, and give them a simple name.  Better than deleting...
+                    int fieldCount = 0;
+                    foreach (UserDefinedField userDefinedField in googleContact.ContactEntry.UserDefinedFields)
+                    {
+                        fieldCount++;
+                        if (String.IsNullOrEmpty(userDefinedField.Key))
+                        {
+                            userDefinedField.Key = "UserField" + fieldCount.ToString();
+                        }
+                    }
+
+                    //TODO: this will fail if original contact had an empty name or rpimary email address.
                     Contact updated = _googleService.Update(googleContact);
+                    return updated;
 				}
                 catch (Exception ex)
                 {
@@ -752,7 +714,7 @@ namespace GoContactSyncMod
                     if (ex is GDataRequestException)
                         responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
                     string xml = GetContactXml(googleContact);
-                    string newEx = String.Format("Error saving NEW Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
+                    string newEx = String.Format("Error saving EXISTING Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
                     throw new ApplicationException(newEx, ex);
                 }
 			}
