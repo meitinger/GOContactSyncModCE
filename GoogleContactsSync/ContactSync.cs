@@ -15,8 +15,13 @@ namespace GoContactSyncMod
         private static DateTime outlookDateNone = new DateTime(4501, 1, 1);
         private const string relSpouse = "spouse";
         private const string relChild = "child";
+        private const string relManager = "manager";
+        private const string relAssistant = "assistant";
+        
         private const string relAnniversary = "anniversary";
+        
         private const string relHomePage = "home-page";
+        
     
         //public static void UpdateContact(Contact source, Outlook.ContactItem destination)
         //{
@@ -340,7 +345,15 @@ namespace GoContactSyncMod
 				phoneNumber.Primary = destination.Phonenumbers.Count == 0;
 				phoneNumber.Rel = ContactsRelationships.IsCar;
 				destination.Phonenumbers.Add(phoneNumber);
-			}            
+			}
+
+            if (!string.IsNullOrEmpty(source.AssistantTelephoneNumber))
+            {
+                PhoneNumber phoneNumber = new PhoneNumber(source.AssistantTelephoneNumber);
+                phoneNumber.Primary = destination.Phonenumbers.Count == 0;
+                phoneNumber.Rel = ContactsRelationships.IsAssistant;
+                destination.Phonenumbers.Add(phoneNumber);
+            }    
 
 		}
 
@@ -412,10 +425,11 @@ namespace GoContactSyncMod
 				destination.OtherTelephoneNumber = phone.Value;
 			else if (phone.Rel == ContactsRelationships.IsCar)
 				destination.CarTelephoneNumber = phone.Value;
+            else if (phone.Rel == ContactsRelationships.IsAssistant)
+                destination.AssistantTelephoneNumber = phone.Value;
             //else if (phone.Rel == ContactsRelationships.IsVoip)
-            //    destination.Business2TelephoneNumber = phone.Value;
-            //else no phone category matches                       
-
+            //    destination.Business2TelephoneNumber = phone.Value;   
+            //else no phone category matches 
 		}
 
 		public static void SetPostalAddress(StructuredPostalAddress address, Outlook.ContactItem destination)
@@ -548,15 +562,13 @@ namespace GoContactSyncMod
             }
             #endregion anniversary
 
-            #region spouse and child
-            //First remove spouse and child
-            foreach (Relation rel in slave.ContactEntry.Relations)
+            #region relations (spouse, child, manager and assistant)
+            //First remove spouse, child, manager and assistant
+            for (int i=slave.ContactEntry.Relations.Count-1; i>=0;i--)
             {
-                if (rel.Rel != null && (rel.Rel.Equals(relSpouse) || rel.Rel.Equals(relChild)))
-                {
-                    slave.ContactEntry.Relations.Remove(rel);
-                    break;
-                }
+                Relation rel = slave.ContactEntry.Relations[i];
+                if (rel.Rel != null && (rel.Rel.Equals(relSpouse) || rel.Rel.Equals(relChild) || rel.Rel.Equals(relManager) || rel.Rel.Equals(relAssistant)))
+                    slave.ContactEntry.Relations.RemoveAt(i);
             }
             //Then add spouse again if existing
             if (!string.IsNullOrEmpty(master.Spouse))        
@@ -574,7 +586,23 @@ namespace GoContactSyncMod
                 rel.Value = master.Children;                
                 slave.ContactEntry.Relations.Add(rel);
             }
-            #endregion spouse and child
+            //Then add manager again if existing
+            if (!string.IsNullOrEmpty(master.ManagerName))
+            {
+                Relation rel = new Relation();
+                rel.Rel = relManager;
+                rel.Value = master.ManagerName;
+                slave.ContactEntry.Relations.Add(rel);
+            }
+            //Then add assistant again if existing
+            if (!string.IsNullOrEmpty(master.AssistantName))
+            {
+                Relation rel = new Relation();
+                rel.Rel = relAssistant;
+                rel.Value = master.AssistantName;
+                slave.ContactEntry.Relations.Add(rel);
+            }
+            #endregion relations (spouse, child, manager and assistant)
 
             #region HomePage
             slave.ContactEntry.Websites.Clear();
@@ -670,9 +698,10 @@ namespace GoContactSyncMod
             slave.BusinessFaxNumber = string.Empty;
             slave.HomeFaxNumber = string.Empty;
             slave.PagerNumber = string.Empty;
-            //slave.RadioTelephoneNumber = string.Empty;
+            //slave.RadioTelephoneNumber = string.Empty; //IsSatellite is not working with google (invalid rel value is returned)
             slave.OtherTelephoneNumber = string.Empty;
             slave.CarTelephoneNumber = string.Empty;
+            slave.AssistantTelephoneNumber = string.Empty;
             
 			foreach (PhoneNumber phone in master.Phonenumbers)
 			{                
@@ -795,17 +824,23 @@ namespace GoContactSyncMod
                 slave.Anniversary = outlookDateNone; //set to empty in the end
             #endregion anniversary
 
-            #region spouse and child
+            #region relations (spouse, child, manager, assistant)
             slave.Children = string.Empty;
             slave.Spouse = string.Empty;
+            slave.ManagerName = string.Empty;
+            slave.AssistantName = string.Empty;
             foreach (Relation rel in master.ContactEntry.Relations)
             {
                 if (rel.Rel != null && rel.Rel.Equals(relChild))
                     slave.Children = rel.Value;
-                if (rel.Rel != null && rel.Rel.Equals(relSpouse))
+                else if (rel.Rel != null && rel.Rel.Equals(relSpouse))
                     slave.Spouse = rel.Value;
+                else if (rel.Rel != null && rel.Rel.Equals(relManager))
+                    slave.ManagerName = rel.Value;
+                else if (rel.Rel != null && rel.Rel.Equals(relAssistant))
+                    slave.AssistantName = rel.Value;
             }
-            #endregion spouse and child
+            #endregion relations (spouse, child, manager, assistant)
 
             foreach (Website website in master.ContactEntry.Websites)
             {               
