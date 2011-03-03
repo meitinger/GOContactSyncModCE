@@ -473,8 +473,7 @@ namespace GoContactSyncMod
                 //create a Google contact from Outlook contact
                 match.GoogleContact = new Contact();
 
-                ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                sync.UpdateContact(match.OutlookContact, match.GoogleContact);
 
             }
             else if (match.OutlookContact == null && match.GoogleContact != null)
@@ -501,8 +500,7 @@ namespace GoContactSyncMod
                 //create a Outlook contact from Google contact
                 match.OutlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;               
 
-                ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
+                sync.UpdateContact(match.GoogleContact, match.OutlookContact);
             }
             else if (match.OutlookContact != null && match.GoogleContact != null)
             {
@@ -535,15 +533,13 @@ namespace GoContactSyncMod
                             case SyncOption.OutlookToGoogleOnly:
                                 //overwrite google contact
                                 Logger.Log("Outlook and Google contact have been updated, Outlook contact is overwriting Google because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
-                                ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                                sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                                sync.UpdateContact(match.OutlookContact, match.GoogleContact);
                                 break;
                             case SyncOption.MergeGoogleWins:
                             case SyncOption.GoogleToOutlookOnly:
                                 //overwrite outlook contact
                                 Logger.Log("Outlook and Google contact have been updated, Google contact is overwriting Outlook because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
-                                ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                                sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
+                                sync.UpdateContact(match.GoogleContact, match.OutlookContact);                                
                                 break;
                             case SyncOption.MergePrompt:
                                 //promp for sync option
@@ -556,12 +552,10 @@ namespace GoContactSyncMod
                                     case ConflictResolution.Cancel:
                                         throw new ApplicationException("Canceled");
                                     case ConflictResolution.OutlookWins:
-                                        ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                                        sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                                        sync.UpdateContact(match.OutlookContact, match.GoogleContact);
                                         break;
                                     case ConflictResolution.GoogleWins:
-                                        ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                                        sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
+                                        sync.UpdateContact(match.GoogleContact, match.OutlookContact);                                        
                                         break;
                                     default:
                                         break;
@@ -586,8 +580,7 @@ namespace GoContactSyncMod
                             sync.SyncOption == SyncOption.OutlookToGoogleOnly)
                             Logger.Log("Google contact has been updated since last sync, but Outlook contact is overwriting Google because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
 
-                        ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                        sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                        sync.UpdateContact(match.OutlookContact, match.GoogleContact);
 
                         //at the moment use outlook as "master" source of contacts - in the event of a conflict google contact will be overwritten.
                         //TODO: control conflict resolution by SyncOption
@@ -608,8 +601,7 @@ namespace GoContactSyncMod
                             sync.SyncOption == SyncOption.GoogleToOutlookOnly)
                             Logger.Log("Outlook contact has been updated since last sync, but Google contact is overwriting Outlook because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
                         
-                        ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                        sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);                                            
+                        sync.UpdateContact(match.GoogleContact, match.OutlookContact);
                     }
                 }
                 else
@@ -621,14 +613,12 @@ namespace GoContactSyncMod
                         case SyncOption.MergeOutlookWins:
                         case SyncOption.OutlookToGoogleOnly:
                             //overwrite google contact
-                            ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                            sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                            sync.UpdateContact(match.OutlookContact, match.GoogleContact);
                             break;
                         case SyncOption.MergeGoogleWins:
                         case SyncOption.GoogleToOutlookOnly:
                             //overwrite outlook contact
-                            ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                            sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
+                            sync.UpdateContact(match.GoogleContact, match.OutlookContact);
                             break;
                         case SyncOption.MergePrompt:
                             //promp for sync option
@@ -641,12 +631,10 @@ namespace GoContactSyncMod
                                 case ConflictResolution.Cancel:
                                     throw new ApplicationException("Canceled");
                                 case ConflictResolution.OutlookWins:
-                                    ContactSync.MergeContacts(match.OutlookContact, match.GoogleContact);
-                                    sync.OverwriteContactGroups(match.OutlookContact, match.GoogleContact);
+                                    sync.UpdateContact(match.OutlookContact, match.GoogleContact);
                                     break;
                                 case ConflictResolution.GoogleWins:
-                                    ContactSync.MergeContacts(match.GoogleContact, match.OutlookContact);
-                                    sync.OverwriteContactGroups(match.GoogleContact, match.OutlookContact);
+                                    sync.UpdateContact(match.GoogleContact, match.OutlookContact);
                                     break;
                                 default:
                                     break;

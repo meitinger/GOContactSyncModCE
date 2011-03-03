@@ -22,98 +22,7 @@ namespace GoContactSyncMod
         
         private const string relHomePage = "home-page";
         
-    
-        //public static void UpdateContact(Contact source, Outlook.ContactItem destination)
-        //{
-        //    //// if no email or number, contact will be updated at each sync
-        //    //if (source.Emails.Count == 0 && source.Phonenumbers.Count == 0)
-        //    //    return;
-
-
-        //    if (!string.IsNullOrEmpty(source.Title))
-        //        destination.FileAs = source.Title;
-        //    else
-        //        destination.FileAs = source.Emails[0].Address;
-
-        //    SetEmails(source, destination);
-
-        //    //First delete the destination phone numbers having secondary phone numbers
-        //    destination.HomeTelephoneNumber = null;     //secondary: destination.Home2TelephoneNumber
-        //    destination.BusinessTelephoneNumber = null; //secondary: destination.Business2TelephoneNumber
-
-        //    foreach (PhoneNumber phone in source.Phonenumbers)
-        //    {
-        //        SetPhoneNumber(phone, destination);
-        //    }
-
-        //    foreach (PostalAddress address in source.PostalAddresses)
-        //    {
-        //        SetPostalAddress(address, destination);
-        //    }
-
-        //    destination.Companies = string.Empty;
-        //    foreach (Organization company in source.Organizations)
-        //    {
-        //        if (company.Primary)
-        //        {
-        //            destination.CompanyName = company.Name;
-        //            destination.JobTitle = company.Title;
-        //        }
-        //        if (destination.Companies.Length > 0)
-        //            destination.Companies += "; ";
-        //        destination.Companies += company.Name;
-        //    }
-
-        //    destination.IMAddress = "";
-        //    foreach (IMAddress im in source.IMs)
-        //    {
-        //        if (destination.IMAddress.Length > 0)
-        //            destination.IMAddress += "; ";
-        //        if (!string.IsNullOrEmpty(im.Protocol))
-        //            destination.IMAddress += im.Protocol + ": " + im.Address;
-        //        destination.IMAddress += im.Address;
-        //    }
-
-        //    destination.Body = source.Content.Content;
-        //}
-
-        ///// <summary>
-        ///// Replaces all properties of <paramref name="destination"/> from corresponding properties of <paramref name="source"/>
-        ///// </summary>
-        ///// <param name="source"></param>
-        ///// <param name="destination"></param>
-        //public static void UpdateContact(Outlook.ContactItem source, Contact destination)
-        //{
-        //    //// if no email or number, contact will be updated at each sync
-        //    //if (string.IsNullOrEmpty(source.Email1Address) && string.IsNullOrEmpty(source.PrimaryTelephoneNumber))
-        //    //    return;
-
-        //    if (source.FileAs != source.Email1Address)
-        //        destination.Title = source.FileAs;
-        //    else
-        //        destination.Title = null;
-
-        //    if (destination.Title == null)
-        //        destination.Title = source.FullName;
-
-        //    if (destination.Title == null)
-        //        destination.Title = source.CompanyName;
-
-        //    SetEmails(source, destination);
-
-        //    SetPhoneNumbers(source, destination);
-
-        //    SetAddresses(source, destination);
-
-        //    SetCompanies(source, destination);
-
-        //    SetIMs(source, destination);
-
-        //    // CH - Fixed error with invalid xml being sent to google... This may need to be added to everything
-        //    destination.Content.Content = String.Format("<![CDATA[{0}]]>", source.Body);
-        //}
-
-		public static void SetAddresses(Outlook.ContactItem source, Contact destination)
+ 		public static void SetAddresses(Outlook.ContactItem source, Contact destination)
 		{
             destination.PostalAddresses.Clear();
 
@@ -469,7 +378,10 @@ namespace GoContactSyncMod
 			}
 		}
 
-	public static void MergeContacts(Outlook.ContactItem master, Contact slave)
+        /// <summary>
+        /// Updates Google contact from Outlook (but without groups/categories)
+        /// </summary>
+	    public static void UpdateContact(Outlook.ContactItem master, Contact slave)
 		{
 			//// if no email or number, contact will be updated at each sync
             //if (string.IsNullOrEmpty(master.Email1Address) && string.IsNullOrEmpty(master.PrimaryTelephoneNumber))
@@ -626,7 +538,10 @@ namespace GoContactSyncMod
                 slave.Content = null;
 		}
 
-		public static void MergeContacts(Contact master, Outlook.ContactItem slave)
+        /// <summary>
+        /// Updates Outlook contact from Google (but without groups/categories)
+        /// </summary>
+		public static void UpdateContact(Contact master, Outlook.ContactItem slave)
 		{
 			//// if no email or number, contact will be updated at each sync
 			//if (master.Emails.Count == 0 && master.Phonenumbers.Count == 0)

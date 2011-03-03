@@ -644,8 +644,14 @@ namespace GoContactSyncMod
 		}
 		public void SaveGoogleContact(ContactMatch match)
 		{
-            SaveGoogleContact(match.GoogleContact);
-            SaveGooglePhoto(match);			
+            ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
+            match.GoogleContact = SaveGoogleContact(match.GoogleContact);
+            ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
+            match.OutlookContact.Save();
+
+            //Now save the Photo
+            SaveGooglePhoto(match);
+
 		}
 
 		private string GetContactXml(Contact contact)
@@ -662,7 +668,7 @@ namespace GoContactSyncMod
         /// Only save the google contact without photo update
         /// </summary>
         /// <param name="googleContact"></param>
-		public Contact SaveGoogleContact(Contact googleContact)
+		internal Contact SaveGoogleContact(Contact googleContact)
 		{
 			//check if this contact was not yet inserted on google.
 			if (googleContact.ContactEntry.Id.Uri == null)
@@ -909,14 +915,28 @@ namespace GoContactSyncMod
 			}
 		}
 
-		
+        /// <summary>
+        /// Updates Google contact from Outlook (including groups/categories)
+        /// </summary>
+        public void UpdateContact(Outlook.ContactItem master, Contact slave)
+        {
+            ContactSync.UpdateContact(master, slave);
+            OverwriteContactGroups(master, slave);
+        }
+
+        /// <summary>
+        /// Updates Outlook contact from Google (including groups/categories)
+        /// </summary>
+        public void UpdateContact(Contact master, Outlook.ContactItem slave)
+        {
+            ContactSync.UpdateContact(master, slave);
+            OverwriteContactGroups(master, slave);
+        }
+
 		/// <summary>
-		/// Updates Google contact's groups
+		/// Updates Google contact's groups from Outlook contact
 		/// </summary>
-		/// <param name="googleContact"></param>
-		/// <param name="currentGroups"></param>
-		/// <param name="newGroups"></param>
-		public void OverwriteContactGroups(Outlook.ContactItem master, Contact slave)
+		private void OverwriteContactGroups(Outlook.ContactItem master, Contact slave)
 		{
 			Collection<Group> currentGroups = Utilities.GetGoogleGroups(this, slave);
 
@@ -976,12 +996,9 @@ namespace GoContactSyncMod
 		}
 
 		/// <summary>
-		/// Updates Outlook contact's categories (groups)
+		/// Updates Outlook contact's categories (groups) from Google groups
 		/// </summary>
-		/// <param name="outlookContact"></param>
-		/// <param name="currentGroups"></param>
-		/// <param name="newGroups"></param>
-		public void OverwriteContactGroups(Contact master, Outlook.ContactItem slave)
+		private void OverwriteContactGroups(Contact master, Outlook.ContactItem slave)
 		{
 			Collection<Group> newGroups = Utilities.GetGoogleGroups(this, master);
 
