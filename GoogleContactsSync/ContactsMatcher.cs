@@ -106,36 +106,63 @@ namespace GoContactSyncMod
 				Outlook.UserProperty idProp = olc.UserProperties[sync.OutlookPropertyNameId];
                 if (idProp != null)
                 {
+
                     Contact foundContact = sync.GetGoogleContactById((string)idProp.Value);
                     ContactMatch match = new ContactMatch(olc, null);
 
-                    if (foundContact != null && !foundContact.Deleted)
+                    //Check first, that this is not a duplicate 
+                    //e.g. by copying an existing Outlook contact
+                    //or by Outlook checked this as duplicate, but the user selected "Add new"
+                    Collection<Outlook.ContactItem> duplicates = sync.OutlookContactByProperty(sync.OutlookPropertyNameId, (string)idProp.Value);
+                    if (duplicates.Count > 1)
                     {
-                        //we found a match by google id, that is not deleted yet
-                        match.AddGoogleContact(foundContact);
-                        result.Add(match);
-                        //Remove the contact from the list to not sync it twice
-                        sync.GoogleContacts.Remove(foundContact);
+                        foreach (Outlook.ContactItem duplicate in duplicates)
+                        {
+                            if (!string.IsNullOrEmpty((string)idProp.Value))
+                            {
+                                Logger.Log("Duplicate Outlook contact found, resetting match and try to match again: " + duplicate.FileAs, EventType.Warning);
+                                idProp.Value = "";
+                            }
+                        }
+
+                        if (foundContact != null && !foundContact.Deleted)
+                        {
+                            ContactPropertiesUtils.ResetGoogleOutlookContactId(sync.SyncProfile, foundContact);
+                        }
+
+                        outlookContactsWithoutOutlookGoogleId.Add(olc);
                     }
                     else
                     {
-                        //If no match found, is the contact either deleted on Google side or was a copy on Outlook side 
-                        //If it is a copy on Outlook side, the idProp.Value must be emptied to assure, the contact is created on Google side and not deleted on Outlook side
-                        //bool matchIsDuplicate = false;
-                        foreach (ContactMatch existingMatch in result)
+
+                        if (foundContact != null && !foundContact.Deleted)
                         {
-                            if (existingMatch.OutlookContact.UserProperties[sync.OutlookPropertyNameId].Value.Equals(idProp.Value))
-                            {
-                                //matchIsDuplicate = true;
-                                idProp.Value = "";                                
-                                break;
-                            }
-
+                            //we found a match by google id, that is not deleted yet
+                            match.AddGoogleContact(foundContact);
+                            result.Add(match);
+                            //Remove the contact from the list to not sync it twice
+                            sync.GoogleContacts.Remove(foundContact);
                         }
-                        outlookContactsWithoutOutlookGoogleId.Add(olc);
+                        else
+                        {
+                            ////If no match found, is the contact either deleted on Google side or was a copy on Outlook side 
+                            ////If it is a copy on Outlook side, the idProp.Value must be emptied to assure, the contact is created on Google side and not deleted on Outlook side
+                            ////bool matchIsDuplicate = false;
+                            //foreach (ContactMatch existingMatch in result)
+                            //{
+                            //    if (existingMatch.OutlookContact.UserProperties[sync.OutlookPropertyNameId].Value.Equals(idProp.Value))
+                            //    {
+                            //        //matchIsDuplicate = true;
+                            //        idProp.Value = "";
+                            //        break;
+                            //    }
 
-                        //if (!matchIsDuplicate)
-                        //    result.Add(match);
+                            //}
+                            outlookContactsWithoutOutlookGoogleId.Add(olc);
+
+                            //if (!matchIsDuplicate)
+                            //    result.Add(match);
+                        }
                     }
 
                 }
@@ -154,8 +181,9 @@ namespace GoContactSyncMod
                 ContactMatch match = new ContactMatch(olc, null);
 
                 //foreach google contac try to match and create a match pair if found some match(es)
-                foreach (Contact entry in sync.GoogleContacts)
+                for (int j=sync.GoogleContacts.Count-1;j>=0;j--)
                 {
+                    Contact entry = sync.GoogleContacts[j];
                     if (entry.Deleted)
                         continue;
 
@@ -176,6 +204,7 @@ namespace GoContactSyncMod
                         )
                     {
                         match.AddGoogleContact(entry);
+                        sync.GoogleContacts.Remove(entry);
                     }                    
 
                 }

@@ -89,7 +89,7 @@ namespace GoContactSyncMod
             //check if outlook contact aready has google id property.
             Outlook.UserProperty prop = outlookContact.UserProperties[sync.OutlookPropertyNameId];
             if (prop == null)
-                prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameId, Outlook.OlUserPropertyType.olText, null, null);
+                prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameId, Outlook.OlUserPropertyType.olText, true);
             prop.Value = googleContact.ContactEntry.Id.Uri.Content;
 
             //save last google's updated date as property
@@ -107,7 +107,7 @@ namespace GoContactSyncMod
             //save sync datetime
             Outlook.UserProperty prop = outlookContact.UserProperties[sync.OutlookPropertyNameSynced];
             if (prop == null)
-                prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameSynced, Outlook.OlUserPropertyType.olDateTime, null, null);
+                prop = outlookContact.UserProperties.Add(sync.OutlookPropertyNameSynced, Outlook.OlUserPropertyType.olDateTime, true);
             prop.Value = DateTime.Now;
         }
 

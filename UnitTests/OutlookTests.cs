@@ -65,7 +65,7 @@ namespace GoContactSyncMod.UnitTests
                         string lastUpdatedStr = (string)updatedProp.Value;
                         updatedProp.Delete();
 
-                        updatedProp = contact.UserProperties.Add(newPrefixUpdated, Outlook.OlUserPropertyType.olDateTime, null, null);
+                        updatedProp = contact.UserProperties.Add(newPrefixUpdated, Outlook.OlUserPropertyType.olDateTime, true);
                         DateTime lastUpdated = DateTime.Parse(lastUpdatedStr);
                         updatedProp.Value = lastUpdated;
 
@@ -85,7 +85,7 @@ namespace GoContactSyncMod.UnitTests
                         string id = (string)prop.Value;
                         prop.Delete();
 
-                        prop = contact.UserProperties.Add(newPrefixId, Outlook.OlUserPropertyType.olText, null, null);
+                        prop = contact.UserProperties.Add(newPrefixId, Outlook.OlUserPropertyType.olText, true);
                         prop.Value = id;
                     }
 
@@ -95,7 +95,7 @@ namespace GoContactSyncMod.UnitTests
                         DateTime lastUpdated = (DateTime)prop.Value;
                         prop.Delete();
 
-                        prop = contact.UserProperties.Add(newPrefixUpdated, Outlook.OlUserPropertyType.olDateTime, null, null);
+                        prop = contact.UserProperties.Add(newPrefixUpdated, Outlook.OlUserPropertyType.olDateTime, true);
                         prop.Value = lastUpdated;
                     }
 
