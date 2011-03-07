@@ -350,31 +350,46 @@ namespace GoContactSyncMod
                 destination.HomeAddressPostalCode=address.Postcode;
                 destination.HomeAddressCountry=address.Country;
 
+                //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
+                //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
+                //If not, the formatted string is null => overwrite it with the formmatedAddress from Google
+                if (string.IsNullOrEmpty(destination.HomeAddress))
+                    destination.HomeAddress = address.FormattedAddress;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olHome;
-				return;
 			}
-			if (address.Rel == ContactsRelationships.IsWork)
+			else if (address.Rel == ContactsRelationships.IsWork)
 			{
                 destination.BusinessAddressStreet = address.Street;
                 destination.BusinessAddressCity = address.City;
                 destination.BusinessAddressPostalCode = address.Postcode;
                 destination.BusinessAddressCountry = address.Country;
 
+                //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
+                //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
+                //If not, the formatted string is null => overwrite it with the formmatedAddress from Google
+                if (string.IsNullOrEmpty(destination.BusinessAddress))
+                    destination.BusinessAddress = address.FormattedAddress;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olBusiness;
-				return;
 			}
-			if (address.Rel == ContactsRelationships.IsOther)
+			else if (address.Rel == ContactsRelationships.IsOther)
 			{
                 destination.OtherAddressStreet = address.Street;
                 destination.OtherAddressCity = address.City;
                 destination.OtherAddressPostalCode = address.Postcode;
                 destination.OtherAddressCountry = address.Country;
 
+                //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
+                //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
+                //If not, the formatted string is null => overwrite it with the formmatedAddress from Google
+                if (string.IsNullOrEmpty(destination.OtherAddress))
+                    destination.OtherAddress = address.FormattedAddress;
+
 				if (address.Primary)
 					destination.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olOther;
-				return;
 			}
 		}
 
