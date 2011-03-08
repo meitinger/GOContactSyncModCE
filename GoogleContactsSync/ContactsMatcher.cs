@@ -365,24 +365,19 @@ namespace GoContactSyncMod
                     if (match.AllGoogleContactMatches.Count > 1)
                     {
                         sync.GoogleContactDuplicates.Add(match);
-                    }
-
-                    foreach (Contact entry in match.AllGoogleContactMatches)
-                    {
-                        //Remove matched google contacts from list to not match it twice
-                        sync.GoogleContacts.Remove(entry);
-
-                        if (match.AllGoogleContactMatches.Count > 1)
-                        {//Create message for duplicatesFound exception
+                        foreach (Contact entry in match.AllGoogleContactMatches)
+                        {
+                            //Create message for duplicatesFound exception
                             if (string.IsNullOrEmpty(duplicateGoogleMatches))
                                 duplicateGoogleMatches = "Outlook contacts matching with multiple Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete or resolve duplicates of:";
 
                             string str = entry.Name.FullName + " (" + olc.Email1Address + ", " + olc.MobileTelephoneNumber + ")";
                             if (!duplicateGoogleMatches.Contains(str))
-                                duplicateGoogleMatches += Environment.NewLine + str;
+                                duplicateGoogleMatches += Environment.NewLine + str;                            
                         }
-
                     }
+
+                   
                                         
                 }                
 

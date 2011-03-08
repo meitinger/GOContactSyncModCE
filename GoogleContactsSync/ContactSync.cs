@@ -12,7 +12,7 @@ namespace GoContactSyncMod
     
 	internal static class ContactSync
 	{
-        private static DateTime outlookDateNone = new DateTime(4501, 1, 1);
+        internal static DateTime outlookDateNone = new DateTime(4501, 1, 1);
         private const string relSpouse = "spouse";
         private const string relChild = "child";
         private const string relManager = "manager";
@@ -436,6 +436,7 @@ namespace GoContactSyncMod
             Name name = new Name();            
             name.NamePrefix = master.Title;
             name.GivenName = master.FirstName;
+            //TODO: Currently Google always sets an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
             name.AdditonalName = master.MiddleName;
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
@@ -588,12 +589,14 @@ namespace GoContactSyncMod
             #endregion Title/FileAs
 
             #region Name
-            //slave.FullName = master.Name.FullName; //The Outlook fullName is automatically set, so don't assign it from Google
             slave.Title = master.Name.NamePrefix;
             slave.FirstName = master.Name.GivenName;
+            //TODO: Currently Google always returns an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
             slave.MiddleName = master.Name.AdditonalName;
             slave.LastName = master.Name.FamilyName;
             slave.Suffix = master.Name.NameSuffix;
+            if (string.IsNullOrEmpty(slave.FullName)) //The Outlook fullName is automatically set, so don't assign it from Google, unless the structured properties were empty
+                slave.FullName = master.Name.FullName;
             #endregion Name
 
             #region birthday
