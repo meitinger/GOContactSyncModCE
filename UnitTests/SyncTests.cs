@@ -76,9 +76,8 @@ namespace GoContactSyncMod.UnitTests
         }
 
         [Test]
-        public void TestSync()
-        {
-            sync.SyncOption = SyncOption.MergeOutlookWins;           
+        public void TestSync_Structured()
+        {        
 
             // create new contact to sync
             Outlook.ContactItem outlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
@@ -125,10 +124,11 @@ namespace GoContactSyncMod.UnitTests
             #region Name
             outlookContact.Title = "Title";
             outlookContact.FirstName = "Firstname";
-            outlookContact.MiddleName = "Middlename";
+            //TODO: Currently Google always sets an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
+            //outlookContact.MiddleName = "Middlename";
             outlookContact.LastName = "Lastname";
             outlookContact.Suffix = "Suffix";
-            outlookContact.FullName = name;
+            //outlookContact.FullName = name; //The Outlook fullName is automatically set, so don't assign it from Google
             #endregion Name
 
             outlookContact.Birthday = new DateTime(1999,1,1);
@@ -152,9 +152,8 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.WebPage = "http://www.test.de";
             outlookContact.Body = "<sn>Content & other stuff</sn>\r\n<![CDATA[  \r\n...\r\n&stuff in CDATA < >\r\n  ]]>";
             outlookContact.Save();
-
-
-            sync.SyncOption = SyncOption.GoogleToOutlookOnly;     
+            
+            sync.SyncOption = SyncOption.OutlookToGoogleOnly;
 
             Contact googleContact = new Contact();
             sync.UpdateContact(outlookContact, googleContact);
@@ -164,6 +163,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SaveGoogleContact(match);
             googleContact = null;
 
+            sync.SyncOption = SyncOption.GoogleToOutlookOnly;     
             //load the same contact from google.
             sync.Load();
             match = sync.ContactByProperty(name, email);
@@ -237,6 +237,58 @@ namespace GoContactSyncMod.UnitTests
 
             DeleteTestContacts(match);    
         }
+
+        [Test]
+        public void TestSync_Unstructured()
+        {
+            sync.SyncOption = SyncOption.MergeOutlookWins;
+
+            // create new contact to sync
+            Outlook.ContactItem outlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+            outlookContact.FileAs = name;          
+
+            outlookContact.HomeAddress = "10 Parades";
+
+            outlookContact.BusinessAddress = "11 Parades";         
+
+            outlookContact.OtherAddress = "12 Parades";
+           
+            outlookContact.FullName = name;
+           
+            outlookContact.Save();
+
+
+            sync.SyncOption = SyncOption.OutlookToGoogleOnly;     
+
+            Contact googleContact = new Contact();
+            sync.UpdateContact(outlookContact, googleContact);
+            ContactMatch match = new ContactMatch(outlookContact, googleContact);
+
+            //save contact to google.
+            sync.SaveGoogleContact(match);
+            googleContact = null;
+
+            sync.SyncOption = SyncOption.GoogleToOutlookOnly;   
+            //load the same contact from google.
+            sync.Load();
+            match = sync.ContactByProperty(name, email);
+            //ContactsMatcher.SyncContact(match, sync);
+
+            Outlook.ContactItem recreatedOutlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+            ContactSync.UpdateContact(match.GoogleContact, recreatedOutlookContact);
+
+            // match recreatedOutlookContact with outlookContact
+            Assert.AreEqual(outlookContact.FileAs, recreatedOutlookContact.FileAs);
+           
+            Assert.AreEqual(outlookContact.HomeAddress, recreatedOutlookContact.HomeAddress);
+            Assert.AreEqual(outlookContact.BusinessAddress, recreatedOutlookContact.BusinessAddress);
+            Assert.AreEqual(outlookContact.OtherAddress, recreatedOutlookContact.OtherAddress);
+
+            Assert.AreEqual(outlookContact.FullName, recreatedOutlookContact.FullName);
+            
+            DeleteTestContacts(match);
+        }
+
 
         [Test]
         public void TestExtendedProps()
