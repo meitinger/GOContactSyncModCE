@@ -236,6 +236,34 @@ namespace GoContactSyncMod.UnitTests
             Assert.AreEqual(outlookContact.Department, recreatedOutlookContact.Department); 
 
             DeleteTestContacts(match);    
+
+            //Also delete the birthday/anniversary entries in Outlook calendar
+            Logger.Log("Deleting Outlook calendar TEST entries (birthday, anniversary) ...", EventType.Information);
+
+            
+            try
+            {   Outlook.NameSpace outlookNamespace = sync.OutlookApplication.GetNamespace("mapi");
+                Outlook.MAPIFolder calendarFolder = outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+                Outlook.Items outlookCalendarItems = calendarFolder.Items;
+                for (int i = outlookCalendarItems.Count ; i > 0; i--)
+                {
+                    Outlook.AppointmentItem item = outlookCalendarItems[i] as Outlook.AppointmentItem;
+                    if (item.Subject.Contains(name))
+                    {
+                        string subject = item.Subject;
+                        item.Delete();
+                        Logger.Log("Deleted Outlook calendar TEST entry: " + subject, EventType.Information);
+                    }
+
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Log("Could not delete Outlook calender TEST entries: " + ex.Message, EventType.Information);
+            }
+
+            
+           
         }
 
         [Test]
