@@ -209,36 +209,7 @@ namespace GoContactSyncMod
 
 			try
 			{
-				if (_outlookApp == null)
-				{
-					try
-					{
-						_outlookApp = new Outlook.Application();
-					}
-					catch (Exception ex)
-					{
-						throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
-					}
-
-					try
-					{
-						_outlookNamespace = _outlookApp.GetNamespace("mapi");
-					}
-					catch (COMException comEx)
-					{
-						throw new NotSupportedException("Could not conncet to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", comEx);
-					}
-				}
-
-				// Get default profile name from registry, as this is not always "Outlook" and would popup a dialog to choose profile
-				// no matter if default profile is set or not. So try to read the default profile, fallback is still "Outlook"
-				string profileName = "Outlook";
-				using (RegistryKey k = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Outlook\SocialConnector", false))
-				{
-					if (k != null)
-						profileName = k.GetValue("PrimaryOscProfile", "Outlook").ToString();
-				}
-				_outlookNamespace.Logon(profileName, null, true, false);
+                CreateOutlookInstance();
 			}
 			catch (System.Runtime.InteropServices.COMException)
 			{
@@ -248,9 +219,12 @@ namespace GoContactSyncMod
 					// System.Runtime.InteropServices.COMException (0x800706BA): The RPC server is unavailable. (Exception from HRESULT: 0x800706BA)
 					// so recreate outlook instance
 					Logger.Log("Cannot connect to Outlook, creating new instance....", EventType.Information);
-					_outlookApp = new Outlook.Application();
+					/*_outlookApp = new Outlook.Application();
 					_outlookNamespace = _outlookApp.GetNamespace("mapi");
-					_outlookNamespace.Logon();
+					_outlookNamespace.Logon();*/
+                    _outlookApp = null;
+                    CreateOutlookInstance();
+                    
 				}
 				catch (Exception ex)
 				{
@@ -260,6 +234,71 @@ namespace GoContactSyncMod
 				}
 			}
 		}
+
+        private void CreateOutlookInstance()
+        {
+            if (_outlookApp == null)
+            {
+                try
+                {
+                    //Try to create new Outlook application 3 times, because mostly it fails the first time, if not yet running
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            _outlookApp = new Outlook.Application();
+                            break;  //Exit the for loop, if creating outllok application was successful
+                        }
+                        catch (COMException)
+                        {
+                            //wait ten seconds and try again
+                            System.Threading.Thread.Sleep(1000 * 10);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
+                }
+
+                try
+                {
+                    //Try to create new Outlook namespace 3 times, because mostly it fails the first time, if not yet running
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            _outlookNamespace = _outlookApp.GetNamespace("mapi");
+                            break;  //Exit the for loop, if creating outllok application was successful
+                        }
+                        catch (COMException)
+                        {
+                            //wait ten seconds and try again
+                            System.Threading.Thread.Sleep(1000 * 10);
+                        }
+                    }
+                }
+                catch (COMException comEx)
+                {
+                    throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", comEx);
+                }
+            }
+
+            /*
+            // Get default profile name from registry, as this is not always "Outlook" and would popup a dialog to choose profile
+            // no matter if default profile is set or not. So try to read the default profile, fallback is still "Outlook"
+            string profileName = "Outlook";
+            using (RegistryKey k = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Outlook\SocialConnector", false))
+            {
+                if (k != null)
+                    profileName = k.GetValue("PrimaryOscProfile", "Outlook").ToString();
+            }
+            _outlookNamespace.Logon(profileName, null, true, false);*/
+
+            //Just try to access the outlookNamespace to check, if it is still accessible            
+           _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);                                
+
+        }
 
 		public void LogoffOutlook()
 		{
