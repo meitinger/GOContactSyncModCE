@@ -437,7 +437,7 @@ namespace GoContactSyncMod
             name.NamePrefix = master.Title;
             name.GivenName = master.FirstName;
             //TODO: Currently Google always sets an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
-            name.AdditonalName = master.MiddleName;
+            name.AdditionalName = master.MiddleName;
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
 
@@ -591,8 +591,7 @@ namespace GoContactSyncMod
             #region Name
             slave.Title = master.Name.NamePrefix;
             slave.FirstName = master.Name.GivenName;
-            //TODO: Currently Google always returns an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
-            slave.MiddleName = master.Name.AdditonalName;
+            slave.MiddleName = master.Name.AdditionalName;
             slave.LastName = master.Name.FamilyName;
             slave.Suffix = master.Name.NameSuffix;
             if (string.IsNullOrEmpty(slave.FullName)) //The Outlook fullName is automatically set, so don't assign it from Google, unless the structured properties were empty

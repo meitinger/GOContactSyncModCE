@@ -123,9 +123,8 @@ namespace GoContactSyncMod.UnitTests
 
             #region Name
             outlookContact.Title = "Title";
-            outlookContact.FirstName = "Firstname";
-            //TODO: Currently Google always sets an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
-            //outlookContact.MiddleName = "Middlename";
+            outlookContact.FirstName = "Firstname";            
+            outlookContact.MiddleName = "Middlename";
             outlookContact.LastName = "Lastname";
             outlookContact.Suffix = "Suffix";
             //outlookContact.FullName = name; //The Outlook fullName is automatically set, so don't assign it from Google
