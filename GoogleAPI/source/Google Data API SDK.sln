@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common Data Extensions", "extensions\Common Data Extensions.csproj", "{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contacts", "gcontacts\Contacts.csproj", "{66B2AD47-7DD2-43E5-9124-D53486609992}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core Client", "core\Core Client.csproj", "{B6F6D938-0D45-42BA-8A67-55D92EF03995}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ASP|Any CPU = ASP|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.ASP|Any CPU.ActiveCfg = ASP|Any CPU
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.ASP|Any CPU.Build.0 = ASP|Any CPU
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.ASP|Any CPU.ActiveCfg = ASP|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.ASP|Any CPU.Build.0 = ASP|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66B2AD47-7DD2-43E5-9124-D53486609992}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.ASP|Any CPU.ActiveCfg = ASP|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.ASP|Any CPU.Build.0 = ASP|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6F6D938-0D45-42BA-8A67-55D92EF03995}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
