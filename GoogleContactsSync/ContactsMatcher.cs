@@ -35,6 +35,8 @@ namespace GoContactSyncMod
             sync.GoogleContactDuplicates = new Collection<ContactMatch>();
             sync.OutlookContactDuplicates = new Collection<ContactMatch>();
 
+            List<string> skippedOutlookIds = new List<string>();
+
 			//for each outlook contact try to get google contact id from user properties
 			//if no match - try to match by properties
 			//if no match - create a new match pair without google contact. 
@@ -50,13 +52,17 @@ namespace GoContactSyncMod
 					olc = sync.OutlookContacts[i] as Outlook.ContactItem;
                     if (olc == null)
                     {
-                        //Logger.Log("Empty Outlook contact found", EventType.Warning);
+                        Logger.Log("Empty Outlook contact found (maybe distribution list). Skipping", EventType.Warning);
+                        sync.SkippedCount++;
+                        sync.SkippedCountNotMatches++;
                         continue;
                     }
 				}
 				catch
 				{
 					//this is needed because some contacts throw exceptions
+                    sync.SkippedCount++;
+                    sync.SkippedCountNotMatches++;
 					continue;
 				}
 
@@ -68,36 +74,45 @@ namespace GoContactSyncMod
 				}
 				catch
 				{
-					string message;
+					string message = "Can't access contact details for outlook contact. Skipping";
 					try
 					{
-						message = string.Format("Can't access contact details for outlook contact {0}.", olc.FileAs);
+						message = string.Format("{0} {1}.", message, olc.FileAs);
+                        //remember skippedOutlookIds to later not delete them if found on Google side
+                        skippedOutlookIds.Add(olc.EntryID);
+                                                
 					}
 					catch
 					{
-						message = null;
+                        //e.g. if olc.FileAs also fails, ignore, because messge already set
+						//message = null;
 					}
 
-					if (olc != null && message != null) // it's useless to say "we couldn't access some contacts properties
-					{
-						Logger.Log(message, EventType.Warning);
-					}
-
-					continue;
+                    //if (olc != null && message != null) // it's useless to say "we couldn't access some contacts properties
+                    //{
+                    Logger.Log(message, EventType.Warning);
+                    //}
+                    sync.SkippedCount++;
+                    sync.SkippedCountNotMatches++;
+                    continue;                                        
 				}
 
                 if (!IsContactValid(olc))
 				{
 					Logger.Log(string.Format("Invalid outlook contact ({0}). Skipping", olc.FileAs), EventType.Warning);
+                    skippedOutlookIds.Add(olc.EntryID);
                     sync.SkippedCount++;
+                    sync.SkippedCountNotMatches++;
 					continue;
 				}
 
 				if (olc.Body != null && olc.Body.Length > 62000)
 				{
-					// notes field too large
-                    sync.SkippedCount++;
+					// notes field too large                    
 					Logger.Log(string.Format("Skipping outlook contact ({0}). Reduce the notes field to a maximum of 62.000 characters.", olc.FileAs), EventType.Warning);
+                    skippedOutlookIds.Add(olc.EntryID);
+                    sync.SkippedCount++;
+                    sync.SkippedCountNotMatches++;
                     continue;
 				}                               
 
@@ -408,17 +423,24 @@ namespace GoContactSyncMod
                         break;
                     }
                 }
-				if (entry.Emails.Count != 0 || mobileExists || !string.IsNullOrEmpty(entry.Title))
-				{                       
-					ContactMatch match = new ContactMatch(null, entry); ;
-					result.Add(match);
-				}
-				else
-				{
-					// no telephone and email
+
+                string googleOutlookId = ContactPropertiesUtils.GetGoogleOutlookContactId(sync.SyncProfile, entry);
+                if (!String.IsNullOrEmpty(googleOutlookId) && skippedOutlookIds.Contains(googleOutlookId))
+                {
+                    Logger.Log("Skipped GoogleContact because Outlook contact couldn't be matched beacause of previous problem (see log): " + entry.Title, EventType.Warning);
+                }
+                else if (entry.Emails.Count == 0 && !mobileExists && string.IsNullOrEmpty(entry.Title))
+				{       
+                    // no telephone and email
                     sync.SkippedCount++;
+                    sync.SkippedCountNotMatches++;
                     Logger.Log("Skipped GoogleContact because no unique property found (Email1 or mobile or name):" + entry.Title, EventType.Warning);
-				}
+                }
+                else
+                {
+					ContactMatch match = new ContactMatch(null, entry);
+					result.Add(match);
+				}				
 			}
 			return result;
 		}

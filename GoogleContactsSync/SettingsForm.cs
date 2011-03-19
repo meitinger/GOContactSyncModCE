@@ -211,7 +211,7 @@ namespace GoContactSyncMod
 						    notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
 						notifyIcon.ShowBalloonTip(5000);
 					}
-                    string toolTip = string.Format("{0}\nLast sync completed: {1}", Application.ProductName, DateTime.Now);
+                    string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
                     if (_sync.ErrorCount + _sync.SkippedCount > 0)
                         toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
                     if (toolTip.Length >= 64)

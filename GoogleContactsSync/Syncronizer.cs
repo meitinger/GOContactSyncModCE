@@ -54,6 +54,13 @@ namespace GoContactSyncMod
             get { return _skippedCount; }
         }
 
+        private int _skippedCountNotMatches;
+        public int SkippedCountNotMatches
+        {
+            set { _skippedCountNotMatches = value; }
+            get { return _skippedCountNotMatches; }
+        }
+
 
 		public delegate void NotificationHandler(string title, string message, EventType eventType);
 		public delegate void ErrorNotificationHandler(string title, Exception ex, EventType eventType);
@@ -471,6 +478,7 @@ namespace GoContactSyncMod
 				_deletedCount = 0;
                 _errorCount = 0;
                 _skippedCount = 0;
+                _skippedCountNotMatches = 0;
 
 				Load();
 
@@ -481,7 +489,7 @@ namespace GoContactSyncMod
 				if (_matches == null)
 					return;
 
-                _totalCount = _matches.Count;
+                _totalCount = _matches.Count + _skippedCountNotMatches;
 
                 //Remove Google duplicates from matches to be synced
                 if (_googleContactDuplicates != null)
