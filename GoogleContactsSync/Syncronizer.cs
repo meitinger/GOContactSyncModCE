@@ -256,17 +256,23 @@ namespace GoContactSyncMod
                             _outlookApp = new Outlook.Application();
                             break;  //Exit the for loop, if creating outllok application was successful
                         }
-                        catch (COMException)
+                        catch (COMException ex)
                         {
-                            //wait ten seconds and try again
-                            System.Threading.Thread.Sleep(1000 * 10);
+                            if (i == 2)
+                                throw ex;
+                            else //wait ten seconds and try again
+                                System.Threading.Thread.Sleep(1000 * 10);
                         }
                     }
+
                 }
-                catch (Exception ex)
+                catch (COMException ex)
                 {
                     throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
                 }
+
+                if (_outlookApp == null)
+                    throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.");
 
                 try
                 {
@@ -278,17 +284,23 @@ namespace GoContactSyncMod
                             _outlookNamespace = _outlookApp.GetNamespace("mapi");
                             break;  //Exit the for loop, if creating outllok application was successful
                         }
-                        catch (COMException)
+                        catch (COMException e)
                         {
-                            //wait ten seconds and try again
-                            System.Threading.Thread.Sleep(1000 * 10);
+                            if (i == 2)
+                                throw e;
+                            else //wait ten seconds and try again
+                                System.Threading.Thread.Sleep(1000 * 10);
                         }
                     }
+                   
                 }
                 catch (COMException comEx)
                 {
                     throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", comEx);
                 }
+
+                if (_outlookNamespace == null)
+                    throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.");
             }
 
             /*
@@ -416,30 +428,38 @@ namespace GoContactSyncMod
 		}
 		public void LoadGoogleGroups()
 		{
-			Logger.Log("Loading Google Groups...", EventType.Information);
-			GroupsQuery query = new GroupsQuery(GroupsQuery.CreateGroupsUri("default"));
-			query.NumberToRetrieve = 256;
-			query.StartIndex = 0;
-			//query.ShowDeleted = false;
-
-            _googleGroups = new Collection<Group>();
-
-            Feed<Group> feed = _googleService.Get<Group>(query);
-
-            while (feed != null)
+            try
             {
-                foreach (Group a in feed.Entries)
-                {
-                    _googleGroups.Add(a);
-                }
-                query.StartIndex += query.NumberToRetrieve;
-                feed = _googleService.Get<Group>(feed, FeedRequestType.Next);
+                Logger.Log("Loading Google Groups...", EventType.Information);
+                GroupsQuery query = new GroupsQuery(GroupsQuery.CreateGroupsUri("default"));
+                query.NumberToRetrieve = 256;
+                query.StartIndex = 0;
+                //query.ShowDeleted = false;
 
-            }     
-			
-            ////Only for debugging or reset purpose: Delete all Gougle Groups:
-            //for (int i = _googleGroups.Count; i > 0;i-- )
-            //    _googleService.Delete(_googleGroups[i-1]);
+                _googleGroups = new Collection<Group>();
+
+                Feed<Group> feed = _googleService.Get<Group>(query);
+
+                while (feed != null)
+                {
+                    foreach (Group a in feed.Entries)
+                    {
+                        _googleGroups.Add(a);
+                    }
+                    query.StartIndex += query.NumberToRetrieve;
+                    feed = _googleService.Get<Group>(feed, FeedRequestType.Next);
+
+                }
+
+                ////Only for debugging or reset purpose: Delete all Gougle Groups:
+                //for (int i = _googleGroups.Count; i > 0;i-- )
+                //    _googleService.Delete(_googleGroups[i-1]);
+            }            
+			catch (System.Net.WebException ex)
+			{                               
+				string message = string.Format("Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
+				Logger.Log(message, EventType.Error);
+			}
 
 		}
 

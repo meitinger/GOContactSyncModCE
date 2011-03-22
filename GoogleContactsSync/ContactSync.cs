@@ -82,9 +82,14 @@ namespace GoContactSyncMod
 						im.Protocol = imDetails[0].Trim();
 						im.Address = imDetails[1].Trim();
 					}
-					im.Primary = destination.IMs.Count == 0;
-					im.Rel = ContactsRelationships.IsHome;
-					destination.IMs.Add(im);
+
+                    //Only add the im Address if not empty (to avoid Google exception "address" empty)
+                    if (!string.IsNullOrEmpty(im.Address))
+                    {
+                        im.Primary = destination.IMs.Count == 0;
+                        im.Rel = ContactsRelationships.IsHome;
+                        destination.IMs.Add(im);
+                    }
 				}
 			}
 		}
@@ -93,7 +98,7 @@ namespace GoContactSyncMod
 		{
             destination.Emails.Clear();
 
-			if (!string.IsNullOrEmpty(source.Email1Address))
+			if (!string.IsNullOrEmpty(source.Email1Address) && !source.Email1Address.Trim().Equals(string.Empty))
 			{
 				EMail primaryEmail = new EMail(source.Email1Address);
 				primaryEmail.Primary = destination.Emails.Count == 0;
@@ -101,7 +106,7 @@ namespace GoContactSyncMod
 				destination.Emails.Add(primaryEmail);
 			}
 
-			if (!string.IsNullOrEmpty(source.Email2Address))
+            if (!string.IsNullOrEmpty(source.Email2Address) && !source.Email2Address.Trim().Equals(string.Empty))
 			{
 				EMail secondaryEmail = new EMail(source.Email2Address);
 				secondaryEmail.Primary = destination.Emails.Count == 0;
@@ -109,7 +114,7 @@ namespace GoContactSyncMod
 				destination.Emails.Add(secondaryEmail);
 			}
 
-			if (!string.IsNullOrEmpty(source.Email3Address))
+            if (!string.IsNullOrEmpty(source.Email3Address) && !source.Email3Address.Trim().Equals(string.Empty))
 			{
 				EMail secondaryEmail = new EMail(source.Email3Address);
 				secondaryEmail.Primary = destination.Emails.Count == 0;

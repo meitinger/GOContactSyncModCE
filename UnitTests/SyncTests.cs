@@ -279,7 +279,11 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.BusinessAddress = "11 Parades";         
 
             outlookContact.OtherAddress = "12 Parades";
-           
+
+            outlookContact.IMAddress = "  "; //Test empty IMAddress
+
+            outlookContact.Email2Address = "  "; //Test empty Email Address
+
             outlookContact.FullName = name;
            
             outlookContact.Save();
