@@ -388,6 +388,7 @@ namespace GoContactSyncMod
 
 		public void LoadGoogleContacts()
 		{
+            string message = "Error Loading Google Contacts. Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
 			try
 			{
 
@@ -423,12 +424,18 @@ namespace GoContactSyncMod
 			}
 			catch (System.Net.WebException ex)
 			{                               
-				string message = string.Format("Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
-				Logger.Log(message, EventType.Error);
+				//Logger.Log(message, EventType.Error);
+                throw new NotSupportedException(string.Format(message, ex.Message), ex);
 			}
+            catch (System.NullReferenceException ex)
+            {                
+                //Logger.Log(message, EventType.Error);
+                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+            }
 		}
 		public void LoadGoogleGroups()
 		{
+            string message = "Error Loading Google Groups. Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
             try
             {
                 Logger.Log("Loading Google Groups...", EventType.Information);
@@ -439,7 +446,7 @@ namespace GoContactSyncMod
 
                 _googleGroups = new Collection<Group>();
 
-                Feed<Group> feed = _googleService.Get<Group>(query);
+                Feed<Group> feed = _googleService.Get<Group>(query);               
 
                 while (feed != null)
                 {
@@ -457,10 +464,15 @@ namespace GoContactSyncMod
                 //    _googleService.Delete(_googleGroups[i-1]);
             }            
 			catch (System.Net.WebException ex)
-			{                               
-				string message = string.Format("Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!", ex.Message);
-				Logger.Log(message, EventType.Error);
+			{                               				
+				//Logger.Log(message, EventType.Error);
+                throw new NotSupportedException(string.Format(message, ex.Message), ex);
 			}
+            catch (System.NullReferenceException ex)
+            {
+                //Logger.Log(message, EventType.Error);
+                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+            }
 
 		}
 

@@ -185,63 +185,60 @@ namespace GoContactSyncMod
 				//SetSyncConsoleText(Logger.GetText());
 				_sync.SyncProfile = tbSyncProfile.Text;
 				_sync.SyncOption = _syncOption;
-                
-				try
-				{
-					_sync.LoginToGoogle(UserName.Text, Password.Text);
-					_sync.LoginToOutlook();
-                    
-					_sync.Sync();
 
+                try
+                {
+                    _sync.LoginToGoogle(UserName.Text, Password.Text);
+                    _sync.LoginToOutlook();
+
+                    _sync.Sync();
+                    
                     lastSync = DateTime.Now;
-					SetLastSyncText("Last synced at " + lastSync.ToString());
+                    SetLastSyncText("Last synced at " + lastSync.ToString());
 
                     string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
                     Logger.Log(message, EventType.Information);
                     if (reportSyncResultCheckBox.Checked)
-					{
+                    {
                         notifyIcon.BalloonTipTitle = Application.ProductName;
                         notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
-                        
+
                         if (_sync.ErrorCount > 0)
                             notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
                         else if (_sync.SkippedCount > 0)
                             notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
                         else
-						    notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-						notifyIcon.ShowBalloonTip(5000);
-					}
+                            notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                        notifyIcon.ShowBalloonTip(5000);
+                    }
                     string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
                     if (_sync.ErrorCount + _sync.SkippedCount > 0)
                         toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
                     if (toolTip.Length >= 64)
                         toolTip = toolTip.Substring(0, 63);
                     notifyIcon.Text = toolTip;
-                    
-                    TimerSwitch(true);
-				}
-				catch (Google.GData.Client.GDataRequestException ex)
-				{
+                }
+                catch (Google.GData.Client.GDataRequestException ex)
+                {
                     SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
 
                     string responseString = ex.ResponseString;
-					if (ex.InnerException is System.Net.WebException)
-					{
-						Logger.Log("Cannot connect to Google, please check for available internet connection and proxy settings if applicable: "+((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString, EventType.Warning);
-					}
-					else
-					{
-						ErrorHandler.Handle(ex);
-					}
-				}
-				catch (Exception ex)
-				{
+                    if (ex.InnerException is System.Net.WebException)
+                    {
+                        Logger.Log("Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString, EventType.Warning);
+                    }
+                    else
+                    {
+                        ErrorHandler.Handle(ex);
+                    }
+                }
+                catch (Exception ex)
+                {
                     SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
-					ErrorHandler.Handle(ex);
-				}
-				
+                    ErrorHandler.Handle(ex);
+                }				
 
 			}
 			catch (Exception ex)
@@ -250,6 +247,8 @@ namespace GoContactSyncMod
 			}
 			finally
 			{
+                lastSync = DateTime.Now;
+                TimerSwitch(true);
 				SetFormEnabled(true);
 			}
 		}
@@ -354,9 +353,9 @@ namespace GoContactSyncMod
 					}
 				}
 				else
-				{
+				{                    
 					autoSyncInterval.Enabled = value;
-					syncTimer.Enabled = value;
+                    syncTimer.Enabled = value;
 					nextSyncLabel.Visible = value;
 				}
 			}
@@ -443,6 +442,7 @@ namespace GoContactSyncMod
 
 		private void autoSyncCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
+            lastSync = DateTime.Now.AddSeconds(15) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
 			autoSyncInterval.Enabled = autoSyncCheckBox.Checked;
 			syncTimer.Enabled = autoSyncCheckBox.Checked;
 			nextSyncLabel.Visible = autoSyncCheckBox.Checked;
@@ -504,15 +504,18 @@ namespace GoContactSyncMod
 
                 lastSync = DateTime.Now;
                 SetLastSyncText("Matches reset at " + lastSync.ToString());
-                Logger.Log("Matches reset.", EventType.Information);
-                TimerSwitch(true);
+                Logger.Log("Matches reset.", EventType.Information);                
 			}
 			catch (Exception ex)
-			{
+            {
+                SetLastSyncText("Reset Matches failed");
+                Logger.Log("Reset Matches failed", EventType.Error);
 				ErrorHandler.Handle(ex);
 			}
 			finally
 			{
+                lastSync = DateTime.Now;
+                TimerSwitch(true);
 				SetFormEnabled(true);
                 this.hideButton.Enabled = true;
 			}
