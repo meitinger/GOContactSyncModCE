@@ -230,6 +230,7 @@ namespace GoContactSyncMod
 					_outlookNamespace = _outlookApp.GetNamespace("mapi");
 					_outlookNamespace.Logon();*/
                     _outlookApp = null;
+                    _outlookNamespace = null;
                     CreateOutlookInstance();
                     
 				}
@@ -244,7 +245,7 @@ namespace GoContactSyncMod
 
         private void CreateOutlookInstance()
         {
-            if (_outlookApp == null)
+            if (_outlookApp == null || _outlookNamespace == null)
             {
                 try
                 {
