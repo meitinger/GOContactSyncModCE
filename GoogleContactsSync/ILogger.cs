@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace GoContactSyncMod
 {
@@ -28,7 +29,8 @@ namespace GoContactSyncMod
 		public static List<LogEntry> messages = new List<LogEntry>();
 		public delegate void LogUpdatedHandler(string Message);
 		public static event LogUpdatedHandler LogUpdated;
-        
+        private static StreamWriter logwriter;
+    
         private static string formatMessage(string message, EventType eventType)
         {
             return String.Format("{0}:{1}{2}", eventType, Environment.NewLine, message);
@@ -41,8 +43,16 @@ namespace GoContactSyncMod
 
 		public static void Log(string message, EventType eventType)
         {
+            
             LogEntry new_logEntry = new LogEntry(DateTime.Now, eventType, message);
             messages.Add(new_logEntry);
+            using (logwriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+"\\GoContactSyncMOD\\log.txt", true))
+            {
+                logwriter.Write(GetLogLine(new_logEntry));
+                //logwriter.Write(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+                logwriter.Flush();
+                logwriter.Close();
+            }
             if (LogUpdated != null)
                 LogUpdated(GetLogLine(new_logEntry));
         }
