@@ -49,7 +49,6 @@ namespace GoContactSyncMod
             using (logwriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+"\\GoContactSyncMOD\\log.txt", true))
             {
                 logwriter.Write(GetLogLine(new_logEntry));
-                //logwriter.Write(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                 logwriter.Flush();
                 logwriter.Close();
             }
