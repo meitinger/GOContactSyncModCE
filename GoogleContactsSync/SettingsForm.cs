@@ -252,6 +252,7 @@ namespace GoContactSyncMod
 				SetFormEnabled(true);
                 if (_sync != null)
                 {
+                    _sync.LogoffOutlook();
                     _sync.LogoffGoogle();
                     _sync = null;
                 }

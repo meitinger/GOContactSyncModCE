@@ -589,13 +589,13 @@ namespace GoContactSyncMod
                     SaveContacts(_matches);
                 }
                 finally
-                {                 
+                {              
                     _googleContacts = null;
                     _outlookContacts = null;
                     _outlookContactDuplicates = null;
                     _googleContactDuplicates = null;
                     _googleGroups = null;
-                    _googleService = null;
+                    _matches = null;                    
                 }
 			}
 		}
