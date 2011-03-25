@@ -56,6 +56,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.GData.Client, Version=1.7.0.12891, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
