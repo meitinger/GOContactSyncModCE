@@ -124,13 +124,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_06C9B16F19D14FD3B3FA194D0586E047"
+        "OwnerKey" = "8:_9B5DC5D715B4971C5D9D7ED2D1D2EDD3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9B5DC5D715B4971C5D9D7ED2D1D2EDD3"
+        "OwnerKey" = "8:_06C9B16F19D14FD3B3FA194D0586E047"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -421,7 +421,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
