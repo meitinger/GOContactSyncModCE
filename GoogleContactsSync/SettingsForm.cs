@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting;
+using System.Runtime.InteropServices;
 
 namespace GoContactSyncMod
 {
@@ -20,6 +21,10 @@ namespace GoContactSyncMod
 		private SyncOption _syncOption;
 		private DateTime lastSync;
 		private bool requestClose = false;
+        private bool boolShowBalloonTip = true;
+
+        //register window for lock/unlock messages of workstation
+        private bool registered = false;
 
 		delegate void TextHandler(string text);
 		delegate void SwitchHandler(bool value);
@@ -36,7 +41,25 @@ namespace GoContactSyncMod
 			lastSyncLabel.Text = "Not synced";
 
 			ValidateSyncButton();
+
+            // requires Windows XP or higher
+            bool XpOrHigher = Environment.OSVersion.Platform == PlatformID.Win32NT &&
+                                (Environment.OSVersion.Version.Major > 5 ||
+                                    (Environment.OSVersion.Version.Major == 5 &&
+                                     Environment.OSVersion.Version.Minor >= 1));
+
+            if (XpOrHigher)
+                registered = WTSRegisterSessionNotification(Handle, 0);
 		}
+
+        ~SettingsForm()
+        {
+            if(registered)
+            {
+                WTSUnRegisterSessionNotification(Handle);
+                registered = false;
+            }
+        }
 
 		private void PopulateSyncOptionBox()
 		{
@@ -200,16 +223,24 @@ namespace GoContactSyncMod
                     Logger.Log(message, EventType.Information);
                     if (reportSyncResultCheckBox.Checked)
                     {
+                        /*
                         notifyIcon.BalloonTipTitle = Application.ProductName;
                         notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
-
+                        */
+                        ToolTipIcon icon;
                         if (_sync.ErrorCount > 0)
-                            notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                            icon = ToolTipIcon.Error;
                         else if (_sync.SkippedCount > 0)
-                            notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+                            icon = ToolTipIcon.Warning;
                         else
-                            notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-                        notifyIcon.ShowBalloonTip(5000);
+                            icon = ToolTipIcon.Info;
+                        /*notifyIcon.ShowBalloonTip(5000);
+                        */
+                        ShowBalloonToolTip(Application.ProductName,
+                            string.Format("{0}. {1}", DateTime.Now, message),
+                            icon,
+                            5000);
+
                     }
                     string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
                     if (_sync.ErrorCount + _sync.SkippedCount > 0)
@@ -259,6 +290,18 @@ namespace GoContactSyncMod
 			}
 		}
 
+        void ShowBalloonToolTip(string title, string message, ToolTipIcon icon, int timeout)
+        {
+            //if user is active on workstation
+            if(boolShowBalloonTip)
+            {
+                notifyIcon.BalloonTipTitle = title;
+			    notifyIcon.BalloonTipText = message;
+			    notifyIcon.BalloonTipIcon = icon;
+			    notifyIcon.ShowBalloonTip(timeout);
+            }
+        }
+
 		void Logger_LogUpdated(string Message)
 		{
 			AppendSyncConsoleText(Message);
@@ -269,19 +312,23 @@ namespace GoContactSyncMod
 			// do not show ErrorHandler, as there may be multiple exceptions that would nag the user
 			Logger.Log(ex.ToString(), EventType.Error);
 			string message = String.Format("Error Saving Contact: {0}.\nPlease report complete ErrorMessage from Log to the Tracker\nat https://sourceforge.net/tracker/?group_id=369321", ex.Message);
-			notifyIcon.BalloonTipTitle = title;
+            ShowBalloonToolTip(title,message,ToolTipIcon.Error,5000);
+			/*notifyIcon.BalloonTipTitle = title;
 			notifyIcon.BalloonTipText = message;
 			notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-			notifyIcon.ShowBalloonTip(5000);
+			notifyIcon.ShowBalloonTip(5000);*/
 		}
 
 		void _sync_DuplicatesFound(string title, string message, EventType eventType)
 		{
-			Logger.Log(message, EventType.Warning);
+            Logger.Log(message, EventType.Warning);
+            ShowBalloonToolTip(title,message,ToolTipIcon.Warning,5000);
+            /*
 			notifyIcon.BalloonTipTitle = title;
 			notifyIcon.BalloonTipText = message;
 			notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
 			notifyIcon.ShowBalloonTip(5000);
+             */
 		}
 
 		public void SetFormEnabled(bool enabled)
@@ -367,17 +414,76 @@ namespace GoContactSyncMod
 			}
 		}
 
+        //to detect if the user locks or unlocks the workstation
+        [DllImport("wtsapi32.dll")]
+        private static extern bool WTSRegisterSessionNotification(IntPtr hWnd, int dwFlags);
+
+        [DllImport("wtsapi32.dll")]
+        private static extern bool WTSUnRegisterSessionNotification(IntPtr hWnd);
+
 		// Fix for WinXP and older systems, that do not continue with shutdown until all programs have closed
 		// FormClosing would hold system shutdown, when it sets the cancel to true
-		private static int WM_QUERYENDSESSION = 0x11;
-		protected override void WndProc(ref System.Windows.Forms.Message m)
+		private const int WM_QUERYENDSESSION = 0x11;
+
+        //Code to find out if workstation is locked
+        private const int WM_WTSSESSION_CHANGE = 0x02B1;
+        private const int WTS_SESSION_LOCK = 0x7;
+        private const int WTS_SESSION_UNLOCK = 0x8;
+        
+        /*
+        protected void OnSessionLock()
+        {
+            Logger.Log("Locked at " + DateTime.Now + Environment.NewLine, EventType.Information);
+        }
+
+        protected void OnSessionUnlock()
+        {
+            Logger.Log("Unlocked at " + DateTime.Now + Environment.NewLine, EventType.Information);
+        }
+        */
+
+        protected override void WndProc(ref System.Windows.Forms.Message m)
 		{
+            //Logger.Log(m.Msg, EventType.Information);
+            switch(m.Msg) 
+            {
+                
+                case WM_QUERYENDSESSION:
+                    requestClose = true;
+                    break;
+                case WM_WTSSESSION_CHANGE:
+                    {
+                        if (m.WParam.ToInt32() == WTS_SESSION_LOCK)
+                        {
+                            //Logger.Log("\nBenutzer aktiv -> ToolTip", EventType.Information);
+                            //OnSessionLock();
+                            boolShowBalloonTip = false; // Do something when locked
+                        }
+                        else if (m.WParam.ToInt32() == WTS_SESSION_UNLOCK)
+                        {
+                            //Logger.Log("\nBenutzer inaktiv -> kein ToolTip", EventType.Information);
+                            //OnSessionUnlock();
+                            boolShowBalloonTip = true; // Do something when unlocked
+                        }
+                     break;
+                    }
+                default:
+                    break;
+            }
+            /*
 			if (m.Msg == WM_QUERYENDSESSION)
 				requestClose = true;
-
+            if (m.Msg == SESSIONCHANGEMESSAGE)
+            {
+                if (m.WParam.ToInt32() == SESSIONLOCKPARAM)
+                    OnSessionLock(); // Do something when locked
+                else if (m.WParam.ToInt32() == SESSIONUNLOCKPARAM)
+                    OnSessionUnlock(); // Do something when unlocked
+            }*/
 			// If this is WM_QUERYENDSESSION, the form must exit and not just hide
 			base.WndProc(ref m);
 		} 
+
 		private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			if (!requestClose)
@@ -682,7 +788,8 @@ namespace GoContactSyncMod
 		}
 
 		FileSystemWatcher fsw = null;
-		private void StartFileSystemWatcher()
+		
+        private void StartFileSystemWatcher()
 		{
 			if (fsw == null)
 			{
@@ -721,7 +828,6 @@ namespace GoContactSyncMod
 			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
      
-
 	}
 
 	//internal class EventLogger : ILogger
