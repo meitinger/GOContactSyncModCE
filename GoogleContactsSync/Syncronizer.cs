@@ -322,20 +322,30 @@ namespace GoContactSyncMod
 
 		public void LogoffOutlook()
 		{
-			try
-			{
-				Logger.Log("Disconnecting from Outlook...", EventType.Information);
-				if (_outlookNamespace != null)
-				{
-					_outlookNamespace.Logoff();
-				}
-			}
-			catch (Exception)
-			{
-				// if outlook was closed inbetween, we get an System.InvalidCastException or similar exception, that indicates that outlook cannot be acced anymore
-				// so as outlook is closed anyways, we just ignore the exception here
-			}
+            try
+            {
+                Logger.Log("Disconnecting from Outlook...", EventType.Information);
+                if (_outlookNamespace != null)
+                {
+                    _outlookNamespace.Logoff();
+                }
+            }
+            catch (Exception)
+            {
+                // if outlook was closed inbetween, we get an System.InvalidCastException or similar exception, that indicates that outlook cannot be acced anymore
+                // so as outlook is closed anyways, we just ignore the exception here
+            }
+            finally
+            {
+                _outlookNamespace = null;
+                _outlookApp = null;
+            }
 		}
+
+        public void LogoffGoogle()
+        {            
+            _googleService = null;            
+        }
 
 		public void LoadOutlookContacts()
 		{
@@ -501,80 +511,92 @@ namespace GoContactSyncMod
 		{
 			lock (_syncRoot)
 			{
-                if (_syncProfile.Length == 0)
+                try
                 {
-                    Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
-                    return;
-                }
+                    if (_syncProfile.Length == 0)
+                    {
+                        Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
+                        return;
+                    }
 
-				_syncedCount = 0;
-				_deletedCount = 0;
-                _errorCount = 0;
-                _skippedCount = 0;
-                _skippedCountNotMatches = 0;
+                    _syncedCount = 0;
+                    _deletedCount = 0;
+                    _errorCount = 0;
+                    _skippedCount = 0;
+                    _skippedCountNotMatches = 0;
 
-				Load();
+                    Load();
 
 #if debug
-			this.DebugContacts();
+                    this.DebugContacts();
 #endif
 
-				if (_matches == null)
-					return;
+                    if (_matches == null)
+                        return;
 
-                _totalCount = _matches.Count + _skippedCountNotMatches;
+                    _totalCount = _matches.Count + _skippedCountNotMatches;
 
-                //Remove Google duplicates from matches to be synced
-                if (_googleContactDuplicates != null)
-                {
-                    for (int i = _googleContactDuplicates.Count -1; i>=0; i--)
+                    //Remove Google duplicates from matches to be synced
+                    if (_googleContactDuplicates != null)
                     {
-                        ContactMatch match = _googleContactDuplicates[i];
-                        if (_matches.Contains(match))
+                        for (int i = _googleContactDuplicates.Count - 1; i >= 0; i--)
                         {
-                            _skippedCount++;
-                            _matches.Remove(match);
+                            ContactMatch match = _googleContactDuplicates[i];
+                            if (_matches.Contains(match))
+                            {
+                                _skippedCount++;
+                                _matches.Remove(match);
+                            }
                         }
                     }
-                }
 
-                //Remove Outlook duplicates from matches to be synced
-                if (_outlookContactDuplicates != null)
-                {
-                    for (int i = _outlookContactDuplicates.Count -1; i>=0;i--)
+                    //Remove Outlook duplicates from matches to be synced
+                    if (_outlookContactDuplicates != null)
                     {
-                        ContactMatch match = _outlookContactDuplicates[i];
-                        if (_matches.Contains(match))
+                        for (int i = _outlookContactDuplicates.Count - 1; i >= 0; i--)
                         {
-                            _skippedCount++;
-                            _matches.Remove(match);
+                            ContactMatch match = _outlookContactDuplicates[i];
+                            if (_matches.Contains(match))
+                            {
+                                _skippedCount++;
+                                _matches.Remove(match);
+                            }
                         }
                     }
+
+                    ////Remove remaining google contacts not in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts"
+                    //Group syncGroup = GetGoogleGroupByName(myContactsGroup);
+                    //if (syncGroup != null)
+                    //{
+                    //    for (int i = _googleContacts.Count -1 ;i >=0; i--)
+                    //    {
+                    //        Contact googleContact = _googleContacts[i];
+                    //        Collection<Group> googleContactGroups = Utilities.GetGoogleGroups(this, googleContact);
+
+                    //        if (!googleContactGroups.Contains(syncGroup))
+                    //            _googleContacts.Remove(googleContact);
+
+                    //    }
+                    //}                                    
+
+
+                    Logger.Log("Syncing groups...", EventType.Information);
+                    ContactsMatcher.SyncGroups(this);
+
+                    Logger.Log("Syncing contacts...", EventType.Information);
+                    ContactsMatcher.SyncContacts(this);
+
+                    SaveContacts(_matches);
                 }
-
-                ////Remove remaining google contacts not in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts"
-                //Group syncGroup = GetGoogleGroupByName(myContactsGroup);
-                //if (syncGroup != null)
-                //{
-                //    for (int i = _googleContacts.Count -1 ;i >=0; i--)
-                //    {
-                //        Contact googleContact = _googleContacts[i];
-                //        Collection<Group> googleContactGroups = Utilities.GetGoogleGroups(this, googleContact);
-
-                //        if (!googleContactGroups.Contains(syncGroup))
-                //            _googleContacts.Remove(googleContact);
-                        
-                //    }
-                //}                                    
-
-
-				Logger.Log("Syncing groups...", EventType.Information);
-				ContactsMatcher.SyncGroups(this);
-
-				Logger.Log("Syncing contacts...", EventType.Information);
-				ContactsMatcher.SyncContacts(this);
-
-				SaveContacts(_matches);
+                finally
+                {                 
+                    _googleContacts = null;
+                    _outlookContacts = null;
+                    _outlookContactDuplicates = null;
+                    _googleContactDuplicates = null;
+                    _googleGroups = null;
+                    _googleService = null;
+                }
 			}
 		}
 

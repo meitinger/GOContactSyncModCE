@@ -246,10 +246,15 @@ namespace GoContactSyncMod
 				ErrorHandler.Handle(ex);
 			}
 			finally
-			{
+			{                        
                 lastSync = DateTime.Now;
                 TimerSwitch(true);
 				SetFormEnabled(true);
+                if (_sync != null)
+                {
+                    _sync.LogoffGoogle();
+                    _sync = null;
+                }
 			}
 		}
 
