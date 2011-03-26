@@ -35,8 +35,29 @@ namespace GoContactSyncMod
             String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\GoContactSyncMOD";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
+            try
+            {
+                logwriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\GoContactSyncMOD\\log.txt", true);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
         }
     
+        public static void Close()
+        {
+            try
+            {
+                if(logwriter!=null)
+                    logwriter.Close();
+            }
+            catch(Exception e)
+            {
+                ErrorHandler.Handle(e);
+            }
+        }
+
         private static string formatMessage(string message, EventType eventType)
         {
             return String.Format("{0}:{1}{2}", eventType, Environment.NewLine, message);
@@ -52,13 +73,17 @@ namespace GoContactSyncMod
             
             LogEntry new_logEntry = new LogEntry(DateTime.Now, eventType, message);
             messages.Add(new_logEntry);
-            
-            using (logwriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+"\\GoContactSyncMOD\\log.txt", true))
+
+            try
             {
                 logwriter.Write(GetLogLine(new_logEntry));
                 logwriter.Flush();
-                logwriter.Close();
             }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(ex);
+            }
+
             if (LogUpdated != null)
                 LogUpdated(GetLogLine(new_logEntry));
         }

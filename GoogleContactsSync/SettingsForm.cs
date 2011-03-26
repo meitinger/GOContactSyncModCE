@@ -59,6 +59,7 @@ namespace GoContactSyncMod
                 WTSUnRegisterSessionNotification(Handle);
                 registered = false;
             }
+            Logger.Close();
         }
 
 		private void PopulateSyncOptionBox()
