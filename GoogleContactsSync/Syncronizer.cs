@@ -236,7 +236,7 @@ namespace GoContactSyncMod
 				}
 				catch (Exception ex)
 				{
-					string message = String.Format("Cannot connect to Outlook: {0}. \nPlease restart GO Contact Sync Mod and try again. If error persists, please inform developers on SourceForge.", ex.Message);
+					string message = "Cannot connect to Outlook.\r\nPlease restart GO Contact Sync Mod and try again. If error persists, please inform developers on SourceForge.";
 					// Error again? We need full stacktrace, display it!
 					ErrorHandler.Handle(new ApplicationException(message, ex));
 				}
@@ -324,7 +324,7 @@ namespace GoContactSyncMod
 		{
             try
             {
-                Logger.Log("Disconnecting from Outlook...", EventType.Information);
+                Logger.Log("Disconnecting from Outlook...", EventType.Debug);
                 if (_outlookNamespace != null)
                 {
                     _outlookNamespace.Logoff();
@@ -339,6 +339,7 @@ namespace GoContactSyncMod
             {
                 _outlookNamespace = null;
                 _outlookApp = null;
+                Logger.Log("Disconnected from Outlook", EventType.Debug);
             }
 		}
 
@@ -398,7 +399,7 @@ namespace GoContactSyncMod
 
 		public void LoadGoogleContacts()
 		{
-            string message = "Error Loading Google Contacts. Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
+            string message = "Error Loading Google Contacts. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
 			try
 			{
 
@@ -435,17 +436,17 @@ namespace GoContactSyncMod
 			catch (System.Net.WebException ex)
 			{                               
 				//Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+                throw new NotSupportedException(message, ex);
 			}
             catch (System.NullReferenceException ex)
             {                
                 //Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+                throw new NotSupportedException(message, ex);
             }
 		}
 		public void LoadGoogleGroups()
 		{
-            string message = "Error Loading Google Groups. Cannot connect to Google: {0}. \r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
+            string message = "Error Loading Google Groups. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
             try
             {
                 Logger.Log("Loading Google Groups...", EventType.Information);
@@ -476,12 +477,12 @@ namespace GoContactSyncMod
 			catch (System.Net.WebException ex)
 			{                               				
 				//Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+                throw new NotSupportedException(message, ex);
 			}
             catch (System.NullReferenceException ex)
             {
                 //Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(string.Format(message, ex.Message), ex);
+                throw new NotSupportedException(message, ex);
             }
 
 		}
