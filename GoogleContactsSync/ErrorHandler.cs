@@ -29,6 +29,7 @@ namespace GoContactSyncMod
 
             string message = "Sorry, an unexpected error occured.\nPlease support us fixing this problem. Go to\nhttps://sourceforge.net/projects/googlesyncmod/ and use the Tracker!\nHint: You can copy this message by pressing CTRL-C in the dialog box.\nPlease check first if error has already been reported.\nProgram Version: {0}\n\nError Details:\n{1}";
 			message = string.Format(message, AssemblyVersion, ex.ToString());
+            Logger.Log(message, EventType.Debug);
             MessageBox.Show(message, "GO Contact Sync Mod");
         }
 
