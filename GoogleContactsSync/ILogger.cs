@@ -6,6 +6,7 @@ namespace GoContactSyncMod
 {
     enum EventType
     {
+        Debug,
         Information,
         Warning,
         Error
@@ -79,13 +80,18 @@ namespace GoContactSyncMod
                 logwriter.Write(GetLogLine(new_logEntry));
                 logwriter.Flush();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ErrorHandler.Handle(ex);
+                //ignore it, because if you handle this error, the handler will again log the message
+                //ErrorHandler.Handle(ex);
             }
 
-            if (LogUpdated != null)
+            //Populate LogMessage to all subscribed Logger-Outputs, but only if not Debug message, Debug messages are only logged to logfile
+            if (LogUpdated != null && eventType > EventType.Debug)
                 LogUpdated(GetLogLine(new_logEntry));
+            
+
+                
         }
 
         /*
