@@ -17,10 +17,13 @@ namespace GoContactSyncMod
 
 			try
 			{
+                Program.Instance.ShowBalloonToolTip("Error", ex.Message, ToolTipIcon.Error, 5000);
+                /*
 				Program.Instance.notifyIcon.BalloonTipTitle = "Error";
 				Program.Instance.notifyIcon.BalloonTipText = ex.Message;
 				Program.Instance.notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
 				Program.Instance.notifyIcon.ShowBalloonTip(5000);
+                 */
 			}
 			catch (Exception)
 			{

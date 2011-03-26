@@ -291,7 +291,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-        void ShowBalloonToolTip(string title, string message, ToolTipIcon icon, int timeout)
+        public void ShowBalloonToolTip(string title, string message, ToolTipIcon icon, int timeout)
         {
             //if user is active on workstation
             if(boolShowBalloonTip)
