@@ -37,7 +37,7 @@ namespace GoContactSyncMod
 
 			LoadSettings();
 
-			lastSync = DateTime.Now.AddSeconds(15) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+			lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
 			lastSyncLabel.Text = "Not synced";
 
 			ValidateSyncButton();
