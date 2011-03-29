@@ -433,15 +433,15 @@ namespace GoContactSyncMod
                 }                              
 	
 			}
-			catch (System.Net.WebException ex)
-			{                               
-				//Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(message, ex);
-			}
-            catch (System.NullReferenceException ex)
-            {                
+            catch (System.Net.WebException ex)
+            {
                 //Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(message, ex);
+                throw new GDataRequestException(message, ex);
+            }
+            catch (System.NullReferenceException ex)
+            {
+                //Logger.Log(message, EventType.Error);
+                throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
             }
 		}
 		public void LoadGoogleGroups()
@@ -477,12 +477,12 @@ namespace GoContactSyncMod
 			catch (System.Net.WebException ex)
 			{                               				
 				//Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(message, ex);
+                throw new GDataRequestException(message, ex);
 			}
             catch (System.NullReferenceException ex)
             {
                 //Logger.Log(message, EventType.Error);
-                throw new NotSupportedException(message, ex);
+                throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
             }
 
 		}

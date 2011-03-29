@@ -258,7 +258,9 @@ namespace GoContactSyncMod
                     string responseString = ex.ResponseString;
                     if (ex.InnerException is System.Net.WebException)
                     {
-                        Logger.Log("Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString, EventType.Warning);
+                        string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString;
+                        Logger.Log(message, EventType.Warning);
+                        Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
                     }
                     else
                     {
