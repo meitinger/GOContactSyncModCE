@@ -570,9 +570,9 @@ namespace GoContactSyncMod
 
             #region Title/FileAs
             if (!string.IsNullOrEmpty(master.Name.FullName))
-				slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
+                slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
             else if (!string.IsNullOrEmpty(master.Title))
-                slave.FileAs = master.Title.Replace("\r\n", "\n").Replace("\n","\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
+                slave.FileAs = master.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
             else if (master.Organizations.Count > 0 && !string.IsNullOrEmpty(master.Organizations[0].Name))
                 slave.FileAs = master.Organizations[0].Name;
             else if (master.Emails.Count > 0 && !string.IsNullOrEmpty(master.Emails[0].Address))
