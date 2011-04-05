@@ -238,7 +238,7 @@ namespace GoContactSyncMod
 				{
 					string message = "Cannot connect to Outlook.\r\nPlease restart GO Contact Sync Mod and try again. If error persists, please inform developers on SourceForge.";
 					// Error again? We need full stacktrace, display it!
-					ErrorHandler.Handle(new ApplicationException(message, ex));
+					throw new Exception(message, ex);
 				}
 			}
 		}
@@ -502,9 +502,11 @@ namespace GoContactSyncMod
 			_matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
 			if (duplicateDataException != null)
 			{
-				Logger.Log(duplicateDataException.Message, EventType.Error);
+				
 				if (DuplicatesFound != null)
 					DuplicatesFound("Google duplicates found", duplicateDataException.Message, EventType.Error);
+                else
+                    Logger.Log(duplicateDataException.Message, EventType.Error);
 			}
 		}
 

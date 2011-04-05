@@ -208,77 +208,69 @@ namespace GoContactSyncMod
 				Logger.Log("Sync started.", EventType.Information);
 				//SetSyncConsoleText(Logger.GetText());
 				_sync.SyncProfile = tbSyncProfile.Text;
-				_sync.SyncOption = _syncOption;
+				_sync.SyncOption = _syncOption;                
+                   
+                _sync.LoginToGoogle(UserName.Text, Password.Text);
+                _sync.LoginToOutlook();
 
-                try
-                {
-                    _sync.LoginToGoogle(UserName.Text, Password.Text);
-                    _sync.LoginToOutlook();
-
-                    _sync.Sync();
+                _sync.Sync();
                     
-                    lastSync = DateTime.Now;
-                    SetLastSyncText("Last synced at " + lastSync.ToString());
+                lastSync = DateTime.Now;
+                SetLastSyncText("Last synced at " + lastSync.ToString());
 
-                    string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
-                    Logger.Log(message, EventType.Information);
-                    if (reportSyncResultCheckBox.Checked)
-                    {
-                        /*
-                        notifyIcon.BalloonTipTitle = Application.ProductName;
-                        notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
-                        */
-                        ToolTipIcon icon;
-                        if (_sync.ErrorCount > 0)
-                            icon = ToolTipIcon.Error;
-                        else if (_sync.SkippedCount > 0)
-                            icon = ToolTipIcon.Warning;
-                        else
-                            icon = ToolTipIcon.Info;
-                        /*notifyIcon.ShowBalloonTip(5000);
-                        */
-                        ShowBalloonToolTip(Application.ProductName,
-                            string.Format("{0}. {1}", DateTime.Now, message),
-                            icon,
-                            5000);
-
-                    }
-                    string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
-                    if (_sync.ErrorCount + _sync.SkippedCount > 0)
-                        toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
-                    if (toolTip.Length >= 64)
-                        toolTip = toolTip.Substring(0, 63);
-                    notifyIcon.Text = toolTip;
-                }
-                catch (Google.GData.Client.GDataRequestException ex)
+                string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
+                Logger.Log(message, EventType.Information);
+                if (reportSyncResultCheckBox.Checked)
                 {
-                    SetLastSyncText("Sync failed.");
-                    notifyIcon.Text = Application.ProductName + "\nSync failed";
-
-                    string responseString = ex.ResponseString;
-                    if (ex.InnerException is System.Net.WebException)
-                    {
-                        string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString;
-                        Logger.Log(message, EventType.Warning);
-                        Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
-                    }
+                    /*
+                    notifyIcon.BalloonTipTitle = Application.ProductName;
+                    notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
+                    */
+                    ToolTipIcon icon;
+                    if (_sync.ErrorCount > 0)
+                        icon = ToolTipIcon.Error;
+                    else if (_sync.SkippedCount > 0)
+                        icon = ToolTipIcon.Warning;
                     else
-                    {
-                        ErrorHandler.Handle(ex);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    SetLastSyncText("Sync failed.");
-                    notifyIcon.Text = Application.ProductName + "\nSync failed";
-                    ErrorHandler.Handle(ex);
-                }				
+                        icon = ToolTipIcon.Info;
+                    /*notifyIcon.ShowBalloonTip(5000);
+                    */
+                    ShowBalloonToolTip(Application.ProductName,
+                        string.Format("{0}. {1}", DateTime.Now, message),
+                        icon,
+                        5000);
 
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.Handle(ex);
-			}
+                }
+                string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
+                if (_sync.ErrorCount + _sync.SkippedCount > 0)
+                    toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
+                if (toolTip.Length >= 64)
+                    toolTip = toolTip.Substring(0, 63);
+                notifyIcon.Text = toolTip;
+            }
+            catch (Google.GData.Client.GDataRequestException ex)
+            {
+                SetLastSyncText("Sync failed.");
+                notifyIcon.Text = Application.ProductName + "\nSync failed";
+
+                string responseString = ex.ResponseString;
+                if (ex.InnerException is System.Net.WebException)
+                {
+                    string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString;
+                    Logger.Log(message, EventType.Warning);
+                    Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+                }
+                else
+                {
+                    ErrorHandler.Handle(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                SetLastSyncText("Sync failed.");
+                notifyIcon.Text = Application.ProductName + "\nSync failed";
+                ErrorHandler.Handle(ex);
+            }							
 			finally
 			{                        
                 lastSync = DateTime.Now;
@@ -324,7 +316,7 @@ namespace GoContactSyncMod
 
 		void _sync_DuplicatesFound(string title, string message, EventType eventType)
 		{
-            Logger.Log(message, EventType.Warning);
+            Logger.Log(message, eventType);
             ShowBalloonToolTip(title,message,ToolTipIcon.Warning,5000);
             /*
 			notifyIcon.BalloonTipTitle = title;
