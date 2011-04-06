@@ -33,6 +33,8 @@ namespace GoContactSyncMod
                 postalAddress.City = source.HomeAddressCity;
                 postalAddress.Postcode = source.HomeAddressPostalCode;
                 postalAddress.Country = source.HomeAddressCountry;
+                postalAddress.Pobox = source.HomeAddressPostOfficeBox;
+                postalAddress.Region = source.HomeAddressState;
                 postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsHome;
 				destination.PostalAddresses.Add(postalAddress);
@@ -45,6 +47,8 @@ namespace GoContactSyncMod
                 postalAddress.City = source.BusinessAddressCity;
                 postalAddress.Postcode = source.BusinessAddressPostalCode;
                 postalAddress.Country = source.BusinessAddressCountry;
+                postalAddress.Pobox = source.BusinessAddressPostOfficeBox;
+                postalAddress.Region = source.BusinessAddressState;
 				postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsWork;
 				destination.PostalAddresses.Add(postalAddress);
@@ -57,6 +61,8 @@ namespace GoContactSyncMod
                 postalAddress.City = source.OtherAddressCity;
                 postalAddress.Postcode = source.OtherAddressPostalCode;
                 postalAddress.Country = source.OtherAddressCountry;
+                postalAddress.Pobox = source.OtherAddressPostOfficeBox;
+                postalAddress.Region = source.OtherAddressState;
 				postalAddress.Primary = destination.PostalAddresses.Count == 0;
 				postalAddress.Rel = ContactsRelationships.IsOther;
 				destination.PostalAddresses.Add(postalAddress);
@@ -354,6 +360,8 @@ namespace GoContactSyncMod
                 destination.HomeAddressCity=address.City;
                 destination.HomeAddressPostalCode=address.Postcode;
                 destination.HomeAddressCountry=address.Country;
+                destination.HomeAddressState = address.Region;
+                destination.HomeAddressPostOfficeBox = address.Pobox;
 
                 //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
                 //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
@@ -370,6 +378,8 @@ namespace GoContactSyncMod
                 destination.BusinessAddressCity = address.City;
                 destination.BusinessAddressPostalCode = address.Postcode;
                 destination.BusinessAddressCountry = address.Country;
+                destination.BusinessAddressState = address.Region;
+                destination.BusinessAddressPostOfficeBox = address.Pobox;
 
                 //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
                 //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
@@ -386,6 +396,8 @@ namespace GoContactSyncMod
                 destination.OtherAddressCity = address.City;
                 destination.OtherAddressPostalCode = address.Postcode;
                 destination.OtherAddressCountry = address.Country;
+                destination.OtherAddressState = address.Region;
+                destination.OtherAddressPostOfficeBox = address.Pobox;
 
                 //Workaround because of Google bug: If a contact was created on GOOGLE side, it uses the unstructured approach
                 //Therefore we need to check, if the structure was filled, if yes it resulted in a formatted string in the Address summary field
@@ -691,18 +703,24 @@ namespace GoContactSyncMod
             slave.HomeAddressCity = string.Empty;
             slave.HomeAddressPostalCode = string.Empty;
             slave.HomeAddressCountry = string.Empty;
+            slave.HomeAddressState = string.Empty;
+            slave.HomeAddressPostOfficeBox = string.Empty;
 
             slave.BusinessAddress = string.Empty;
             slave.BusinessAddressStreet = string.Empty;
             slave.BusinessAddressCity = string.Empty;
             slave.BusinessAddressPostalCode = string.Empty;
             slave.BusinessAddressCountry = string.Empty;
+            slave.BusinessAddressState = string.Empty;
+            slave.BusinessAddressPostOfficeBox = string.Empty;
 
             slave.OtherAddress = string.Empty;
             slave.OtherAddressStreet = string.Empty;
             slave.OtherAddressCity = string.Empty;
             slave.OtherAddressPostalCode = string.Empty;
             slave.OtherAddressCountry = string.Empty;
+            slave.OtherAddressState = string.Empty;
+            slave.OtherAddressPostOfficeBox = string.Empty;
 
             slave.SelectedMailingAddress = Microsoft.Office.Interop.Outlook.OlMailingAddress.olNone;
 			foreach (StructuredPostalAddress address in master.PostalAddresses)

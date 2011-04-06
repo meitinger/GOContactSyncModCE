@@ -91,18 +91,24 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.HomeAddressCity = "City";
             outlookContact.HomeAddressPostalCode = "1234";
             outlookContact.HomeAddressCountry = "Country";
+            outlookContact.HomeAddressPostOfficeBox = "PO1";
+            outlookContact.HomeAddressState = "State1";
             
             //outlookContact.BusinessAddress = "11 Parades"
             outlookContact.BusinessAddressStreet = "Street2";
             outlookContact.BusinessAddressCity = "City2";
             outlookContact.BusinessAddressPostalCode = "5678";
             outlookContact.BusinessAddressCountry = "Country2";
+            outlookContact.BusinessAddressPostOfficeBox = "PO2";
+            outlookContact.BusinessAddressState = "State2";
 
             ///outlookContact.OtherAddress = "12 Parades";
             outlookContact.OtherAddressStreet = "Street3";
             outlookContact.OtherAddressCity = "City3";
             outlookContact.OtherAddressPostalCode = "8012";
             outlookContact.OtherAddressCountry = "Country3";
+            outlookContact.OtherAddressPostOfficeBox = "PO3";
+            outlookContact.OtherAddressState = "State3";
 
             #region phones
             //First delete the destination phone numbers
@@ -194,16 +200,22 @@ namespace GoContactSyncMod.UnitTests
             Assert.AreEqual(outlookContact.HomeAddressCity, recreatedOutlookContact.HomeAddressCity);
             Assert.AreEqual(outlookContact.HomeAddressCountry, recreatedOutlookContact.HomeAddressCountry);
             Assert.AreEqual(outlookContact.HomeAddressPostalCode, recreatedOutlookContact.HomeAddressPostalCode);
+            Assert.AreEqual(outlookContact.HomeAddressPostOfficeBox, recreatedOutlookContact.HomeAddressPostOfficeBox);
+            Assert.AreEqual(outlookContact.HomeAddressState, recreatedOutlookContact.HomeAddressState);
 
             Assert.AreEqual(outlookContact.BusinessAddressStreet, recreatedOutlookContact.BusinessAddressStreet);
             Assert.AreEqual(outlookContact.BusinessAddressCity, recreatedOutlookContact.BusinessAddressCity);
             Assert.AreEqual(outlookContact.BusinessAddressCountry, recreatedOutlookContact.BusinessAddressCountry);
             Assert.AreEqual(outlookContact.BusinessAddressPostalCode, recreatedOutlookContact.BusinessAddressPostalCode);
+            Assert.AreEqual(outlookContact.BusinessAddressPostOfficeBox, recreatedOutlookContact.BusinessAddressPostOfficeBox);
+            Assert.AreEqual(outlookContact.BusinessAddressState, recreatedOutlookContact.BusinessAddressState);
 
             Assert.AreEqual(outlookContact.OtherAddressStreet, recreatedOutlookContact.OtherAddressStreet);
             Assert.AreEqual(outlookContact.OtherAddressCity, recreatedOutlookContact.OtherAddressCity);
             Assert.AreEqual(outlookContact.OtherAddressCountry, recreatedOutlookContact.OtherAddressCountry);
             Assert.AreEqual(outlookContact.OtherAddressPostalCode, recreatedOutlookContact.OtherAddressPostalCode);
+            Assert.AreEqual(outlookContact.OtherAddressPostOfficeBox, recreatedOutlookContact.OtherAddressPostOfficeBox);
+            Assert.AreEqual(outlookContact.OtherAddressState, recreatedOutlookContact.OtherAddressState);
 
             Assert.AreEqual(outlookContact.FullName, recreatedOutlookContact.FullName);
             Assert.AreEqual(outlookContact.MiddleName, recreatedOutlookContact.MiddleName);
