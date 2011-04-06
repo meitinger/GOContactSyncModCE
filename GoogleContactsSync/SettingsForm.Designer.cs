@@ -364,7 +364,6 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncDelete.UseVisualStyleBackColor = true;
-            this.btSyncDelete.CheckedChanged += new System.EventHandler(this.btSyncDelete_CheckedChanged);
             // 
             // tbSyncProfile
             // 

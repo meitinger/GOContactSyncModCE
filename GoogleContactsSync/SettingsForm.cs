@@ -208,7 +208,8 @@ namespace GoContactSyncMod
 				Logger.Log("Sync started.", EventType.Information);
 				//SetSyncConsoleText(Logger.GetText());
 				_sync.SyncProfile = tbSyncProfile.Text;
-				_sync.SyncOption = _syncOption;                
+				_sync.SyncOption = _syncOption;
+                _sync.SyncDelete = btSyncDelete.Checked;
                    
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
                 _sync.LoginToOutlook();
@@ -717,15 +718,15 @@ namespace GoContactSyncMod
 			ValidateSyncButton();
 		}
 
-		private void btSyncDelete_CheckedChanged(object sender, EventArgs e)
-		{
-			if (_sync == null)
-			{
-				_sync = new Syncronizer();
-			}
+        //private void btSyncDelete_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    if (_sync == null)
+        //    {
+        //        _sync = new Syncronizer(_syncOption);
+        //    }
 
-			_sync.SyncDelete = btSyncDelete.Checked;
-		}
+        //    _sync.SyncDelete = btSyncDelete.Checked;
+        //}
 
 		private void Donate_Click(object sender, EventArgs e)
 		{
