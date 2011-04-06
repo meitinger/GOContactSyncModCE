@@ -181,15 +181,15 @@ namespace GoContactSyncMod
 		}
 
 
-		public Syncronizer()
-		{
+        //public Syncronizer()
+        //{
 
-		}
+        //}
 
-		public Syncronizer(SyncOption syncOption)
-		{
-			_syncOption = syncOption;
-		}
+        //public Syncronizer(SyncOption syncOption)
+        //{
+        //    _syncOption = syncOption;
+        //}
 
 		public void LoginToGoogle(string username, string password)
 		{
