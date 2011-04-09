@@ -62,10 +62,11 @@ namespace GoContactSyncMod
         }
 
 
-		public delegate void NotificationHandler(string title, string message, EventType eventType);
+		public delegate void DuplicatesFoundHandler(string title, string message);
 		public delegate void ErrorNotificationHandler(string title, Exception ex, EventType eventType);
-		public event NotificationHandler DuplicatesFound;
+		public event DuplicatesFoundHandler DuplicatesFound;
 		public event ErrorNotificationHandler ErrorEncountered;
+
 
 		private ContactsRequest _googleService;
 		public ContactsRequest GoogleService
@@ -504,9 +505,9 @@ namespace GoContactSyncMod
 			{
 				
 				if (DuplicatesFound != null)
-					DuplicatesFound("Google duplicates found", duplicateDataException.Message, EventType.Error);
+                    DuplicatesFound("Google duplicates found", duplicateDataException.Message);
                 else
-                    Logger.Log(duplicateDataException.Message, EventType.Error);
+                    Logger.Log(duplicateDataException.Message, EventType.Warning);
 			}
 		}
 

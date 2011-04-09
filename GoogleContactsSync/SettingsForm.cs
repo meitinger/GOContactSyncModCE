@@ -199,8 +199,9 @@ namespace GoContactSyncMod
 				if (_sync == null)
 				{
 					_sync = new Syncronizer();
-					_sync.DuplicatesFound += new Syncronizer.NotificationHandler(_sync_DuplicatesFound);
-					_sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(_sync_ErrorEncountered);
+					_sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
+					_sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
+                    ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
 				}
 
 				Logger.ClearLog();
@@ -303,7 +304,7 @@ namespace GoContactSyncMod
 			AppendSyncConsoleText(Message);
 		}
 
-		void _sync_ErrorEncountered(string title, Exception ex, EventType eventType)
+		void OnErrorEncountered(string title, Exception ex, EventType eventType)
 		{
 			// do not show ErrorHandler, as there may be multiple exceptions that would nag the user
 			Logger.Log(ex.ToString(), EventType.Error);
@@ -315,9 +316,9 @@ namespace GoContactSyncMod
 			notifyIcon.ShowBalloonTip(5000);*/
 		}
 
-		void _sync_DuplicatesFound(string title, string message, EventType eventType)
+		void OnDuplicatesFound(string title, string message)
 		{
-            Logger.Log(message, eventType);
+            Logger.Log(message, EventType.Warning);
             ShowBalloonToolTip(title,message,ToolTipIcon.Warning,5000);
             /*
 			notifyIcon.BalloonTipTitle = title;
@@ -326,6 +327,11 @@ namespace GoContactSyncMod
 			notifyIcon.ShowBalloonTip(5000);
              */
 		}
+
+        void OnNotificationReceived(string message)
+        {
+            SetLastSyncText(message);           
+        }
 
 		public void SetFormEnabled(bool enabled)
 		{
