@@ -120,7 +120,7 @@ namespace GoContactSyncMod
 				}                               
 
                 if (NotificationReceived != null)
-                    NotificationReceived(String.Format("Matching contact {0} of {1} by id: {2} ...", i, sync.OutlookContacts.Count, olc.FileAs));
+                    NotificationReceived(String.Format("Matching contact {0} of {1} by id: {2} ...", i + 1, sync.OutlookContacts.Count, olc.FileAs));
 
 				//try to match this contact to one of google contacts
 				Outlook.UserProperty idProp = olc.UserProperties[sync.OutlookPropertyNameId];
@@ -192,12 +192,12 @@ namespace GoContactSyncMod
             #endregion
             #region Match the remaining contacts by properties
 
-            for (int i = 0; i <= outlookContactsWithoutOutlookGoogleId.Count-1; i++)
+            for (int i = 0; i < outlookContactsWithoutOutlookGoogleId.Count; i++)
             {
                 olc = outlookContactsWithoutOutlookGoogleId[i];
 
                 if (NotificationReceived != null)
-                    NotificationReceived(String.Format("Matching contact {0} of {1} by unique properties: {2} ...", i, outlookContactsWithoutOutlookGoogleId.Count, olc.FileAs));               
+                    NotificationReceived(String.Format("Matching contact {0} of {1} by unique properties: {2} ...", i + 1, outlookContactsWithoutOutlookGoogleId.Count, olc.FileAs));               
 
                 //no match found by id => match by common properties
                 //create a default match pair with just outlook contact.
@@ -420,7 +420,7 @@ namespace GoContactSyncMod
 			{
                Contact entry = sync.GoogleContacts[i];
                if (NotificationReceived != null)
-                    NotificationReceived(String.Format("Adding new Google contact {0} of {1} by unique properties: {2} ...", i, sync.GoogleContacts.Count, entry.Title));               
+                    NotificationReceived(String.Format("Adding new Google contact {0} of {1} by unique properties: {2} ...", i+1, sync.GoogleContacts.Count, entry.Title));               
                     
 				// only match if there is either an email or mobile phone or a name else
 				// a matching google contact will be created at each sync
@@ -502,9 +502,8 @@ namespace GoContactSyncMod
             {
                 ContactMatch match = sync.Contacts[i];
                 if (NotificationReceived != null)
-                {
-                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i, sync.Contacts.Count, (match.OutlookContact!=null)?match.OutlookContact.FileAs:match.GoogleContact.Title));
-                }
+                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i+1, sync.Contacts.Count, (match.OutlookContact!=null)?match.OutlookContact.FileAs:match.GoogleContact.Title));
+
                 SyncContact(match, sync);
             }
 		}
