@@ -61,9 +61,10 @@ namespace GoContactSyncMod
                         continue;
                     }
 				}
-				catch
+				catch (Exception ex)
 				{
 					//this is needed because some contacts throw exceptions
+                    Logger.Log("Accessing Outlook contact threw and exception. Skipping: " + ex.Message, EventType.Warning);
                     sync.SkippedCount++;
                     sync.SkippedCountNotMatches++;
 					continue;
@@ -122,7 +123,7 @@ namespace GoContactSyncMod
 				    }
 
                 	if (NotificationReceived != null)
-                    	NotificationReceived(String.Format("Matching contact {0} of {1} by id: {2} ...", i + 1, sync.OutlookContacts.Count, olc.FileAs));
+                    	NotificationReceived(String.Format("Matching contact {0} of {1} by id: {2} ...", i, sync.OutlookContacts.Count, olc.FileAs));
 
                     // Create our own info object to go into collections/lists, so we can free the Outlook objects and not run out of resources / exceed policy limits.
                     OutlookContactInfo olci = new OutlookContactInfo(olc, sync);
