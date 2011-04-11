@@ -596,13 +596,16 @@ namespace GoContactSyncMod.UnitTests
 
             // delete outlook contact
             outlookContact.Delete();
+            
+            // recreate outlook contact
             outlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
-            sync.UpdateContact(match.GoogleContact, outlookContact);
-            match = new ContactMatch(new OutlookContactInfo(outlookContact, sync), match.GoogleContact);
-            //match.OutlookContact.Save();
 
             // outlook contact should now have no photo
             Assert.IsNull(Utilities.GetOutlookPhoto(outlookContact));
+
+            sync.UpdateContact(match.GoogleContact, outlookContact);
+            match = new ContactMatch(new OutlookContactInfo(outlookContact, sync), match.GoogleContact);
+            //match.OutlookContact.Save();            
 
             //save contact to outlook.
             sync.SaveContact(match);
