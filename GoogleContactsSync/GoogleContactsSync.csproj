@@ -134,6 +134,7 @@
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="IConflictResolver.cs" />
     <Compile Include="ILogger.cs" />
+    <Compile Include="OutlookContactInfo.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

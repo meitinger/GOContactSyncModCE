@@ -48,7 +48,7 @@ namespace GoContactSyncMod
             }
             if (outlookContact.Email1Address != null)
             {
-                fields.Add(new CPField("Email", outlookContact.Email1Address, new PointF(0, index * height)));
+                fields.Add(new CPField("Email", ContactPropertiesUtils.GetOutlookEmailAddress1(outlookContact), new PointF(0, index * height)));
                 index++;
             }
             

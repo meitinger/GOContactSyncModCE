@@ -270,13 +270,13 @@ namespace GoContactSyncMod
             throw new Exception("Did not find group");
         }
 
-        public static string[] GetOutlookGroups(Outlook.ContactItem outlookContact)
+        public static string[] GetOutlookGroups(string outlookContactCategories)
         {
-            if (outlookContact.Categories == null)
+            if (outlookContactCategories == null)
                 return new string[] { };
 
             char[] listseparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator.ToCharArray();
-            string[] categories = outlookContact.Categories.Split(listseparator);
+            string[] categories = outlookContactCategories.Split(listseparator);
             for (int i = 0; i < categories.Length; i++)
             {
                 categories[i] = categories[i].Trim();

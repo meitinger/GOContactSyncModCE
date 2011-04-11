@@ -67,7 +67,6 @@ namespace GoContactSyncMod
 		public event DuplicatesFoundHandler DuplicatesFound;
 		public event ErrorNotificationHandler ErrorEncountered;
 
-
 		private ContactsRequest _googleService;
 		public ContactsRequest GoogleService
 		{
@@ -75,6 +74,10 @@ namespace GoContactSyncMod
 		}
 
 		private Outlook.NameSpace _outlookNamespace;
+        public Outlook.NameSpace OutlookNameSpace
+        {
+            get { return _outlookNamespace; }
+        }
 
 		private Outlook.Application _outlookApp;
 		public Outlook.Application OutlookApplication
@@ -255,13 +258,22 @@ namespace GoContactSyncMod
                     {
                         try
                         {
-                            _outlookApp = new Outlook.Application();
+                            // First try to get the running application in case Outlook is already started
+                            try
+                            {
+                                _outlookApp = Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
+                            }
+                            catch (COMException)
+                            {
+                                // That failed - try to create a new application object, launching Outlook in the background
+                                _outlookApp = new Outlook.Application();
+                            }
                             break;  //Exit the for loop, if creating outllok application was successful
                         }
-                        catch (COMException ex)
+                        catch (COMException)
                         {
                             if (i == 2)
-                                throw ex;
+                                throw;
                             else //wait ten seconds and try again
                                 System.Threading.Thread.Sleep(1000 * 10);
                         }
@@ -286,10 +298,10 @@ namespace GoContactSyncMod
                             _outlookNamespace = _outlookApp.GetNamespace("mapi");
                             break;  //Exit the for loop, if creating outllok application was successful
                         }
-                        catch (COMException e)
+                        catch (COMException)
                         {
                             if (i == 2)
-                                throw e;
+                                throw;
                             else //wait ten seconds and try again
                                 System.Threading.Thread.Sleep(1000 * 10);
                         }
@@ -338,6 +350,10 @@ namespace GoContactSyncMod
             }
             finally
             {
+                if (_outlookNamespace != null)
+                    Marshal.ReleaseComObject(_outlookNamespace);
+                if (_outlookApp != null)
+                    Marshal.ReleaseComObject(_outlookApp);
                 _outlookNamespace = null;
                 _outlookApp = null;
                 Logger.Log("Disconnected from Outlook", EventType.Debug);
@@ -353,7 +369,15 @@ namespace GoContactSyncMod
 		{
 			Logger.Log("Loading Outlook contacts...", EventType.Information);
 			Outlook.MAPIFolder contactsFolder = _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
-            _outlookContacts = contactsFolder.Items;
+            try
+            {
+                _outlookContacts = contactsFolder.Items;
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(contactsFolder);
+                contactsFolder = null;
+            }
 		}
         ///// <summary>
         ///// Moves duplicates from _outlookContacts to _outlookContactDuplicates
@@ -593,7 +617,9 @@ namespace GoContactSyncMod
                     SaveContacts(_matches);
                 }
                 finally
-                {              
+                {
+                    Marshal.ReleaseComObject(_outlookContacts);
+
                     _googleContacts = null;
                     _outlookContacts = null;
                     _outlookContactDuplicates = null;
@@ -618,7 +644,7 @@ namespace GoContactSyncMod
 					{
                         _errorCount++;
                         _syncedCount--;
-                        string message = String.Format("Failed to synchronize contact: {0}. \nPlease check the contact, if any Email already exists on Google contacts side or if there is too much or invalid data in the notes field. \nIf the problem persists, please try recreating the contact or report the error on SourceForge.", match.OutlookContact.FullNameAndCompany);
+                        string message = String.Format("Failed to synchronize contact: {0}. \nPlease check the contact, if any Email already exists on Google contacts side or if there is too much or invalid data in the notes field. \nIf the problem persists, please try recreating the contact or report the error on SourceForge.", match.OutlookContact.FileAs);
 						Exception newEx = new Exception(message, ex);
 						ErrorEncountered("Error", newEx, EventType.Error);
 					}
@@ -627,13 +653,15 @@ namespace GoContactSyncMod
 				}
 			}
 		}
-		public void SaveContact(ContactMatch match)
-		{
-			if (match.GoogleContact != null && match.OutlookContact != null)
+
+        // NOTE: Outlook contacts are not saved here anymore, they have already been saved and counted
+        public void SaveContact(ContactMatch match)
+        {
+            if (match.GoogleContact != null && match.OutlookContact != null)
 			{
 				//bool googleChanged, outlookChanged;
 				//SaveContactGroups(match, out googleChanged, out outlookChanged);
-                if (match.GoogleContact.ContactEntry.Dirty || match.GoogleContact.ContactEntry.IsDirty() || !match.OutlookContact.Saved)
+                if (match.GoogleContact.ContactEntry.Dirty || match.GoogleContact.ContactEntry.IsDirty())
                     _syncedCount++;
 
                 if (match.GoogleContact.ContactEntry.Dirty || match.GoogleContact.ContactEntry.IsDirty())// || googleChanged)
@@ -643,19 +671,19 @@ namespace GoContactSyncMod
 					Logger.Log("Updated Google contact from Outlook: \"" + match.GoogleContact.Title + "\".", EventType.Information);
 				}
 
-				if (!match.OutlookContact.Saved)// || outlookChanged)
-				{
-                    //outlook contact was modified. save.
-                    SaveOutlookContact(match);
-					Logger.Log("Updated Outlook contact from Google: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
-				}                
+                //if (!outlookContactItem.Saved)// || outlookChanged)
+                //{
+                //    //outlook contact was modified. save.
+                //    SaveOutlookContact(match, outlookContactItem);
+                //    Logger.Log("Updated Outlook contact from Google: \"" + outlookContactItem.FileAs + "\".", EventType.Information);
+                //}                
 
 				// save photos
 				//SaveContactPhotos(match);
 			}
-			else if (match.GoogleContact == null && match.OutlookContact != null)
+            else if (match.GoogleContact == null && match.OutlookContact != null)
 			{
-				if (ContactPropertiesUtils.GetOutlookGoogleContactId(this, match.OutlookContact) != null)
+                if (match.OutlookContact.UserProperties.GoogleContactId != null)
 				{
                     string name = match.OutlookContact.FileAs;
                     if (_syncOption == SyncOption.OutlookToGoogleOnly)
@@ -671,13 +699,22 @@ namespace GoContactSyncMod
                     else
                     {
                         // peer google contact was deleted, delete outlook contact
-                        match.OutlookContact.Delete();
-                        _deletedCount++;
-                        Logger.Log("Deleted Outlook contact: \"" + name + "\".", EventType.Information);
+                        Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook(this);
+                        try
+                        {
+                            item.Delete();
+                            _deletedCount++;
+                            Logger.Log("Deleted Outlook contact: \"" + name + "\".", EventType.Information);
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(item);
+                            item = null;
+                        }
                     }
 				}
 			}
-			else if (match.GoogleContact != null && match.OutlookContact == null)
+            else if (match.GoogleContact != null && match.OutlookContact == null)
 			{
 				if (ContactPropertiesUtils.GetGoogleOutlookContactId(SyncProfile, match.GoogleContact) != null)
 				{
@@ -707,13 +744,13 @@ namespace GoContactSyncMod
 			}
 		}
 
-        private void SaveOutlookContact(ContactMatch match)
+        private void SaveOutlookContact(ref Contact googleContact, Outlook.ContactItem outlookContact)
         {
-            ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-            match.OutlookContact.Save();
-            ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
+            ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContact, googleContact);
+            outlookContact.Save();
+            ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, googleContact, outlookContact);
 
-            Contact updatedEntry = SaveGoogleContact(match.GoogleContact);
+            Contact updatedEntry = SaveGoogleContact(googleContact);
             //try
             //{
             //    updatedEntry = _googleService.Update(match.GoogleContact);
@@ -737,11 +774,11 @@ namespace GoContactSyncMod
             //    else
             //        throw;
             //}            
-            match.GoogleContact = updatedEntry;
+            googleContact = updatedEntry;
 
-            ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-            match.OutlookContact.Save();
-            SaveOutlookPhoto(match);
+            ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContact, googleContact);
+            outlookContact.Save();
+            SaveOutlookPhoto(googleContact, outlookContact);
         }
 		private string EscapeXml(string xml)
 		{
@@ -750,14 +787,22 @@ namespace GoContactSyncMod
 		}
 		public void SaveGoogleContact(ContactMatch match)
 		{
-            ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, match.OutlookContact);
-            match.GoogleContact = SaveGoogleContact(match.GoogleContact);
-            ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-            match.OutlookContact.Save();
+            Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook(this);
+            try
+            {
+                ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, outlookContactItem);
+                match.GoogleContact = SaveGoogleContact(match.GoogleContact);
+                ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContactItem, match.GoogleContact);
+                outlookContactItem.Save();
 
-            //Now save the Photo
-            SaveGooglePhoto(match);
-
+                //Now save the Photo
+                SaveGooglePhoto(match, outlookContactItem);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(outlookContactItem);
+                outlookContactItem = null;
+            }
 		}
 
 		private string GetContactXml(Contact contact)
@@ -871,15 +916,15 @@ namespace GoContactSyncMod
         //    //Utilities.DeleteTempPhoto();
         //}
 
-        public void SaveGooglePhoto(ContactMatch match)
+        public void SaveGooglePhoto(ContactMatch match, Outlook.ContactItem outlookContactitem)
         {
             bool hasGooglePhoto = Utilities.HasPhoto(match.GoogleContact);
-            bool hasOutlookPhoto = Utilities.HasPhoto(match.OutlookContact);
+            bool hasOutlookPhoto = Utilities.HasPhoto(outlookContactitem);
 
             if (hasOutlookPhoto)
             {
                 // add outlook photo to google
-                Image outlookPhoto = Utilities.GetOutlookPhoto(match.OutlookContact);
+                Image outlookPhoto = Utilities.GetOutlookPhoto(outlookContactitem);
 
                 if (outlookPhoto != null)
                 {
@@ -893,8 +938,8 @@ namespace GoContactSyncMod
                         _googleService.SetPhoto(match.GoogleContact, stream);
 
                         //Just save the Outlook Contact to have the same lastUpdate date as Google
-                        ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-                        match.OutlookContact.Save();
+                        ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContactitem, match.GoogleContact);
+                        outlookContactitem.Save();
                         outlookPhoto.Dispose();
                         
                     }
@@ -962,28 +1007,31 @@ namespace GoContactSyncMod
         //    //Utilities.DeleteTempPhoto();
         //}
 
-        public void SaveOutlookPhoto(ContactMatch match)
+        public void SaveOutlookPhoto(Contact googleContact, Outlook.ContactItem outlookContact)
         {
-            bool hasGooglePhoto = Utilities.HasPhoto(match.GoogleContact);
-            bool hasOutlookPhoto = Utilities.HasPhoto(match.OutlookContact);
+            bool hasGooglePhoto = Utilities.HasPhoto(googleContact);
+            bool hasOutlookPhoto = Utilities.HasPhoto(outlookContact);
 
             if (hasGooglePhoto)
             {
                 // add google photo to outlook
                 //ToDo: add google photo to outlook with new Google API
                 //Stream stream = _googleService.GetPhoto(match.GoogleContact);
-                Image googlePhoto = Utilities.GetGooglePhoto(this, match.GoogleContact);
-                Utilities.SetOutlookPhoto(match.OutlookContact, googlePhoto);
-                ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-                match.OutlookContact.Save();
+                Image googlePhoto = Utilities.GetGooglePhoto(this, googleContact);
+                if (googlePhoto != null)    // Google may have an invalid photo
+                {
+                    Utilities.SetOutlookPhoto(outlookContact, googlePhoto);
+                    ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContact, googleContact);
+                    outlookContact.Save();
 
-                googlePhoto.Dispose();
+                    googlePhoto.Dispose();
+                }
             }
             else if (hasOutlookPhoto)
             {
-                match.OutlookContact.RemovePicture();
-                ContactPropertiesUtils.SetOutlookGoogleContactId(this, match.OutlookContact, match.GoogleContact);
-                match.OutlookContact.Save();
+                outlookContact.RemovePicture();
+                ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContact, googleContact);
+                outlookContact.Save();
             }
         }
 
@@ -1037,6 +1085,11 @@ namespace GoContactSyncMod
         {
             ContactSync.UpdateContact(master, slave);
             OverwriteContactGroups(master, slave);
+
+            // -- Immediately save the Outlook contact (including groups) so it can be released, and don't do it in the save loop later
+            SaveOutlookContact(ref master, slave);
+            _syncedCount++;
+            Logger.Log("Updated Outlook contact from Google: \"" + slave.FileAs + "\".", EventType.Information);
         }
 
 		/// <summary>
@@ -1047,7 +1100,7 @@ namespace GoContactSyncMod
 			Collection<Group> currentGroups = Utilities.GetGoogleGroups(this, slave);
 
 			// get outlook categories
-			string[] cats = Utilities.GetOutlookGroups(master);
+			string[] cats = Utilities.GetOutlookGroups(master.Categories);
 
 			// remove obsolete groups
 			Collection<Group> remove = new Collection<Group>();
@@ -1171,8 +1224,17 @@ namespace GoContactSyncMod
             
             if (match.OutlookContact != null)
             {
-                ContactPropertiesUtils.ResetOutlookGoogleContactId(this, match.OutlookContact);
-				match.OutlookContact.Save();
+                Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook(this);
+                try
+                {
+                    ContactPropertiesUtils.ResetOutlookGoogleContactId(this, outlookContactItem);
+                    outlookContactItem.Save();
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(outlookContactItem);
+                    outlookContactItem = null;
+                }
               
                 //Reset also Google duplicatesC
                 foreach (Contact duplicate in match.AllGoogleContactMatches)
@@ -1231,9 +1293,9 @@ namespace GoContactSyncMod
 		/// <param name="name"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public Collection<Outlook.ContactItem> OutlookContactByProperty(string name, string value)
+		public Collection<OutlookContactInfo> OutlookContactByProperty(string name, string value)
 		{
-			Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
+            Collection<OutlookContactInfo> col = new Collection<OutlookContactInfo>();
             //foreach (Outlook.ContactItem outlookContact in OutlookContacts)
             //{
             //    if (outlookContact != null && (
@@ -1247,15 +1309,11 @@ namespace GoContactSyncMod
             try
             {
                 item = OutlookContacts.Find("["+name+"] = \"" + value + "\"") as Outlook.ContactItem;
-                if (item != null)
+                while (item != null)
                 {
-                    col.Add(item);
-                    do
-                    {
-                        item = OutlookContacts.FindNext() as Outlook.ContactItem;
-                        if (item != null)
-                            col.Add(item);
-                    } while (item != null);
+                    col.Add(new OutlookContactInfo(item, this));
+                    Marshal.ReleaseComObject(item);
+                    item = OutlookContacts.FindNext() as Outlook.ContactItem;
                 }
             }
             catch (Exception)
@@ -1265,62 +1323,62 @@ namespace GoContactSyncMod
 
 			return col;
 		}
-		/// <summary>
-		/// Used to find duplicates.
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="email"></param>
-		/// <returns></returns>
-		public Collection<Outlook.ContactItem> OutlookContactByEmail(string email)
-		{
-			Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
-			Outlook.ContactItem item = null;
-			try
-			{
-				item = OutlookContacts.Find("[Email1Address] = \"" + email + "\"") as Outlook.ContactItem;
-				if (item != null)
-				{
-					col.Add(item);
-					do
-					{
-						item = OutlookContacts.FindNext() as Outlook.ContactItem;
-						if (item != null)
-							col.Add(item);
-					} while (item != null);
-				}
+        ///// <summary>
+        ///// Used to find duplicates.
+        ///// </summary>
+        ///// <param name="name"></param>
+        ///// <param name="email"></param>
+        ///// <returns></returns>
+        //public Collection<Outlook.ContactItem> OutlookContactByEmail(string email)
+        //{
+        //    Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
+        //    Outlook.ContactItem item = null;
+        //    try
+        //    {
+        //        item = OutlookContacts.Find("[Email1Address] = \"" + email + "\"") as Outlook.ContactItem;
+        //        if (item != null)
+        //        {
+        //            col.Add(item);
+        //            do
+        //            {
+        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
+        //                if (item != null)
+        //                    col.Add(item);
+        //            } while (item != null);
+        //        }
 
-                item = OutlookContacts.Find("[Email2Address] = \"" + email + "\"") as Outlook.ContactItem;
-                if (item != null)
-                {
-                    col.Add(item);
-                    do
-                    {
-                        item = OutlookContacts.FindNext() as Outlook.ContactItem;
-                        if (item != null)
-                            col.Add(item);
-                    } while (item != null);
-                }
+        //        item = OutlookContacts.Find("[Email2Address] = \"" + email + "\"") as Outlook.ContactItem;
+        //        if (item != null)
+        //        {
+        //            col.Add(item);
+        //            do
+        //            {
+        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
+        //                if (item != null)
+        //                    col.Add(item);
+        //            } while (item != null);
+        //        }
 
-                item = OutlookContacts.Find("[Email3Address] = \"" + email + "\"") as Outlook.ContactItem;
-                if (item != null)
-                {
-                    col.Add(item);
-                    do
-                    {
-                        item = OutlookContacts.FindNext() as Outlook.ContactItem;
-                        if (item != null)
-                            col.Add(item);
-                    } while (item != null);
-                }
-			}
-			catch (Exception)
-			{
-				//TODO: should not get here.
-			}
+        //        item = OutlookContacts.Find("[Email3Address] = \"" + email + "\"") as Outlook.ContactItem;
+        //        if (item != null)
+        //        {
+        //            col.Add(item);
+        //            do
+        //            {
+        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
+        //                if (item != null)
+        //                    col.Add(item);
+        //            } while (item != null);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        //TODO: should not get here.
+        //    }
 
-			return col;
+        //    return col;
 
-		}
+        //}
 
 		public Group GetGoogleGroupById(string id)
 		{
