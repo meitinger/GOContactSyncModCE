@@ -33,6 +33,7 @@ namespace GoContactSyncMod
 		{
 			InitializeComponent();
 			Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
+            ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
 			PopulateSyncOptionBox();
 
 			LoadSettings();
@@ -200,8 +201,7 @@ namespace GoContactSyncMod
 				{
 					_sync = new Syncronizer();
 					_sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
-					_sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
-                    ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
+					_sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);                    
 				}
 
 				Logger.ClearLog();
@@ -614,6 +614,8 @@ namespace GoContactSyncMod
                 //Load matches, but match them by properties, not sync id
 				_sync.Load();
 
+                SetLastSyncText("Resetting matches...");
+
 				_sync.ResetMatches();
 
                 lastSync = DateTime.Now;
@@ -627,11 +629,17 @@ namespace GoContactSyncMod
 				ErrorHandler.Handle(ex);
 			}
 			finally
-			{
+			{                
                 lastSync = DateTime.Now;
                 TimerSwitch(true);
 				SetFormEnabled(true);
                 this.hideButton.Enabled = true;
+                if (_sync != null)
+                {
+                    _sync.LogoffOutlook();
+                    _sync.LogoffGoogle();
+                    _sync = null;
+                }
 			}
 		}
 
