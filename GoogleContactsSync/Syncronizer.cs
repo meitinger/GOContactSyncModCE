@@ -512,16 +512,22 @@ namespace GoContactSyncMod
 
 		}
 
-
+        /// <summary>
+        /// Load the contacts from Google and Outlook
+        /// </summary>
+        public void Load()
+        {
+            LoadOutlookContacts();
+            LoadGoogleGroups();
+            LoadGoogleContacts();
+        }
 
         /// <summary>
         /// Load the contacts from Google and Outlook and match them
         /// </summary>
-        public void Load()
+        public void MatchContacts()
 		{
-			LoadOutlookContacts();
-            LoadGoogleGroups();
-			LoadGoogleContacts();
+            Load();
 
 			DuplicateDataException duplicateDataException;
 			_matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
@@ -553,7 +559,7 @@ namespace GoContactSyncMod
                     _skippedCount = 0;
                     _skippedCountNotMatches = 0;
 
-                    Load();
+                    MatchContacts();
 
 #if debug
                     this.DebugContacts();
@@ -619,9 +625,8 @@ namespace GoContactSyncMod
                 finally
                 {
                     Marshal.ReleaseComObject(_outlookContacts);
-
-                    _googleContacts = null;
                     _outlookContacts = null;
+                    _googleContacts = null;
                     _outlookContactDuplicates = null;
                     _googleContactDuplicates = null;
                     _googleGroups = null;
@@ -1177,115 +1182,176 @@ namespace GoContactSyncMod
 		/// </summary>
 		public void ResetMatches()
 		{
-			Debug.Assert(Contacts != null, "Contacts object is null - this should not happen. Please inform Developers.");
+			Debug.Assert(_outlookContacts != null, "Outlook Contacts object is null - this should not happen. Please inform Developers.");
+            Debug.Assert(_googleContacts != null, "Google Contacts object is null - this should not happen. Please inform Developers.");
 
-            if (_syncProfile.Length == 0)
+            try
             {
-                Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
-                return;
+                if (_syncProfile.Length == 0)
+                {
+                    Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
+                    return;
+                }
+
+                Logger.Log("Resetting matches...", EventType.Information);
+
+			    lock (_syncRoot)
+			    {
+				    foreach (Contact googleContact in _googleContacts)
+				    {
+                        try
+                        {
+                            if (googleContact != null)
+                                ResetMatch(googleContact);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log("The match of Google contact " + googleContact.Title + " couldn't be reset: " + ex.Message, EventType.Warning);
+                        }
+				    }
+
+                    foreach (Outlook.ContactItem outlookContact in _outlookContacts)
+                    {
+                        try
+                        {
+                            if (outlookContact != null)
+                                ResetMatch(outlookContact);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log("The match of Outlook contact " + outlookContact.FileAs + " couldn't be reset: " + ex.Message, EventType.Warning);
+                        }
+                    }
+
+                }
             }
-
-            Logger.Log("Resetting matches...", EventType.Information);
-
-			lock (_syncRoot)
-			{
-				foreach (ContactMatch match in Contacts)
-				{
-                    try
-                    {
-                        ResetMatch(match);
-                    }
-                    catch
-                    {
-                        Logger.Log("The match of contact " + ((match.OutlookContact!=null)?match.OutlookContact.FileAs:match.GoogleContact.Title) + " couldn't be reset", EventType.Warning);
-                    }
-				}
-
-				Debug.Assert(Contacts != null, "Contacts object is null after reset - this should not happen. Please inform Developers.");
-				Contacts.Clear();
-			}
+            finally
+            {
+                Marshal.ReleaseComObject(_outlookContacts);
+                _outlookContacts = null;
+                _googleContacts = null;
+            }
+						
 		}
 
-        /// <summary>
-        /// Reset the match link between Google and Outlook contact
-        /// </summary>
-        /// <param name="match"></param>
-		public void ResetMatch(ContactMatch match)
-		{           
-			if (match == null)
-				throw new ArgumentNullException("match", "Given ContactMatch is null");
+        ///// <summary>
+        ///// Reset the match link between Google and Outlook contact
+        ///// </summary>
+        ///// <param name="match"></param>
+        //public void ResetMatch(ContactMatch match)
+        //{           
+        //    if (match == null)
+        //        throw new ArgumentNullException("match", "Given ContactMatch is null");
             
 
-            if (match.GoogleContact != null)
-            {
-                ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, match.GoogleContact);
-                SaveGoogleContact(match.GoogleContact);
-			}
+        //    if (match.GoogleContact != null)
+        //    {
+        //        ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, match.GoogleContact);
+        //        SaveGoogleContact(match.GoogleContact);
+        //    }
             
-            if (match.OutlookContact != null)
+        //    if (match.OutlookContact != null)
+        //    {
+        //        Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook(this);
+        //        try
+        //        {
+        //            ContactPropertiesUtils.ResetOutlookGoogleContactId(this, outlookContactItem);
+        //            outlookContactItem.Save();
+        //        }
+        //        finally
+        //        {
+        //            Marshal.ReleaseComObject(outlookContactItem);
+        //            outlookContactItem = null;
+        //        }
+              
+        //        //Reset also Google duplicatesC
+        //        foreach (Contact duplicate in match.AllGoogleContactMatches)
+        //        {
+        //            if (duplicate != match.GoogleContact)
+        //            { //To save time, only if not match.GoogleContact, because this was already reset above
+        //                ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, duplicate);
+        //                SaveGoogleContact(duplicate);
+        //            }
+        //        }
+        //    }
+
+            
+        //}
+
+        /// <summary>
+        /// Reset the match link between Google and Outlook contact        
+        /// </summary>
+        public void ResetMatch(Contact googleContact)
+        {
+            
+            if (googleContact != null)
             {
-                Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook(this);
+                ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, googleContact);
+                SaveGoogleContact(googleContact);
+            }
+        }
+
+        /// <summary>
+        /// Reset the match link between Outlook and Google contact
+        /// </summary>
+        public void ResetMatch(Outlook.ContactItem outlookContact)
+        {           
+
+            if (outlookContact != null)
+            {
                 try
                 {
-                    ContactPropertiesUtils.ResetOutlookGoogleContactId(this, outlookContactItem);
-                    outlookContactItem.Save();
+                    ContactPropertiesUtils.ResetOutlookGoogleContactId(this, outlookContact);
+                    outlookContact.Save();
                 }
                 finally
                 {
-                    Marshal.ReleaseComObject(outlookContactItem);
-                    outlookContactItem = null;
+                    Marshal.ReleaseComObject(outlookContact);
+                    outlookContact = null;
                 }
-              
-                //Reset also Google duplicatesC
-                foreach (Contact duplicate in match.AllGoogleContactMatches)
+                
+            }
+
+
+        }
+
+        public ContactMatch ContactByProperty(string name, string email)
+        {
+            foreach (ContactMatch m in Contacts)
+            {
+                if (m.GoogleContact != null &&
+                    ((m.GoogleContact.PrimaryEmail != null && m.GoogleContact.PrimaryEmail.Address == email) ||
+                    m.GoogleContact.Title == name))
                 {
-                    if (duplicate != match.GoogleContact)
-                    { //To save time, only if not match.GoogleContact, because this was already reset above
-                        ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, duplicate);
-                        SaveGoogleContact(duplicate);
-                    }
+                    return m;
                 }
-			}
-
-            
-		}
-
-		public ContactMatch ContactByProperty(string name, string email)
-		{
-			foreach (ContactMatch m in Contacts)
-			{
-				if (m.GoogleContact != null &&
-					((m.GoogleContact.PrimaryEmail != null && m.GoogleContact.PrimaryEmail.Address == email) ||
-					m.GoogleContact.Title == name))
-				{
-					return m;
-				}
-				else if (m.OutlookContact != null && (
-					(m.OutlookContact.Email1Address != null && m.OutlookContact.Email1Address == email) ||
-					m.OutlookContact.FileAs == name))
-				{
-					return m;
-				}
-			}
-			return null;
-		}
-		public ContactMatch ContactEmail(string email)
-		{
-			foreach (ContactMatch m in Contacts)
-			{
-				if (m.GoogleContact != null &&
-					(m.GoogleContact.PrimaryEmail != null && m.GoogleContact.PrimaryEmail.Address == email))
-				{
-					return m;
-				}
-				else if (m.OutlookContact != null && (
-					m.OutlookContact.Email1Address != null && m.OutlookContact.Email1Address == email))
-				{
-					return m;
-				}
-			}
-			return null;
-		}
+                else if (m.OutlookContact != null && (
+                    (m.OutlookContact.Email1Address != null && m.OutlookContact.Email1Address == email) ||
+                    m.OutlookContact.FileAs == name))
+                {
+                    return m;
+                }
+            }
+            return null;
+        }
+		
+        //public ContactMatch ContactEmail(string email)
+        //{
+        //    foreach (ContactMatch m in Contacts)
+        //    {
+        //        if (m.GoogleContact != null &&
+        //            (m.GoogleContact.PrimaryEmail != null && m.GoogleContact.PrimaryEmail.Address == email))
+        //        {
+        //            return m;
+        //        }
+        //        else if (m.OutlookContact != null && (
+        //            m.OutlookContact.Email1Address != null && m.OutlookContact.Email1Address == email))
+        //        {
+        //            return m;
+        //        }
+        //    }
+        //    return null;
+        //}
 
 		/// <summary>
 		/// Used to find duplicates.
