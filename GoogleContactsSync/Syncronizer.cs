@@ -667,11 +667,9 @@ namespace GoContactSyncMod
 				//bool googleChanged, outlookChanged;
 				//SaveContactGroups(match, out googleChanged, out outlookChanged);
                 if (match.GoogleContact.ContactEntry.Dirty || match.GoogleContact.ContactEntry.IsDirty())
-                    _syncedCount++;
-
-                if (match.GoogleContact.ContactEntry.Dirty || match.GoogleContact.ContactEntry.IsDirty())// || googleChanged)
-				{
-					//google contact was modified. save.
+                {
+                    //google contact was modified. save.
+                    _syncedCount++;					
 					SaveGoogleContact(match);
 					Logger.Log("Updated Google contact from Outlook: \"" + match.GoogleContact.Title + "\".", EventType.Information);
 				}
