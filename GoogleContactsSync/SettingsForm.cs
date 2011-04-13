@@ -612,9 +612,7 @@ namespace GoContactSyncMod
                 _sync.SyncProfile = tbSyncProfile.Text;
 
                 //Load matches, but match them by properties, not sync id
-				_sync.Load();
-
-                SetLastSyncText("Resetting matches...");
+				_sync.Load();                
 
 				_sync.ResetMatches();
 
