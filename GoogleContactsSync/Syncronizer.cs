@@ -1192,11 +1192,11 @@ namespace GoContactSyncMod
                     Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
                     return;
                 }
-
-                Logger.Log("Resetting matches...", EventType.Information);
+               
 
 			    lock (_syncRoot)
 			    {
+                    Logger.Log("Resetting Google matches...", EventType.Information);
 				    foreach (Contact googleContact in _googleContacts)
 				    {
                         try
@@ -1210,12 +1210,31 @@ namespace GoContactSyncMod
                         }
 				    }
 
-                    foreach (Outlook.ContactItem outlookContact in _outlookContacts)
+                    Logger.Log("Resetting Outlook matches...", EventType.Information);
+                    //1 based array
+                    for (int i=1; i <= _outlookContacts.Count; i++)
                     {
+                        Outlook.ContactItem outlookContact = null;
+
                         try
                         {
-                            if (outlookContact != null)
-                                ResetMatch(outlookContact);
+                            outlookContact = _outlookContacts[i] as Outlook.ContactItem;
+                            if (outlookContact == null)
+                            {
+                                Logger.Log("Empty Outlook contact found (maybe distribution list). Skipping", EventType.Warning);
+                                continue;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            //this is needed because some contacts throw exceptions
+                            Logger.Log("Accessing Outlook contact threw and exception. Skipping: " + ex.Message, EventType.Warning);                               
+                            continue;
+                        }
+
+                        try
+                        {
+                            ResetMatch(outlookContact);                            
                         }
                         catch (Exception ex)
                         {
