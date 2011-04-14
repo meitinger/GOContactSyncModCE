@@ -281,25 +281,34 @@ namespace GoContactSyncMod
                             if (recipient.Resolved)
                             {
                                 Outlook.AddressEntry addressEntry = recipient.AddressEntry;
-                                try
+                                if (addressEntry != null)
                                 {
-                                    Outlook.ExchangeUser exchangeUser = addressEntry.GetExchangeUser();
-                                    if (exchangeUser != null)
+                                    try
                                     {
-                                        try
+                                        if (addressEntry.AddressEntryUserType == Outlook.OlAddressEntryUserType.olExchangeUserAddressEntry)
                                         {
-                                            return exchangeUser.PrimarySmtpAddress;
+                                            Outlook.ExchangeUser exchangeUser = addressEntry.GetExchangeUser();
+                                            if (exchangeUser != null)
+                                            {
+                                                try
+                                                {
+                                                    return exchangeUser.PrimarySmtpAddress;
+                                                }
+                                                finally
+                                                {
+                                                    Marshal.ReleaseComObject(exchangeUser);
+                                                }
+                                            }
                                         }
-                                        finally
+                                        else
                                         {
-                                            Marshal.ReleaseComObject(exchangeUser);
+                                            Logger.Log(string.Format("Unsupported AddressEntryUserType {0} for contact '{1}'.", addressEntry.AddressEntryUserType, outlookContactItem.FileAs), EventType.Debug);
                                         }
                                     }
-                                }
-                                finally
-                                {
-                                    if (addressEntry != null)
+                                    finally
+                                    {
                                         Marshal.ReleaseComObject(addressEntry);
+                                    }
                                 }
                             }
                         }
