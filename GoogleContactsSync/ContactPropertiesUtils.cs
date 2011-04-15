@@ -305,6 +305,11 @@ namespace GoContactSyncMod
                                             Logger.Log(string.Format("Unsupported AddressEntryUserType {0} for contact '{1}'.", addressEntry.AddressEntryUserType, outlookContactItem.FileAs), EventType.Debug);
                                         }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Log("Error getting the email address from Exchange: " + ex.Message, EventType.Warning);
+                                        return emailAddress;
+                                    }
                                     finally
                                     {
                                         Marshal.ReleaseComObject(addressEntry);
