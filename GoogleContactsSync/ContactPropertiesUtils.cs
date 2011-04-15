@@ -304,12 +304,7 @@ namespace GoContactSyncMod
                                         {
                                             Logger.Log(string.Format("Unsupported AddressEntryUserType {0} for contact '{1}'.", addressEntry.AddressEntryUserType, outlookContactItem.FileAs), EventType.Debug);
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Log("Error getting the email address from Exchange: " + ex.Message, EventType.Warning);
-                                        return emailAddress;
-                                    }
+                                    }                                    
                                     finally
                                     {
                                         Marshal.ReleaseComObject(addressEntry);
@@ -323,13 +318,21 @@ namespace GoContactSyncMod
                                 Marshal.ReleaseComObject(recipient);
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        // Fallback: If Exchange cannot give us the SMTP address, we give up and use the Exchange address format.
+                        // TODO: Can we do better?
+                        Logger.Log(string.Format("Error getting the email address of outlook contact '{0}' from Exchange format '{1}': {2}", outlookContactItem.FileAs, emailAddress, ex.Message), EventType.Warning);
+                        return emailAddress;
+                    }
                     finally
                     {
                         if (outlookNameSpace != null)
                             Marshal.ReleaseComObject(outlookNameSpace);
                     }
+
                     // Fallback: If Exchange cannot give us the SMTP address, we give up and use the Exchange address format.
-                    // TODO: Can we do better?
+                    // TODO: Can we do better?                   
                     return emailAddress;
 
                 case "SMTP":
