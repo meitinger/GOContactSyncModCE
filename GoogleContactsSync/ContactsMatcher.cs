@@ -752,9 +752,12 @@ namespace GoContactSyncMod
             if (string.IsNullOrEmpty(number))
                 return null;
 
+            if (phones == null)
+                return null;
+
             foreach (PhoneNumber phone in phones)
             {
-                if (phone.Value.Equals(number, StringComparison.InvariantCultureIgnoreCase))
+                if (phone != null && number.Equals(phone.Value, StringComparison.InvariantCultureIgnoreCase))
                 {
                     return phone;
                 }

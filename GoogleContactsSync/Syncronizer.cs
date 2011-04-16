@@ -624,8 +624,11 @@ namespace GoContactSyncMod
                 }
                 finally
                 {
-                    Marshal.ReleaseComObject(_outlookContacts);
-                    _outlookContacts = null;
+                    if (_outlookContacts != null)
+                    {
+                        Marshal.ReleaseComObject(_outlookContacts);
+                        _outlookContacts = null;
+                    }
                     _googleContacts = null;
                     _outlookContactDuplicates = null;
                     _googleContactDuplicates = null;
@@ -1244,8 +1247,11 @@ namespace GoContactSyncMod
             }
             finally
             {
-                Marshal.ReleaseComObject(_outlookContacts);
-                _outlookContacts = null;
+                if (_outlookContacts != null)
+                {
+                    Marshal.ReleaseComObject(_outlookContacts);
+                    _outlookContacts = null;
+                }
                 _googleContacts = null;
             }
 						
