@@ -180,7 +180,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.NickName = "Nickname";
             outlookContact.OfficeLocation = "Location";            
             outlookContact.Initials = "IN";
-            //outlookContact.Language = "German";
+            //outlookContact.Language = "German"; //ToDo: Doesn't work yet with the Google API
             
             //outlookContact.Companies = "Company";
             outlookContact.CompanyName = "CompanyName";

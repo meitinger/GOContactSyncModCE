@@ -1,4 +1,4 @@
-The source code of the following dlls has been copied from official Google project:
+The source code of the following dlls can be copied from official Google project:
 
 http://code.google.com/p/google-gdata/source/checkout
 

@@ -453,7 +453,6 @@ namespace GoContactSyncMod
             Name name = new Name();            
             name.NamePrefix = master.Title;
             name.GivenName = master.FirstName;
-            //TODO: Currently Google always sets an empty string for the MiddleName (bug of GoogleAPI, we must wait for a fix)
             name.AdditionalName = master.MiddleName;
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
