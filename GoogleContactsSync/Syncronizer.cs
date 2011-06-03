@@ -674,7 +674,7 @@ namespace GoContactSyncMod
                     //google contact was modified. save.
                     _syncedCount++;					
 					SaveGoogleContact(match);
-					Logger.Log("Updated Google contact from Outlook: \"" + match.GoogleContact.Title + "\".", EventType.Information);
+					Logger.Log("Updated Google contact from Outlook: \"" + match.OutlookContact.FileAs + "\".", EventType.Information);
 				}
 
                 //if (!outlookContactItem.Saved)// || outlookChanged)
@@ -724,29 +724,38 @@ namespace GoContactSyncMod
 			{
 				if (ContactPropertiesUtils.GetGoogleOutlookContactId(SyncProfile, match.GoogleContact) != null)
 				{
+                    string name = match.GoogleContact.Title;
+                    if (string.IsNullOrEmpty(name))
+                        name = match.GoogleContact.Name.FullName;
+                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
+                        name = match.GoogleContact.Organizations[0].Name;
+                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
+                        name = match.GoogleContact.Emails[0].Address;
+
                     if (_syncOption == SyncOption.GoogleToOutlookOnly)
                     {
                         _skippedCount++;
-                        Logger.Log("Skipped Deletion of Google contact because of SyncOption " + _syncOption + ":" + match.GoogleContact.Title + ".", EventType.Information);
+                        Logger.Log("Skipped Deletion of Google contact because of SyncOption " + _syncOption + ":" + name + ".", EventType.Information);
                     }
                     else if (!_syncDelete)
                     {
                         _skippedCount++;
-                        Logger.Log("Skipped Deletion of Google contact because SyncDeletion is switched off :" + match.GoogleContact.Title + ".", EventType.Information);
+                        Logger.Log("Skipped Deletion of Google contact because SyncDeletion is switched off :" + name + ".", EventType.Information);
                     }
                     else
                     {
                         // peer outlook contact was deleted, delete google contact
                         _googleService.Delete(match.GoogleContact);
                         _deletedCount++;
-                        Logger.Log("Deleted Google contact: \"" + match.GoogleContact.Title + "\".", EventType.Information);
+                        Logger.Log("Deleted Google contact: \"" + name + "\".", EventType.Information);
                     }
 				}
 			}
 			else
 			{
-				//TODO: ignore for now: throw new ArgumentNullException("To save contacts both ContactMatch peers must be present.");
-				Logger.Log("Both Google and Outlook contact: \"" + match.GoogleContact.Title + "\" have been changed! Not implemented yet.", EventType.Warning);
+				//TODO: ignore for now: 
+                throw new ArgumentNullException("To save contacts, at least a GoogleContacat or OutlookContact must be present.");
+				//Logger.Log("Both Google and Outlook contact: \"" + match.OutlookContact.FileAs + "\" have been changed! Not implemented yet.", EventType.Warning);
 			}
 		}
 
@@ -1207,7 +1216,15 @@ namespace GoContactSyncMod
                         }
                         catch (Exception ex)
                         {
-                            Logger.Log("The match of Google contact " + googleContact.Title + " couldn't be reset: " + ex.Message, EventType.Warning);
+                            string name =googleContact.Title;
+                            if (string.IsNullOrEmpty(name))
+                                name = googleContact.Name.FullName;
+                            if (string.IsNullOrEmpty(name) && googleContact.Organizations.Count > 0)
+                                name = googleContact.Organizations[0].Name;
+                            if (string.IsNullOrEmpty(name) && googleContact.Emails.Count > 0)
+                                name = googleContact.Emails[0].Address;
+
+                            Logger.Log("The match of Google contact " + name + " couldn't be reset: " + ex.Message, EventType.Warning);
                         }
 				    }
 

@@ -371,6 +371,50 @@ namespace GoContactSyncMod.UnitTests
             DeleteTestContacts(match);
         }
 
+        [Test]
+        public void TestSync_Company()
+        {
+            sync.SyncOption = SyncOption.MergeOutlookWins;
+
+            // create new contact to sync
+            Outlook.ContactItem outlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+            outlookContact.CompanyName = name;
+           
+            outlookContact.BusinessAddress = "11 Parades";           
+
+            outlookContact.Save();
+
+            Assert.IsNull(outlookContact.FullName);
+
+            sync.SyncOption = SyncOption.OutlookToGoogleOnly;
+
+            Contact googleContact = new Contact();
+            sync.UpdateContact(outlookContact, googleContact);
+            ContactMatch match = new ContactMatch(new OutlookContactInfo(outlookContact, sync), googleContact);
+
+            //save contact to google.
+            sync.SaveGoogleContact(match);
+            googleContact = null;
+
+            sync.SyncOption = SyncOption.GoogleToOutlookOnly;
+            //load the same contact from google.
+            sync.MatchContacts();
+            match = sync.ContactByProperty(name, email);
+            //ContactsMatcher.SyncContact(match, sync);
+
+            Outlook.ContactItem recreatedOutlookContact = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+            ContactSync.UpdateContact(match.GoogleContact, recreatedOutlookContact);
+
+            // match recreatedOutlookContact with outlookContact
+            Assert.AreEqual(outlookContact.FileAs, recreatedOutlookContact.FileAs);
+
+            Assert.AreEqual(outlookContact.BusinessAddress, recreatedOutlookContact.BusinessAddress);
+
+            Assert.IsNull(recreatedOutlookContact.FullName);
+
+            DeleteTestContacts(match);
+        }
+
 
         [Test]
         public void TestExtendedProps()

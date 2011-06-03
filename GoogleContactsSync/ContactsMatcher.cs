@@ -240,13 +240,15 @@ namespace GoContactSyncMod
                     //1.1 try to match by FullName
                     //2. try to match by primary email
                     //3. try to match by mobile phone number, don't match by home or business bumbers, because several people may share the same home or business number
+                    //4. try to math Company, if Google Title is null, i.e. the contact doesn't have a name and title, only a company
                     if (!string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(entry.Title) && olci.FileAs.Equals(entry.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||  //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
                         !string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(entry.Name.FullName) && olci.FileAs.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
                         !string.IsNullOrEmpty(olci.FullName) && !string.IsNullOrEmpty(entry.Name.FullName) && olci.FullName.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||                        
                         !string.IsNullOrEmpty(olci.Email1Address) && entry.Emails.Count > 0 && olci.Email1Address.Equals(entry.Emails[0].Address, StringComparison.InvariantCultureIgnoreCase) ||
                         //!string.IsNullOrEmpty(olci.Email2Address) && FindEmail(olci.Email2Address, entry.Emails) != null ||
                         //!string.IsNullOrEmpty(olci.Email3Address) && FindEmail(olci.Email3Address, entry.Emails) != null ||
-                        olci.MobileTelephoneNumber != null && FindPhone(olci.MobileTelephoneNumber, entry.Phonenumbers) != null
+                        olci.MobileTelephoneNumber != null && FindPhone(olci.MobileTelephoneNumber, entry.Phonenumbers) != null ||
+                        !string.IsNullOrEmpty(olci.FileAs) && string.IsNullOrEmpty(entry.Title) && entry.Organizations.Count > 0 && olci.FileAs.Equals(entry.Organizations[0].Name, StringComparison.InvariantCultureIgnoreCase)
                         )
                     {
                         match.AddGoogleContact(entry);
@@ -370,7 +372,8 @@ namespace GoContactSyncMod
                              !string.IsNullOrEmpty(olci.Email1Address) && duplicate.AllGoogleContactMatches[0].Emails.Count > 0 && olci.Email1Address.Equals(duplicate.AllGoogleContactMatches[0].Emails[0].Address, StringComparison.InvariantCultureIgnoreCase) ||
                              //!string.IsNullOrEmpty(olci.Email2Address) && FindEmail(olci.Email2Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
                              //!string.IsNullOrEmpty(olci.Email3Address) && FindEmail(olci.Email3Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
-                             olci.MobileTelephoneNumber != null && FindPhone(olci.MobileTelephoneNumber, duplicate.AllGoogleContactMatches[0].Phonenumbers) != null
+                             olci.MobileTelephoneNumber != null && FindPhone(olci.MobileTelephoneNumber, duplicate.AllGoogleContactMatches[0].Phonenumbers) != null ||
+                             !string.IsNullOrEmpty(olci.FileAs) && string.IsNullOrEmpty(duplicate.AllGoogleContactMatches[0].Title) && duplicate.AllGoogleContactMatches[0].Organizations.Count > 0 && olci.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Organizations[0].Name, StringComparison.InvariantCultureIgnoreCase)
                             ) ||
                             !string.IsNullOrEmpty(olci.FileAs) && olci.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
                             !string.IsNullOrEmpty(olci.FullName) && olci.FullName.Equals(duplicate.OutlookContact.FullName, StringComparison.InvariantCultureIgnoreCase) ||
@@ -386,7 +389,8 @@ namespace GoContactSyncMod
                             //                                              olci.Email3Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
                             //                                              olci.Email3Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
                             //                                              ) ||
-                            olci.MobileTelephoneNumber != null && olci.MobileTelephoneNumber.Equals(duplicate.OutlookContact.MobileTelephoneNumber)
+                            olci.MobileTelephoneNumber != null && olci.MobileTelephoneNumber.Equals(duplicate.OutlookContact.MobileTelephoneNumber) ||
+                            !string.IsNullOrEmpty(olci.FileAs) && string.IsNullOrEmpty(duplicate.GoogleContact.Title) && duplicate.GoogleContact.Organizations.Count > 0 && olci.FileAs.Equals(duplicate.GoogleContact.Organizations[0].Name, StringComparison.InvariantCultureIgnoreCase)
                            )
                         {
                             duplicateFound = true;
@@ -415,9 +419,9 @@ namespace GoContactSyncMod
                         {
                             //Create message for duplicatesFound exception
                             if (string.IsNullOrEmpty(duplicateGoogleMatches))
-                                duplicateGoogleMatches = "Outlook contacts matching with multiple Google contacts have been found (either same email, Mobile or FullName) and cannot be synchronized. Please delete or resolve duplicates of:";
+                                duplicateGoogleMatches = "Outlook contacts matching with multiple Google contacts have been found (either same email, Mobile, FullName or company) and cannot be synchronized. Please delete or resolve duplicates of:";
 
-                            string str = entry.Name.FullName + " (" + olci.Email1Address + ", " + olci.MobileTelephoneNumber + ")";
+                            string str = olci.FileAs + " (" + olci.Email1Address + ", " + olci.MobileTelephoneNumber + ")";
                             if (!duplicateGoogleMatches.Contains(str))
                                 duplicateGoogleMatches += Environment.NewLine + str;                            
                         }
@@ -445,8 +449,8 @@ namespace GoContactSyncMod
                if (NotificationReceived != null)
                     NotificationReceived(String.Format("Adding new Google contact {0} of {1} by unique properties: {2} ...", i+1, sync.GoogleContacts.Count, entry.Title));               
                     
-				// only match if there is either an email or mobile phone or a name else
-				// a matching google contact will be created at each sync
+				// only match if there is either an email or mobile phone or a name or a company
+				// otherwise a matching google contact will be created at each sync
                 bool mobileExists = false;
                 foreach (PhoneNumber phone in entry.Phonenumbers)
                 {
@@ -455,19 +459,19 @@ namespace GoContactSyncMod
                         mobileExists = true;
                         break;
                     }
-                }
+                }                             
 
                 string googleOutlookId = ContactPropertiesUtils.GetGoogleOutlookContactId(sync.SyncProfile, entry);
                 if (!String.IsNullOrEmpty(googleOutlookId) && skippedOutlookIds.Contains(googleOutlookId))
                 {
                     Logger.Log("Skipped GoogleContact because Outlook contact couldn't be matched beacause of previous problem (see log): " + entry.Title, EventType.Warning);
                 }
-                else if (entry.Emails.Count == 0 && !mobileExists && string.IsNullOrEmpty(entry.Title))
+                else if (entry.Emails.Count == 0 && !mobileExists && string.IsNullOrEmpty(entry.Title) && (entry.Organizations.Count == 0 || string.IsNullOrEmpty(entry.Organizations[0].Name)))
 				{       
                     // no telephone and email
                     sync.SkippedCount++;
                     sync.SkippedCountNotMatches++;
-                    Logger.Log("Skipped GoogleContact because no unique property found (Email1 or mobile or name):" + entry.Title, EventType.Warning);
+                    Logger.Log("Skipped GoogleContact because no unique property found (Email1 or mobile or name or company):" + entry.Title, EventType.Warning);
                 }
                 else
                 {
@@ -525,7 +529,21 @@ namespace GoContactSyncMod
 			{
                 ContactMatch match = sync.Contacts[i];
                 if (NotificationReceived != null)
-                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i+1, sync.Contacts.Count, (match.OutlookContact!=null)?match.OutlookContact.FileAs:match.GoogleContact.Title));
+                {
+                    string name = string.Empty;
+                    if (match.OutlookContact!=null)
+                        name = match.OutlookContact.FileAs;
+                    if (string.IsNullOrEmpty(name))
+                        name = match.GoogleContact.Title;
+                    if (string.IsNullOrEmpty(name))
+                        name = match.GoogleContact.Name.FullName;
+                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
+                        name = match.GoogleContact.Organizations[0].Name;
+                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
+                        name = match.GoogleContact.Emails[0].Address;
+                    
+                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, name));
+                }
 
 				SyncContact(match, sync);
 			}

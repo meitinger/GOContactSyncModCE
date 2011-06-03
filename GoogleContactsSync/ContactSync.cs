@@ -22,6 +22,8 @@ namespace GoContactSyncMod
         
         private const string relHomePage = "home-page";
 
+        //private const string emptyFullName = "n/a";
+
         public static void SetAddresses(Outlook.ContactItem source, Contact destination)
         {
             destination.PostalAddresses.Clear();
@@ -450,14 +452,20 @@ namespace GoContactSyncMod
             #endregion Title/FileAs
 
             #region Name
-            Name name = new Name();            
+            Name name = new Name();                        
+
             name.NamePrefix = master.Title;
             name.GivenName = master.FirstName;
             name.AdditionalName = master.MiddleName;
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
 
-            name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
+            //if (string.IsNullOrEmpty(name.NamePrefix) && string.IsNullOrEmpty(name.GivenName) && string.IsNullOrEmpty(name.AdditionalName) && string.IsNullOrEmpty(name.FamilyName) && string.IsNullOrEmpty(name.NameSuffix))
+            //    name.GivenName = emptyFullName;                
+            
+            if (!string.IsNullOrEmpty(master.FullName))
+                name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
+            
             slave.Name = name;
             #endregion Name
 
@@ -613,6 +621,9 @@ namespace GoContactSyncMod
             slave.Suffix = master.Name.NameSuffix;
             if (string.IsNullOrEmpty(slave.FullName)) //The Outlook fullName is automatically set, so don't assign it from Google, unless the structured properties were empty
                 slave.FullName = master.Name.FullName;
+            //else if (slave.FullName == emptyFullName && slave.FirstName == emptyFullName)
+            //    slave.FullName = null;
+
             #endregion Name
 
             #region birthday
