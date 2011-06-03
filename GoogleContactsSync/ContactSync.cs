@@ -22,8 +22,6 @@ namespace GoContactSyncMod
         
         private const string relHomePage = "home-page";
 
-        //private const string emptyFullName = "n/a";
-
         public static void SetAddresses(Outlook.ContactItem source, Contact destination)
         {
             destination.PostalAddresses.Clear();
@@ -443,8 +441,8 @@ namespace GoContactSyncMod
 				slave.Title = master.FullName;
             else if (!string.IsNullOrEmpty(master.CompanyName))
 				slave.Title = master.CompanyName;
-            else if (slave.Emails.Count > 0 && !string.IsNullOrEmpty(slave.Emails[0].Address))
-                slave.Title = slave.Emails[0].Address;
+            else if (!string.IsNullOrEmpty(master.Email1Address))
+                slave.Title = master.Email1Address;
             else
                 slave.Title = null;
 
@@ -460,9 +458,8 @@ namespace GoContactSyncMod
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
 
-            //if (string.IsNullOrEmpty(name.NamePrefix) && string.IsNullOrEmpty(name.GivenName) && string.IsNullOrEmpty(name.AdditionalName) && string.IsNullOrEmpty(name.FamilyName) && string.IsNullOrEmpty(name.NameSuffix))
-            //    name.GivenName = emptyFullName;                
-            
+
+
             if (!string.IsNullOrEmpty(master.FullName))
                 name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
             
@@ -620,9 +617,7 @@ namespace GoContactSyncMod
             slave.LastName = master.Name.FamilyName;
             slave.Suffix = master.Name.NameSuffix;
             if (string.IsNullOrEmpty(slave.FullName)) //The Outlook fullName is automatically set, so don't assign it from Google, unless the structured properties were empty
-                slave.FullName = master.Name.FullName;
-            //else if (slave.FullName == emptyFullName && slave.FirstName == emptyFullName)
-            //    slave.FullName = null;
+                slave.FullName = master.Name.FullName;           
 
             #endregion Name
 
