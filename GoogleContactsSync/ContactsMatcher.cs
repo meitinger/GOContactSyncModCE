@@ -531,16 +531,26 @@ namespace GoContactSyncMod
                 if (NotificationReceived != null)
                 {
                     string name = string.Empty;
-                    if (match.OutlookContact!=null)
+                    if (match.OutlookContact != null)
+                    {
                         name = match.OutlookContact.FileAs;
-                    if (string.IsNullOrEmpty(name))
+                        if (string.IsNullOrEmpty(name))
+                            name = match.OutlookContact.FullName;
+                        if (string.IsNullOrEmpty(name))
+                            name = match.OutlookContact.Company;
+                        if (string.IsNullOrEmpty(name))
+                            name = match.OutlookContact.Email1Address;
+                    }
+                    else if (match.GoogleContact != null)
+                    {
                         name = match.GoogleContact.Title;
-                    if (string.IsNullOrEmpty(name))
-                        name = match.GoogleContact.Name.FullName;
-                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
-                        name = match.GoogleContact.Organizations[0].Name;
-                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
-                        name = match.GoogleContact.Emails[0].Address;
+                        if (string.IsNullOrEmpty(name))
+                            name = match.GoogleContact.Name.FullName;
+                        if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
+                            name = match.GoogleContact.Organizations[0].Name;
+                        if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
+                            name = match.GoogleContact.Emails[0].Address;
+                    }
                     
                     NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, name));
                 }

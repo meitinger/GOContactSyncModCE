@@ -83,6 +83,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GoogleAPI\Google.GData.Contacts.dll</HintPath>
     </Reference>
+    <Reference Include="Google.GData.Documents">
+      <HintPath>..\GoogleAPI\Google.GData.Documents.dll</HintPath>
+    </Reference>
     <Reference Include="Google.GData.Extensions, Version=1.7.0.12892, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GoogleAPI\Google.GData.Extensions.dll</HintPath>
@@ -134,6 +137,8 @@
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="IConflictResolver.cs" />
     <Compile Include="ILogger.cs" />
+    <Compile Include="NotePropertiesUtils.cs" />
+    <Compile Include="NotesMatcher.cs" />
     <Compile Include="OutlookContactInfo.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>

@@ -34,6 +34,7 @@ namespace GoContactSyncMod
 			InitializeComponent();
 			Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
             ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
+            NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);
 			PopulateSyncOptionBox();
 
 			LoadSettings();
@@ -117,6 +118,11 @@ namespace GoContactSyncMod
 				reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
 			if (regKeyAppRoot.GetValue("SyncDeletion") != null)
 				btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
+            //ToDo: Uncomment the following code, as soon as notes Sync is working
+            //if (regKeyAppRoot.GetValue("SyncNotes") != null)
+            //    btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
+            //if (regKeyAppRoot.GetValue("SyncContacts") != null)
+            //    btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncContacts"));
 
 			autoSyncCheckBox_CheckedChanged(null, null);
 		}
@@ -137,6 +143,8 @@ namespace GoContactSyncMod
 			regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
 			regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
 			regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
+            regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
+            regKeyAppRoot.SetValue("SyncContacts", btSyncNotes.Checked);
 		}
 
 		private bool ValidCredentials
@@ -211,6 +219,8 @@ namespace GoContactSyncMod
 				_sync.SyncProfile = tbSyncProfile.Text;
 				_sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
+                _sync.SyncNotes = btSyncNotes.Checked;
+                _sync.SyncContacts = btSyncContacts.Checked;
                    
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
                 _sync.LoginToOutlook();
@@ -612,7 +622,7 @@ namespace GoContactSyncMod
                 _sync.SyncProfile = tbSyncProfile.Text;
 
                 //Load matches, but match them by properties, not sync id
-				_sync.Load();                
+				_sync.LoadContacts();                
 
 				_sync.ResetMatches();
 
@@ -728,17 +738,7 @@ namespace GoContactSyncMod
 		private void tbSyncProfile_TextChanged(object sender, EventArgs e)
 		{
 			ValidateSyncButton();
-		}
-
-        //private void btSyncDelete_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    if (_sync == null)
-        //    {
-        //        _sync = new Syncronizer(_syncOption);
-        //    }
-
-        //    _sync.SyncDelete = btSyncDelete.Checked;
-        //}
+		}        
 
 		private void Donate_Click(object sender, EventArgs e)
 		{
@@ -835,6 +835,7 @@ namespace GoContactSyncMod
 			// go to the page showing the help and howto instructions
 			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
+
      
 	}
 

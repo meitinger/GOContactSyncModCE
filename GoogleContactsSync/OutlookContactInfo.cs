@@ -29,6 +29,7 @@ namespace GoContactSyncMod
         public string Email1Address { get; set; }
         public string MobileTelephoneNumber { get; set; }
         public string Categories { get; set; }
+        public string Company { get; set; }
         public DateTime LastModificationTime { get; set; }
         public UserPropertiesHolder UserProperties { get; set; }
         #endregion
@@ -55,6 +56,7 @@ namespace GoContactSyncMod
             this.MobileTelephoneNumber = outlookContactItem.MobileTelephoneNumber;
             this.Categories = outlookContactItem.Categories;
             this.LastModificationTime = outlookContactItem.LastModificationTime;
+            this.Company = outlookContactItem.CompanyName;
 
             UserProperties userProperties = outlookContactItem.UserProperties;
             UserProperty prop = userProperties[sync.OutlookPropertyNameId];

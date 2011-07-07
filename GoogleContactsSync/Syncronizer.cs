@@ -13,6 +13,7 @@ using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Google.Contacts;
+using Google.Documents;
 
 namespace GoContactSyncMod
 {
@@ -67,11 +68,17 @@ namespace GoContactSyncMod
 		public event DuplicatesFoundHandler DuplicatesFound;
 		public event ErrorNotificationHandler ErrorEncountered;
 
-		private ContactsRequest _googleService;
-		public ContactsRequest GoogleService
+		private ContactsRequest _contactsRequest;
+		public ContactsRequest ContactsRequest
 		{
-			get { return _googleService; }
+			get { return _contactsRequest; }
 		}
+
+        private DocumentsRequest _documentsRequest;
+        public DocumentsRequest DocumentsRequest
+        {
+            get { return _documentsRequest; }
+        }
 
 		private Outlook.NameSpace _outlookNamespace;
         public Outlook.NameSpace OutlookNameSpace
@@ -90,6 +97,12 @@ namespace GoContactSyncMod
 		{
 			get { return _outlookContacts; }
 		}
+
+        private Outlook.Items _outlookNotes;
+        public Outlook.Items OutlookNotes
+        {
+            get { return _outlookNotes; }
+        }
 
         private Collection<ContactMatch> _outlookContactDuplicates;
         public Collection<ContactMatch> OutlookContactDuplicates
@@ -110,6 +123,12 @@ namespace GoContactSyncMod
 		{
 			get { return _googleContacts; }
 		}
+
+        private Collection<Document> _googleNotes;
+        public Collection<Document> GoogleNotes
+        {
+            get { return _googleNotes; }
+        }
 
         private Collection<Group> _googleGroups;
         public Collection<Group> GoogleGroups
@@ -159,11 +178,17 @@ namespace GoContactSyncMod
 		//    set { _conflictResolution = value; }
 		//}
 
-		private List<ContactMatch> _matches;
+		private List<ContactMatch> _contactMatches;
 		public List<ContactMatch> Contacts
 		{
-			get { return _matches; }
+			get { return _contactMatches; }
 		}
+
+        private List<NoteMatch> _noteMatches;
+        public List<NoteMatch> Notes
+        {
+            get { return _noteMatches; }
+        }
 
         //private string _authToken;
         //public string AuthToken
@@ -184,24 +209,35 @@ namespace GoContactSyncMod
 			set { _syncDelete = value; }
 		}
 
+        private bool _syncNotes;
+        /// <summary>
+        /// If true sync also notes
+        /// </summary>
+        public bool SyncNotes
+        {
+            get { return _syncNotes; }
+            set { _syncNotes = value; }
+        }
 
-        //public Syncronizer()
-        //{
-
-        //}
-
-        //public Syncronizer(SyncOption syncOption)
-        //{
-        //    _syncOption = syncOption;
-        //}
+        private bool _syncContacts;
+        /// <summary>
+        /// If true sync also contacts
+        /// </summary>
+        public bool SyncContacts
+        {
+            get { return _syncContacts; }
+            set { _syncContacts = value; }
+        }
+       
 
 		public void LoginToGoogle(string username, string password)
 		{
 			Logger.Log("Connecting to Google...", EventType.Information);
-            if (_googleService == null)
+            if (_contactsRequest == null)
             {
                 RequestSettings rs = new RequestSettings("GoogleContactSyncMod", username, password); 
-                _googleService = new ContactsRequest(rs);
+                _contactsRequest = new ContactsRequest(rs);
+                _documentsRequest = new DocumentsRequest(rs);
                 //_googleService.setUserCredentials(username, password);
                 //_authToken = _googleService.QueryClientLoginToken();
             }
@@ -362,23 +398,34 @@ namespace GoContactSyncMod
 
         public void LogoffGoogle()
         {            
-            _googleService = null;            
+            _contactsRequest = null;            
         }
 
-		public void LoadOutlookContacts()
+		private void LoadOutlookContacts()
 		{
 			Logger.Log("Loading Outlook contacts...", EventType.Information);
-			Outlook.MAPIFolder contactsFolder = _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
+            _outlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts);			
+		}
+
+        private void LoadOutlookNotes()
+        {
+            Logger.Log("Loading Outlook Notes...", EventType.Information);
+            _outlookNotes = GetOutlookItems(Outlook.OlDefaultFolders.olFolderNotes);
+        }
+
+        private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder)
+        {
+            Outlook.MAPIFolder mapiFolder = _outlookNamespace.GetDefaultFolder(outlookDefaultFolder);
             try
             {
-                _outlookContacts = contactsFolder.Items;
+                return mapiFolder.Items;
             }
             finally
             {
-                Marshal.ReleaseComObject(contactsFolder);
-                contactsFolder = null;
+                Marshal.ReleaseComObject(mapiFolder);
+                mapiFolder = null;
             }
-		}
+        }
         ///// <summary>
         ///// Moves duplicates from _outlookContacts to _outlookContactDuplicates
         ///// </summary>
@@ -422,7 +469,7 @@ namespace GoContactSyncMod
         //    }
         //}
 
-		public void LoadGoogleContacts()
+		private void LoadGoogleContacts()
 		{
             string message = "Error Loading Google Contacts. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
 			try
@@ -444,7 +491,7 @@ namespace GoContactSyncMod
 				//query.ShowDeleted = false;
 				//query.OrderBy = "lastmodified";
                 				
-                Feed<Contact> feed=_googleService.Get<Contact>(query);
+                Feed<Contact> feed=_contactsRequest.Get<Contact>(query);
 
                 while (feed != null)
                 {
@@ -453,7 +500,7 @@ namespace GoContactSyncMod
                         _googleContacts.Add(a);
                     }
                     query.StartIndex += query.NumberToRetrieve;
-                    feed = _googleService.Get<Contact>(feed, FeedRequestType.Next);
+                    feed = _contactsRequest.Get<Contact>(feed, FeedRequestType.Next);
                     
                 }                              
 	
@@ -469,7 +516,7 @@ namespace GoContactSyncMod
                 throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
             }
 		}
-		public void LoadGoogleGroups()
+		private void LoadGoogleGroups()
 		{
             string message = "Error Loading Google Groups. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
             try
@@ -482,7 +529,7 @@ namespace GoContactSyncMod
 
                 _googleGroups = new Collection<Group>();
 
-                Feed<Group> feed = _googleService.Get<Group>(query);               
+                Feed<Group> feed = _contactsRequest.Get<Group>(query);               
 
                 while (feed != null)
                 {
@@ -491,7 +538,7 @@ namespace GoContactSyncMod
                         _googleGroups.Add(a);
                     }
                     query.StartIndex += query.NumberToRetrieve;
-                    feed = _googleService.Get<Group>(feed, FeedRequestType.Next);
+                    feed = _contactsRequest.Get<Group>(feed, FeedRequestType.Next);
 
                 }
 
@@ -511,15 +558,63 @@ namespace GoContactSyncMod
             }
 
 		}
+        private void LoadGoogleNotes()
+        {
+            string message = "Error Loading Google Notes. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
+            try
+            {
 
+                Logger.Log("Loading Google Notes...", EventType.Information);
+
+                _googleNotes = new Collection<Document>();
+
+                DocumentQuery query = new DocumentQuery(_documentsRequest.BaseUri);
+                //query.Categories.Add(new QueryCategory(new AtomCategory("document")));
+                query.NumberToRetrieve = 256;
+                query.StartIndex = 0;
+
+                //query.ShowDeleted = false;
+                //query.OrderBy = "lastmodified";
+
+                Feed<Document> feed = _documentsRequest.Get<Document>(query);
+
+                while (feed != null)
+                {
+                    foreach (Document a in feed.Entries)
+                    {
+                        _googleNotes.Add(a);
+                    }
+                    query.StartIndex += query.NumberToRetrieve;
+                    feed = _documentsRequest.Get<Document>(feed, FeedRequestType.Next);
+
+                }
+
+            }
+            catch (System.Net.WebException ex)
+            {
+                //Logger.Log(message, EventType.Error);
+                throw new GDataRequestException(message, ex);
+            }
+            catch (System.NullReferenceException ex)
+            {
+                //Logger.Log(message, EventType.Error);
+                throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
+            }            
+        }
         /// <summary>
         /// Load the contacts from Google and Outlook
         /// </summary>
-        public void Load()
+        public void LoadContacts()
         {
             LoadOutlookContacts();
             LoadGoogleGroups();
             LoadGoogleContacts();
+        }
+
+        public void LoadNotes()
+        {
+            LoadOutlookNotes();
+            LoadGoogleNotes();
         }
 
         /// <summary>
@@ -527,10 +622,10 @@ namespace GoContactSyncMod
         /// </summary>
         public void MatchContacts()
 		{
-            Load();
+            LoadContacts();
 
 			DuplicateDataException duplicateDataException;
-			_matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
+			_contactMatches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
 			if (duplicateDataException != null)
 			{
 				
@@ -540,6 +635,25 @@ namespace GoContactSyncMod
                     Logger.Log(duplicateDataException.Message, EventType.Warning);
 			}
 		}
+
+        /// <summary>
+        /// Load the contacts from Google and Outlook and match them
+        /// </summary>
+        public void MatchNotes()
+        {
+            LoadNotes();
+            _noteMatches = NotesMatcher.MatchNotes(this);
+            /*DuplicateDataException duplicateDataException;
+            _matches = ContactsMatcher.MatchContacts(this, out duplicateDataException);
+            if (duplicateDataException != null)
+            {
+
+                if (DuplicatesFound != null)
+                    DuplicatesFound("Google duplicates found", duplicateDataException.Message);
+                else
+                    Logger.Log(duplicateDataException.Message, EventType.Warning);
+            }*/
+        }
 
 		public void Sync()
 		{
@@ -553,74 +667,94 @@ namespace GoContactSyncMod
                         return;
                     }
 
+
                     _syncedCount = 0;
                     _deletedCount = 0;
                     _errorCount = 0;
                     _skippedCount = 0;
                     _skippedCountNotMatches = 0;
 
-                    MatchContacts();
+                    if (_syncContacts)
+                        MatchContacts();
+                    
+                    //TODO: Syncing notes is not completely working yet. Until it is working, this feature will not be switched on for users
+                    if (_syncNotes)
+                        MatchNotes();
 
 #if debug
                     this.DebugContacts();
 #endif
 
-                    if (_matches == null)
-                        return;
-
-                    _totalCount = _matches.Count + _skippedCountNotMatches;
-
-                    //Remove Google duplicates from matches to be synced
-                    if (_googleContactDuplicates != null)
+                    if (_syncContacts)
                     {
-                        for (int i = _googleContactDuplicates.Count - 1; i >= 0; i--)
+                        if (_contactMatches == null)
+                            return;
+
+                        _totalCount = _contactMatches.Count + _skippedCountNotMatches;
+
+                        //Remove Google duplicates from matches to be synced
+                        if (_googleContactDuplicates != null)
                         {
-                            ContactMatch match = _googleContactDuplicates[i];
-                            if (_matches.Contains(match))
+                            for (int i = _googleContactDuplicates.Count - 1; i >= 0; i--)
                             {
-                                _skippedCount++;
-                                _matches.Remove(match);
+                                ContactMatch match = _googleContactDuplicates[i];
+                                if (_contactMatches.Contains(match))
+                                {
+                                    _skippedCount++;
+                                    _contactMatches.Remove(match);
+                                }
                             }
                         }
-                    }
 
-                    //Remove Outlook duplicates from matches to be synced
-                    if (_outlookContactDuplicates != null)
-                    {
-                        for (int i = _outlookContactDuplicates.Count - 1; i >= 0; i--)
+                        //Remove Outlook duplicates from matches to be synced
+                        if (_outlookContactDuplicates != null)
                         {
-                            ContactMatch match = _outlookContactDuplicates[i];
-                            if (_matches.Contains(match))
+                            for (int i = _outlookContactDuplicates.Count - 1; i >= 0; i--)
                             {
-                                _skippedCount++;
-                                _matches.Remove(match);
+                                ContactMatch match = _outlookContactDuplicates[i];
+                                if (_contactMatches.Contains(match))
+                                {
+                                    _skippedCount++;
+                                    _contactMatches.Remove(match);
+                                }
                             }
                         }
+
+                        ////Remove remaining google contacts not in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts"
+                        //Group syncGroup = GetGoogleGroupByName(myContactsGroup);
+                        //if (syncGroup != null)
+                        //{
+                        //    for (int i = _googleContacts.Count -1 ;i >=0; i--)
+                        //    {
+                        //        Contact googleContact = _googleContacts[i];
+                        //        Collection<Group> googleContactGroups = Utilities.GetGoogleGroups(this, googleContact);
+
+                        //        if (!googleContactGroups.Contains(syncGroup))
+                        //            _googleContacts.Remove(googleContact);
+
+                        //    }
+                        //}                                    
+
+
+                        Logger.Log("Syncing groups...", EventType.Information);
+                        ContactsMatcher.SyncGroups(this);
+
+                        Logger.Log("Syncing contacts...", EventType.Information);
+                        ContactsMatcher.SyncContacts(this);
+
+                        SaveContacts(_contactMatches);
                     }
 
-                    ////Remove remaining google contacts not in My Contacts group (to avoid syncing accounts added automatically to "Weitere Kontakte"/"Further Contacts"
-                    //Group syncGroup = GetGoogleGroupByName(myContactsGroup);
-                    //if (syncGroup != null)
-                    //{
-                    //    for (int i = _googleContacts.Count -1 ;i >=0; i--)
-                    //    {
-                    //        Contact googleContact = _googleContacts[i];
-                    //        Collection<Group> googleContactGroups = Utilities.GetGoogleGroups(this, googleContact);
+                    if (_syncNotes)
+                    {
+                        if (_noteMatches == null)
+                            return;
 
-                    //        if (!googleContactGroups.Contains(syncGroup))
-                    //            _googleContacts.Remove(googleContact);
+                        Logger.Log("Syncing notes...", EventType.Information);
+                        NotesMatcher.SyncNotes(this);
 
-                    //    }
-                    //}                                    
-
-
-                    Logger.Log("Syncing groups...", EventType.Information);
-                    ContactsMatcher.SyncGroups(this);
-
-                    Logger.Log("Syncing contacts...", EventType.Information);
-                    ContactsMatcher.SyncContacts(this);
-
-                    SaveContacts(_matches);
+                        SaveNotes(_noteMatches);
+                    }
                 }
                 finally
                 {
@@ -633,7 +767,7 @@ namespace GoContactSyncMod
                     _outlookContactDuplicates = null;
                     _googleContactDuplicates = null;
                     _googleGroups = null;
-                    _matches = null;                    
+                    _contactMatches = null;                    
                 }
 			}
 		}
@@ -661,6 +795,30 @@ namespace GoContactSyncMod
 				}
 			}
 		}
+
+        public void SaveNotes(List<NoteMatch> notes)
+        {
+            foreach (NoteMatch match in notes)
+            {
+                try
+                {
+                    SaveNote(match);
+                }
+                catch (Exception ex)
+                {
+                    if (ErrorEncountered != null)
+                    {
+                        _errorCount++;
+                        _syncedCount--;
+                        string message = String.Format("Failed to synchronize note: {0}.", match.OutlookNote.Subject);
+                        Exception newEx = new Exception(message, ex);
+                        ErrorEncountered("Error", newEx, EventType.Error);
+                    }
+                    else
+                        throw;
+                }
+            }
+        }
 
         // NOTE: Outlook contacts are not saved here anymore, they have already been saved and counted
         public void SaveContact(ContactMatch match)
@@ -745,7 +903,7 @@ namespace GoContactSyncMod
                     else
                     {
                         // peer outlook contact was deleted, delete google contact
-                        _googleService.Delete(match.GoogleContact);
+                        _contactsRequest.Delete(match.GoogleContact);
                         _deletedCount++;
                         Logger.Log("Deleted Google contact: \"" + name + "\".", EventType.Information);
                     }
@@ -758,6 +916,102 @@ namespace GoContactSyncMod
 				//Logger.Log("Both Google and Outlook contact: \"" + match.OutlookContact.FileAs + "\" have been changed! Not implemented yet.", EventType.Warning);
 			}
 		}
+
+        public void SaveNote(NoteMatch match)
+        {
+            if (match.GoogleNote != null && match.OutlookNote != null)
+            {
+                //bool googleChanged, outlookChanged;
+                //SaveNoteGroups(match, out googleChanged, out outlookChanged);
+                if (match.GoogleNote.DocumentEntry.Dirty || match.GoogleNote.DocumentEntry.IsDirty())
+                {
+                    //google note was modified. save.
+                    _syncedCount++;
+                    SaveGoogleNote(match);
+                    Logger.Log("Updated Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
+                }
+
+                if (!match.OutlookNote.Saved)// || outlookChanged)
+                {
+                    //outlook note was modified. save.
+                    match.OutlookNote.Save();
+                    Logger.Log("Updated Outlook note from Google: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
+                }                
+
+                // save photos
+                //SaveNotePhotos(match);
+            }
+            else if (match.GoogleNote == null && match.OutlookNote != null)
+            {
+                if (match.OutlookNote.ItemProperties[this.OutlookPropertyNameId] != null)
+                {
+                    string name = match.OutlookNote.Subject;
+                    if (_syncOption == SyncOption.OutlookToGoogleOnly)
+                    {
+                        _skippedCount++;
+                        Logger.Log("Skipped Deletion of Outlook note because of SyncOption " + _syncOption + ":" + name + ".", EventType.Information);
+                    }
+                    else if (!_syncDelete)
+                    {
+                        _skippedCount++;
+                        Logger.Log("Skipped Deletion of Outlook note because SyncDeletion is switched off: " + name + ".", EventType.Information);
+                    }
+                    else
+                    {
+                        // peer google note was deleted, delete outlook note
+                        Outlook.NoteItem item = match.OutlookNote;
+                        //try
+                        //{
+                            item.Delete();
+                            _deletedCount++;
+                            Logger.Log("Deleted Outlook note: \"" + name + "\".", EventType.Information);
+                        //}
+                        //finally
+                        //{
+                        //    Marshal.ReleaseComObject(item);
+                        //    item = null;
+                        //}
+                    }
+                }
+            }
+            //else if (match.GoogleNote != null && match.OutlookNote == null)
+            //{
+            //    if (NotePropertiesUtils.GetGoogleOutlookNoteId(SyncProfile, match.GoogleNote) != null)
+            //    {
+            //        string name = match.GoogleNote.Title;
+            //        if (string.IsNullOrEmpty(name))
+            //            name = match.GoogleNote.Name.FullName;
+            //        if (string.IsNullOrEmpty(name) && match.GoogleNote.Organizations.Count > 0)
+            //            name = match.GoogleNote.Organizations[0].Name;
+            //        if (string.IsNullOrEmpty(name) && match.GoogleNote.Emails.Count > 0)
+            //            name = match.GoogleNote.Emails[0].Address;
+
+            //        if (_syncOption == SyncOption.GoogleToOutlookOnly)
+            //        {
+            //            _skippedCount++;
+            //            Logger.Log("Skipped Deletion of Google note because of SyncOption " + _syncOption + ":" + name + ".", EventType.Information);
+            //        }
+            //        else if (!_syncDelete)
+            //        {
+            //            _skippedCount++;
+            //            Logger.Log("Skipped Deletion of Google note because SyncDeletion is switched off :" + name + ".", EventType.Information);
+            //        }
+            //        else
+            //        {
+            //            // peer outlook note was deleted, delete google note
+            //            _notesRequest.Delete(match.GoogleNote);
+            //            _deletedCount++;
+            //            Logger.Log("Deleted Google note: \"" + name + "\".", EventType.Information);
+            //        }
+            //    }
+            //}
+            else
+            {
+                //TODO: ignore for now: 
+                throw new ArgumentNullException("To save notes, at least a GoogleContacat or OutlookNote must be present.");
+                //Logger.Log("Both Google and Outlook note: \"" + match.OutlookNote.FileAs + "\" have been changed! Not implemented yet.", EventType.Warning);
+            }
+        }
 
         private void SaveOutlookContact(ref Contact googleContact, Outlook.ContactItem outlookContact)
         {
@@ -820,7 +1074,24 @@ namespace GoContactSyncMod
             }
 		}
 
-		private string GetContactXml(Contact contact)
+        public void SaveGoogleNote(NoteMatch match)
+        {
+            Outlook.NoteItem outlookNoteItem = match.OutlookNote;
+            //try
+            //{
+                //NotePropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleNote, outlookNoteItem);
+                match.GoogleNote = SaveGoogleNote(match.GoogleNote);
+                NotePropertiesUtils.SetOutlookGoogleNoteId(this, outlookNoteItem, match.GoogleNote);
+                outlookNoteItem.Save();               
+            //}
+            //finally
+            //{
+            //    Marshal.ReleaseComObject(outlookNoteItem);
+            //    outlookNoteItem = null;
+            //}
+        }
+
+		private string GetXml(Contact contact)
 		{
 			MemoryStream ms = new MemoryStream();
 			contact.ContactEntry.SaveToXml(ms);
@@ -829,6 +1100,16 @@ namespace GoContactSyncMod
 			string xml = sr.ReadToEnd();
 			return xml;
 		}
+
+        private string GetXml(Document note)
+        {
+            MemoryStream ms = new MemoryStream();
+            note.DocumentEntry.SaveToXml(ms);
+            StreamReader sr = new StreamReader(ms);
+            ms.Seek(0, SeekOrigin.Begin);
+            string xml = sr.ReadToEnd();
+            return xml;
+        }
 
         /// <summary>
         /// Only save the google contact without photo update
@@ -844,7 +1125,7 @@ namespace GoContactSyncMod
 
 				try
 				{
-					Contact createdEntry = _googleService.Insert(feedUri, googleContact);
+					Contact createdEntry = _contactsRequest.Insert(feedUri, googleContact);
                     return createdEntry;
 				}
                 catch (Exception ex)
@@ -852,7 +1133,7 @@ namespace GoContactSyncMod
                     string responseString = "";
                     if (ex is GDataRequestException)
                         responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
-                    string xml = GetContactXml(googleContact);
+                    string xml = GetXml(googleContact);
                     string newEx = String.Format("Error saving NEW Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
                     throw new ApplicationException(newEx, ex);
                 }
@@ -877,7 +1158,7 @@ namespace GoContactSyncMod
                     }
 
                     //TODO: this will fail if original contact had an empty name or rpimary email address.
-                    Contact updated = _googleService.Update(googleContact);
+                    Contact updated = _contactsRequest.Update(googleContact);
                     return updated;
 				}
                 catch (Exception ex)
@@ -885,12 +1166,61 @@ namespace GoContactSyncMod
                     string responseString = "";
                     if (ex is GDataRequestException)
                         responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
-                    string xml = GetContactXml(googleContact);
+                    string xml = GetXml(googleContact);
                     string newEx = String.Format("Error saving EXISTING Google contact: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
                     throw new ApplicationException(newEx, ex);
                 }
 			}
-		}         
+		}
+
+        /// <summary>
+        /// save the google note
+        /// </summary>
+        /// <param name="googleNote"></param>
+        internal Document SaveGoogleNote(Document googleNote)
+        {
+            //check if this contact was not yet inserted on google.
+            if (googleNote.DocumentEntry.Id.Uri == null)
+            {
+                //insert contact.
+                Uri feedUri = new Uri(_documentsRequest.BaseUri);
+
+                try
+                {
+                    Document createdEntry = _documentsRequest.Insert(feedUri, googleNote);
+                    return createdEntry;
+                }
+                catch (Exception ex)
+                {
+                    string responseString = "";
+                    if (ex is GDataRequestException)
+                        responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
+                    string xml = GetXml(googleNote);
+                    string newEx = String.Format("Error saving NEW Google note: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
+                    throw new ApplicationException(newEx, ex);
+                }
+            }
+            else
+            {
+                try
+                {
+                    //note already present in google. just update
+
+                    //ToDo: This doesn't work because the "Updated" tag always returns the error "This element must not contain a text"
+                    Document updated = _documentsRequest.Update(googleNote);
+                    return updated;
+                }
+                catch (Exception ex)
+                {
+                    string responseString = "";
+                    if (ex is GDataRequestException)
+                        responseString = EscapeXml(((GDataRequestException)ex).ResponseString);
+                    string xml = GetXml(googleNote);
+                    string newEx = String.Format("Error saving EXISTING Google note: {0}. \n{1}\n{2}", responseString, ex.Message, xml);
+                    throw new ApplicationException(newEx, ex);
+                }
+            }
+        }         
 
         //public void SaveContactPhotos(ContactMatch match)
         //{
@@ -950,7 +1280,7 @@ namespace GoContactSyncMod
 
                         //Don'T crop, because maybe someone wants to keep his photo like it is on Outlook
                         //outlookPhoto = Utilities.CropImageGoogleFormat(outlookPhoto);
-                        _googleService.SetPhoto(match.GoogleContact, stream);
+                        _contactsRequest.SetPhoto(match.GoogleContact, stream);
 
                         //Just save the Outlook Contact to have the same lastUpdate date as Google
                         ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContactitem, match.GoogleContact);
@@ -963,7 +1293,7 @@ namespace GoContactSyncMod
             else if (hasGooglePhoto)
             {
                 //Delete Photo on Google side, if no Outlook photo exists
-                _googleService.Delete(match.GoogleContact.PhotoUri, match.GoogleContact.PhotoEtag);
+                _contactsRequest.Delete(match.GoogleContact.PhotoUri, match.GoogleContact.PhotoEtag);
             }
 
             Utilities.DeleteTempPhoto();
@@ -1061,7 +1391,7 @@ namespace GoContactSyncMod
 
 				try
 				{
-					return _googleService.Insert(feedUri, group);
+					return _contactsRequest.Insert(feedUri, group);
 				}
 				catch
 				{
@@ -1074,7 +1404,7 @@ namespace GoContactSyncMod
 				try
 				{
 					//group already present in google. just update
-					return _googleService.Update(group);
+					return _contactsRequest.Update(group);
 				}
 				catch
 				{
@@ -1105,6 +1435,25 @@ namespace GoContactSyncMod
             SaveOutlookContact(ref master, slave);
             _syncedCount++;
             Logger.Log("Updated Outlook contact from Google: \"" + slave.FileAs + "\".", EventType.Information);
+        }
+
+        /// <summary>
+        /// Updates Google note from Outlook
+        /// </summary>
+        public void UpdateNote(Outlook.NoteItem master, Document slave)
+        {
+            slave.Title = master.Subject;
+            slave.Content = master.Body; //TODO: Content is not the document content, check how this can be done
+        }
+
+        /// <summary>
+        /// Updates Outlook contact from Google (including groups/categories)
+        /// </summary>
+        public void UpdateNote(Document master, Outlook.NoteItem slave)
+        {
+            //slave.Subject = master.Title;
+            //ToDo: This doesn't work (not found exception)
+            slave.Body = _documentsRequest.Download(master,Document.DownloadType.txt).ToString();
         }
 
 		/// <summary>
@@ -1517,6 +1866,16 @@ namespace GoContactSyncMod
             return null;
         }
 
+        public Document GetGoogleNoteById(string id)
+        {
+            foreach (Document note in _googleNotes)
+            {
+                if (note.DocumentEntry.Id.Equals(new AtomId(id)))
+                    return note;
+            }
+            return null;
+        }
+
 		public Group CreateGroup(string name)
 		{
 			Group group = new Group();
@@ -1543,12 +1902,25 @@ namespace GoContactSyncMod
 		internal void DebugContacts()
 		{
 			string msg = "DEBUG INFORMATION\nPlease submit to developer:\n\n{0}\n{1}\n{2}";
+          
 
-			string oCount = "Outlook Contact Count: " + _outlookContacts.Count;
-			string gCount = "Google Contact Count: " + _googleContacts.Count;
-			string mCount = "Matches Count: " + _matches.Count;
+            if (_syncContacts)
+            {
+                string oCount = "Outlook Contact Count: " + _outlookContacts.Count;
+                string gCount = "Google Contact Count: " + _googleContacts.Count;
+                string mCount = "Matches Count: " + _contactMatches.Count;
 
-			MessageBox.Show(string.Format(msg, oCount, gCount, mCount), "DEBUG INFO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(string.Format(msg, oCount, gCount, mCount), "DEBUG INFO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (_syncNotes)
+            {
+                string oCount = "Outlook Notes Count: " + _outlookNotes.Count;
+                string gCount = "Google Notes Count: " + _googleNotes.Count;
+                string mCount = "Matches Count: " + _noteMatches.Count;
+
+                MessageBox.Show(string.Format(msg, oCount, gCount, mCount), "DEBUG INFO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
 		}
 	}
 

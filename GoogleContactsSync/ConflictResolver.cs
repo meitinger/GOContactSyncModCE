@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Google.Contacts;
+using Google.Documents;
 
 namespace GoContactSyncMod
 {
@@ -34,6 +35,33 @@ namespace GoContactSyncMod
 
             _form.messageLabel.Text =
                 "Both the outlook contact and the google contact \"" + name +
+                "\" have been changed. Choose which you would like to keep.";
+
+            switch (_form.ShowDialog())
+            {
+                case System.Windows.Forms.DialogResult.Ignore:
+                    // skip
+                    return ConflictResolution.Skip;
+                case System.Windows.Forms.DialogResult.Cancel:
+                    // cancel
+                    return ConflictResolution.Cancel;
+                case System.Windows.Forms.DialogResult.No:
+                    // google wins
+                    return ConflictResolution.GoogleWins;
+                case System.Windows.Forms.DialogResult.Yes:
+                    // outlook wins
+                    return ConflictResolution.OutlookWins;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote)
+        {
+            string name = googleNote.Title;
+            
+            _form.messageLabel.Text =
+                "Both the outlook note and the google note \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
 
             switch (_form.ShowDialog())
