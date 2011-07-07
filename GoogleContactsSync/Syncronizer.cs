@@ -233,11 +233,13 @@ namespace GoContactSyncMod
 		public void LoginToGoogle(string username, string password)
 		{
 			Logger.Log("Connecting to Google...", EventType.Information);
-            if (_contactsRequest == null)
+            if (_contactsRequest == null && _syncContacts || _documentsRequest==null && _syncNotes)
             {
                 RequestSettings rs = new RequestSettings("GoogleContactSyncMod", username, password); 
-                _contactsRequest = new ContactsRequest(rs);
-                _documentsRequest = new DocumentsRequest(rs);
+                if (_syncContacts)
+                    _contactsRequest = new ContactsRequest(rs);
+                if (_syncNotes)
+                    _documentsRequest = new DocumentsRequest(rs);
                 //_googleService.setUserCredentials(username, password);
                 //_authToken = _googleService.QueryClientLoginToken();
             }
