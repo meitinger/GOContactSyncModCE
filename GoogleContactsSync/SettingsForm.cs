@@ -22,6 +22,9 @@ namespace GoContactSyncMod
 		private DateTime lastSync;
 		private bool requestClose = false;
         private bool boolShowBalloonTip = true;
+#if debug
+        private ProxySettingsForm _proxy = new ProxySettingsForm(); 
+#endif
 
         //register window for lock/unlock messages of workstation
         private bool registered = false;
@@ -763,9 +766,11 @@ namespace GoContactSyncMod
 		private void proxySettingsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			// TODO: Implement a dialog with proxy settings and use them when connecting with Google
-
+#if debug
+            if (_proxy != null) _proxy.Show();
+#else
 			// Alpha quick'm'dirty workaround solution
-			try
+		  try
 			{
 				if (MessageBox.Show("The proxy configuration is in beta stage, a more comfortable solution is to come. For now, you have to edit the Applications Config file with administrator privileges.\n\nOpen Configuration file now?",
 					"GO Contact Sync Mod", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
@@ -793,7 +798,8 @@ namespace GoContactSyncMod
 			{
 				ErrorHandler.Handle(ex);
 			}
-		}
+#endif
+        }
 
 		FileSystemWatcher fsw = null;
 		

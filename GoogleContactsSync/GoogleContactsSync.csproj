@@ -140,6 +140,12 @@
     <Compile Include="NotePropertiesUtils.cs" />
     <Compile Include="NotesMatcher.cs" />
     <Compile Include="OutlookContactInfo.cs" />
+    <Compile Include="ProxySettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProxySettings.designer.cs">
+      <DependentUpon>ProxySettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -162,6 +168,9 @@
     <EmbeddedResource Include="DeleteDuplicatesForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DeleteDuplicatesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProxySettings.resx">
+      <DependentUpon>ProxySettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SettingsForm.resx">
       <SubType>Designer</SubType>
