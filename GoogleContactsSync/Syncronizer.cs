@@ -1449,7 +1449,7 @@ namespace GoContactSyncMod
         }
 
         /// <summary>
-        /// Updates Outlook contact from Google (including groups/categories)
+        /// Updates Outlook contact from Google
         /// </summary>
         public void UpdateNote(Document master, Outlook.NoteItem slave)
         {
@@ -1780,63 +1780,7 @@ namespace GoContactSyncMod
 
 			return col;
 		}
-        ///// <summary>
-        ///// Used to find duplicates.
-        ///// </summary>
-        ///// <param name="name"></param>
-        ///// <param name="email"></param>
-        ///// <returns></returns>
-        //public Collection<Outlook.ContactItem> OutlookContactByEmail(string email)
-        //{
-        //    Collection<Outlook.ContactItem> col = new Collection<Outlook.ContactItem>();
-        //    Outlook.ContactItem item = null;
-        //    try
-        //    {
-        //        item = OutlookContacts.Find("[Email1Address] = \"" + email + "\"") as Outlook.ContactItem;
-        //        if (item != null)
-        //        {
-        //            col.Add(item);
-        //            do
-        //            {
-        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
-        //                if (item != null)
-        //                    col.Add(item);
-        //            } while (item != null);
-        //        }
-
-        //        item = OutlookContacts.Find("[Email2Address] = \"" + email + "\"") as Outlook.ContactItem;
-        //        if (item != null)
-        //        {
-        //            col.Add(item);
-        //            do
-        //            {
-        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
-        //                if (item != null)
-        //                    col.Add(item);
-        //            } while (item != null);
-        //        }
-
-        //        item = OutlookContacts.Find("[Email3Address] = \"" + email + "\"") as Outlook.ContactItem;
-        //        if (item != null)
-        //        {
-        //            col.Add(item);
-        //            do
-        //            {
-        //                item = OutlookContacts.FindNext() as Outlook.ContactItem;
-        //                if (item != null)
-        //                    col.Add(item);
-        //            } while (item != null);
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        //TODO: should not get here.
-        //    }
-
-        //    return col;
-
-        //}
-
+        
 		public Group GetGoogleGroupById(string id)
 		{
 			//return _googleGroups.FindById(new AtomId(id)) as Group;
