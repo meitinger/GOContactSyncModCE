@@ -36,7 +36,7 @@ namespace GoContactSyncMod
             {
                 bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\\\/\@\'\%\._\+\-]+)$", RegexOptions.IgnoreCase);
                 bool passwordIsValid = Password.Text.Length != 0;
-                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'((https?):(//))?[\w\d:#@%/;$()~_?\+-=\\\.&]*)$", RegexOptions.IgnoreCase);
+                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\\\.&]*)$", RegexOptions.IgnoreCase);
                 bool PortIsValid     = Regex.IsMatch(Port.Text, @"^(?'port'[0-9]{2,6})$", RegexOptions.IgnoreCase);
 
 
@@ -63,14 +63,21 @@ namespace GoContactSyncMod
         {
             if (CustomProxy.Checked)
             {
-                System.Net.WebProxy myProxy = new System.Net.WebProxy(Address.Text, Convert.ToInt16(Port.Text));
-                myProxy.BypassProxyOnLocal = false;
-
-                if (Authorization.Checked)
+                try
                 {
-                    myProxy.Credentials = new System.Net.NetworkCredential(UserName.Text, Password.Text);
+                    System.Net.WebProxy myProxy = new System.Net.WebProxy(Address.Text, Convert.ToInt16(Port.Text));
+                    myProxy.BypassProxyOnLocal = false;
+
+                    if (Authorization.Checked)
+                    {
+                        myProxy.Credentials = new System.Net.NetworkCredential(UserName.Text, Password.Text);
+                    }
+                    GlobalProxySelection.Select = myProxy;
                 }
-                GlobalProxySelection.Select = myProxy;
+                catch (Exception ex)
+                {
+                    ErrorHandler.Handle(ex);
+                }
             }
             else
                 GlobalProxySelection.Select = null;
