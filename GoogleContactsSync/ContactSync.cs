@@ -622,16 +622,23 @@ namespace GoContactSyncMod
             #endregion Name
 
             #region birthday
-            DateTime birthday;
-            DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
-
-            if (birthday != DateTime.MinValue)
+            try
             {
-                if (!birthday.Date.Equals(slave.Birthday.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
-                    slave.Birthday = birthday.Date;
+                DateTime birthday;
+                DateTime.TryParse(master.ContactEntry.Birthday, out birthday);
+
+                if (birthday != DateTime.MinValue)
+                {
+                    if (!birthday.Date.Equals(slave.Birthday.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
+                        slave.Birthday = birthday.Date;
+                }
+                else
+                    slave.Birthday = outlookDateNone;
             }
-            else
-                slave.Birthday = outlookDateNone;
+            catch (Exception ex)
+            {
+                Logger.Log("Birthday (" + master.ContactEntry.Birthday + ") couldn't be updated from Google to Outlook for '" + slave.FileAs + "': " + ex.Message, EventType.Error);
+            }
             #endregion birthday
 
             slave.NickName = master.ContactEntry.Nickname;
@@ -771,18 +778,25 @@ namespace GoContactSyncMod
 
             #region anniversary
             bool found = false;
-            foreach (Event ev in master.ContactEntry.Events)
+            try
             {
-                if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
+                foreach (Event ev in master.ContactEntry.Events)
                 {
-                    if (!ev.When.StartTime.Date.Equals(slave.Anniversary.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
-                        slave.Anniversary = ev.When.StartTime.Date;
-                    found = true;
-                    break;
+                    if (ev.Relation != null && ev.Relation.Equals(relAnniversary))
+                    {
+                        if (!ev.When.StartTime.Date.Equals(slave.Anniversary.Date)) //Only update if not already equal to avoid recreating the calendar item again and again
+                            slave.Anniversary = ev.When.StartTime.Date;
+                        found = true;
+                        break;
+                    }
                 }
+                if (!found)
+                    slave.Anniversary = outlookDateNone; //set to empty in the end
             }
-            if (!found)
-                slave.Anniversary = outlookDateNone; //set to empty in the end
+            catch (Exception ex)
+            {
+                Logger.Log("Anniversary couldn't be updated from Google to Outlook for '" + slave.FileAs + "': " + ex.Message, EventType.Error);
+            }
             #endregion anniversary
 
             #region relations (spouse, child, manager, assistant)
