@@ -424,7 +424,8 @@ namespace GoContactSyncMod
             }
             finally
             {
-                Marshal.ReleaseComObject(mapiFolder);
+                if (mapiFolder != null)
+                    Marshal.ReleaseComObject(mapiFolder);
                 mapiFolder = null;
             }
         }
