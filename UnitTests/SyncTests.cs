@@ -56,6 +56,9 @@ namespace GoContactSyncMod.UnitTests
                 if (regKeyAppRoot.GetValue("Password") != null)
                     gmailPassword = Encryption.DecryptPassword(gmailUsername, regKeyAppRoot.GetValue("Password") as string);
             }
+
+            sync.SyncContacts = true;
+            //ToDo: sync.SyncNotes, if implemented
             sync.LoginToGoogle(gmailUsername, gmailPassword);
             sync.LoginToOutlook();
 
