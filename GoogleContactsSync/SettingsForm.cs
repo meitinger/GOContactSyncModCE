@@ -621,6 +621,9 @@ namespace GoContactSyncMod
                 SetSyncConsoleText("");
                 Logger.Log("Reset Matches started.", EventType.Information);
 
+                _sync.SyncNotes = btSyncNotes.Checked;
+                _sync.SyncContacts = btSyncContacts.Checked;
+
 				_sync.LoginToGoogle(UserName.Text, Password.Text);
 				_sync.LoginToOutlook();
                 _sync.SyncProfile = tbSyncProfile.Text;
