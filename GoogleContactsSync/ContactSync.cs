@@ -477,6 +477,7 @@ namespace GoContactSyncMod
             slave.Location = master.OfficeLocation;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
+            //ToDo: Doesn't work yet with the Google API
             //slave.ContactEntry.Language = master.Language;
 
 			SetEmails(master, slave);
@@ -645,7 +646,8 @@ namespace GoContactSyncMod
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
-            //slave.Language = master.ContactEntry.Language; //ToDo: Doesn't work yet with the Google API
+            //ToDo: Doesn't work yet with the Google API
+            //slave.Language = master.ContactEntry.Language; 
             
 			SetEmails(master, slave);
 
