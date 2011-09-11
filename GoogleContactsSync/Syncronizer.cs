@@ -83,7 +83,11 @@ namespace GoContactSyncMod
 		private Outlook.NameSpace _outlookNamespace;
         public Outlook.NameSpace OutlookNameSpace
         {
-            get { return _outlookNamespace; }
+            get {
+                //Just create outlook instance again, in case the namespace is null
+                CreateOutlookInstance();
+                return _outlookNamespace; 
+            }
         }
 
 		private Outlook.Application _outlookApp;
@@ -291,67 +295,53 @@ namespace GoContactSyncMod
         {
             if (_outlookApp == null || _outlookNamespace == null)
             {
-                try
+
+                //Try to create new Outlook application 3 times, because mostly it fails the first time, if not yet running
+                for (int i = 0; i < 3; i++)
                 {
-                    //Try to create new Outlook application 3 times, because mostly it fails the first time, if not yet running
-                    for (int i = 0; i < 3; i++)
+                    try
                     {
+                        // First try to get the running application in case Outlook is already started
                         try
                         {
-                            // First try to get the running application in case Outlook is already started
-                            try
-                            {
-                                _outlookApp = Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
-                            }
-                            catch (COMException)
-                            {
-                                // That failed - try to create a new application object, launching Outlook in the background
-                                _outlookApp = new Outlook.Application();
-                            }
-                            break;  //Exit the for loop, if creating outllok application was successful
+                            _outlookApp = Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
                         }
                         catch (COMException)
                         {
-                            if (i == 2)
-                                throw;
-                            else //wait ten seconds and try again
-                                System.Threading.Thread.Sleep(1000 * 10);
+                            // That failed - try to create a new application object, launching Outlook in the background
+                            _outlookApp = new Outlook.Application();
                         }
+                        break;  //Exit the for loop, if creating outllok application was successful
                     }
-
+                    catch (COMException ex)
+                    {
+                        if (i == 2)
+                            throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
+                        else //wait ten seconds and try again
+                            System.Threading.Thread.Sleep(1000 * 10);
+                    }
                 }
-                catch (COMException ex)
-                {
-                    throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.", ex);
-                }
-
+                      
                 if (_outlookApp == null)
                     throw new NotSupportedException("Could not create instance of 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.");
 
-                try
+
+                //Try to create new Outlook namespace 3 times, because mostly it fails the first time, if not yet running
+                for (int i = 0; i < 3; i++)
                 {
-                    //Try to create new Outlook namespace 3 times, because mostly it fails the first time, if not yet running
-                    for (int i = 0; i < 3; i++)
+                    try
                     {
-                        try
-                        {
-                            _outlookNamespace = _outlookApp.GetNamespace("mapi");
-                            break;  //Exit the for loop, if creating outllok application was successful
-                        }
-                        catch (COMException)
-                        {
-                            if (i == 2)
-                                throw;
-                            else //wait ten seconds and try again
-                                System.Threading.Thread.Sleep(1000 * 10);
-                        }
+                        _outlookNamespace = _outlookApp.GetNamespace("mapi");
+                        break;  //Exit the for loop, if creating outllok application was successful
                     }
-                   
-                }
-                catch (COMException comEx)
-                {
-                    throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", comEx);
-                }
+                    catch (COMException ex)
+                    {
+                        if (i == 2)
+                            throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and running.", ex);
+                        else //wait ten seconds and try again
+                            System.Threading.Thread.Sleep(1000 * 10);
+                    }
+                }                                   
 
                 if (_outlookNamespace == null)
                     throw new NotSupportedException("Could not connect to 'Microsoft Outlook'. Make sure Outlook 2003 or above version is installed and retry.");
@@ -368,7 +358,7 @@ namespace GoContactSyncMod
             }
             _outlookNamespace.Logon(profileName, null, true, false);*/
 
-            //Just try to access the outlookNamespace to check, if it is still accessible            
+            //Just try to access the outlookNamespace to check, if it is still accessible, throws COMException, if not reachable           
            _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);                                
 
         }
@@ -419,7 +409,7 @@ namespace GoContactSyncMod
 
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder)
         {
-            Outlook.MAPIFolder mapiFolder = _outlookNamespace.GetDefaultFolder(outlookDefaultFolder);
+            Outlook.MAPIFolder mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
             try
             {
                 return mapiFolder.Items;
