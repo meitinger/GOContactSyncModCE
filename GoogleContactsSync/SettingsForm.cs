@@ -629,9 +629,21 @@ namespace GoContactSyncMod
                 _sync.SyncProfile = tbSyncProfile.Text;
 
                 //Load matches, but match them by properties, not sync id
-				_sync.LoadContacts();                
 
-				_sync.ResetMatches();
+                if (_sync.SyncContacts)
+                {
+                    _sync.LoadContacts();
+                    _sync.ResetContactMatches();
+                }
+
+                //TODO: Syncing notes is not completely working yet. Until it is working, this feature will not be switched on for users
+                if (_sync.SyncNotes)
+                {
+                    _sync.LoadNotes();
+                    _sync.ResetNoteMatches();
+                }
+
+
 
                 lastSync = DateTime.Now;
                 SetLastSyncText("Matches reset at " + lastSync.ToString());

@@ -31,14 +31,15 @@ namespace GoContactSyncMod
         public static event LogUpdatedHandler LogUpdated;
         private static StreamWriter logwriter;
 
+        public static readonly string Folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\GoContactSyncMOD\\";
+
         static Logger()
         {
-            String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\GoContactSyncMOD";
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            if (!Directory.Exists(Folder))
+                Directory.CreateDirectory(Folder);
             try
             {
-                logwriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\GoContactSyncMOD\\log.txt", true);
+                logwriter = new StreamWriter(Folder + "log.txt", true);
             }
             catch (Exception ex)
             {

@@ -6,6 +6,7 @@ using Google.GData.Extensions;
 using System.Collections;
 using Google.Documents;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace GoContactSyncMod
 {
@@ -194,59 +195,127 @@ namespace GoContactSyncMod
             }
             return id;
         }
-        //public static void ResetOutlookGoogleNoteId(Syncronizer sync, Outlook.NoteItem outlookNote)
-        //{
-        //    Outlook.UserProperties userProperties = outlookNote.UserProperties;
-        //    try
-        //    {
-        //        Outlook.UserProperty idProp = userProperties[sync.OutlookPropertyNameId];
-        //        try
-        //        {
-        //            Outlook.UserProperty lastSyncProp = userProperties[sync.OutlookPropertyNameSynced];
-        //            try
-        //            {
-        //                if (idProp == null && lastSyncProp == null)
-        //                    return;
+        public static void ResetOutlookGoogleNoteId(Syncronizer sync, Outlook.NoteItem outlookNote)
+        {
+            Outlook.ItemProperties userProperties = outlookNote.ItemProperties;
+            try
+            {
+                Outlook.ItemProperty idProp = userProperties[sync.OutlookPropertyNameId];
+                try
+                {
+                    Outlook.ItemProperty lastSyncProp = userProperties[sync.OutlookPropertyNameSynced];
+                    try
+                    {
+                        if (idProp == null && lastSyncProp == null)
+                            return;
 
-        //                List<int> indexesToBeRemoved = new List<int>();
-        //                IEnumerator en = userProperties.GetEnumerator();
-        //                en.Reset();
-        //                int index = 1; // 1 based collection            
-        //                while (en.MoveNext())
-        //                {
-        //                    Outlook.UserProperty userProperty = en.Current as Outlook.UserProperty;
-        //                    if (userProperty == idProp || userProperty == lastSyncProp)
-        //                    {
-        //                        indexesToBeRemoved.Add(index);
-        //                        //outlookNote.UserProperties.Remove(index);
-        //                        //Don't return to remove both properties, googleId and lastSynced
-        //                        //return;
-        //                    }
-        //                    index++;
-        //                    Marshal.ReleaseComObject(userProperty);
-        //                }
+                        List<int> indexesToBeRemoved = new List<int>();
+                        IEnumerator en = userProperties.GetEnumerator();
+                        en.Reset();
+                        int index = 0; // 0 based collection            
+                        while (en.MoveNext())
+                        {
+                            Outlook.ItemProperty userProperty = en.Current as Outlook.ItemProperty;
+                            if (userProperty == idProp || userProperty == lastSyncProp)
+                            {
+                                indexesToBeRemoved.Add(index);
+                                //outlookNote.UserProperties.Remove(index);
+                                //Don't return to remove both properties, googleId and lastSynced
+                                //return;
+                            }
+                            index++;
+                            Marshal.ReleaseComObject(userProperty);
+                        }
 
-        //                for (int i = indexesToBeRemoved.Count - 1; i >= 0; i--)
-        //                    userProperties.Remove(indexesToBeRemoved[i]);
-        //                //throw new Exception("Did not find prop.");
-        //            }
-        //            finally
-        //            {
-        //                if (lastSyncProp != null)
-        //                    Marshal.ReleaseComObject(lastSyncProp);
-        //            }
-        //        }
-        //        finally
-        //        {
-        //            if (idProp != null)
-        //                Marshal.ReleaseComObject(idProp);
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        Marshal.ReleaseComObject(userProperties);
-        //    }
-        //}
+                        for (int i = indexesToBeRemoved.Count - 1; i >= 0; i--)
+                            userProperties.Remove(indexesToBeRemoved[i]);
+                        //throw new Exception("Did not find prop.");
+                    }
+                    finally
+                    {
+                        if (lastSyncProp != null)
+                            Marshal.ReleaseComObject(lastSyncProp);
+                    }
+                }
+                finally
+                {
+                    if (idProp != null)
+                        Marshal.ReleaseComObject(idProp);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(userProperties);
+            }
+        }
+
+        public static string GetFileName(string Id)
+        {
+            string fileName = "Note_" + Id + ".txt";
+
+
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+
+            fileName = Logger.Folder + "\\" + fileName;
+            return fileName;
+        }
+
+        public static string GetBody(Syncronizer sync, Document entry)
+        {
+            string body = null;
+            System.IO.StreamReader reader = null;
+            try
+            {
+                reader = new System.IO.StreamReader(sync.DocumentsRequest.Download(entry, Document.DownloadType.txt));
+                body = reader.ReadToEnd();
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+            }
+            return body;
+        }
+
+        public static bool NoteFileExists(string Id)
+        {
+            if (System.IO.File.Exists(GetFileName(Id)))
+                return true;
+
+            return false;
+        }
+
+        public static string CreateNoteFile(string Id, string body)
+        {
+            string fileName = NotePropertiesUtils.GetFileName(Id);
+
+            StreamWriter writer = null;
+            try
+            {
+                FileStream filestream = new FileStream(fileName, FileMode.OpenOrCreate);
+                writer = new StreamWriter(filestream);
+                writer.Write(body);
+            }
+            finally
+            {
+                if (writer != null)
+                    writer.Close();
+            }
+
+            return fileName;
+        }
+
+        public static void DeleteNoteFiles()        
+        {
+            string[] files = Directory.GetFiles(Logger.Folder,@"Note_*.txt");
+
+            foreach (string file in files)
+                File.Delete(file);
+        }
+
                 
     }
 }

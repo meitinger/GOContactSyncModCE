@@ -176,17 +176,16 @@ namespace GoContactSyncMod
                 //create a default match pair with just outlook note.
                 NoteMatch match = new NoteMatch(oln, null);
 
-                //foreach google contac try to match and create a match pair if found some match(es)
+                //foreach google contact try to match and create a match pair if found some match(es)
                 for (int j = sync.GoogleNotes.Count - 1; j >= 0; j--)
                 {
-                    Document entry = sync.GoogleNotes[j];                    
+                    Document entry = sync.GoogleNotes[j];
 
-                    // only match if there is either an email or telephone or else
-                    // a matching google note will be created at each sync
-                    //1. try to match by Subject/Title
-                    //2. try to match by Body                    
-                    if (!string.IsNullOrEmpty(oln.Subject) && !string.IsNullOrEmpty(entry.Title) && oln.Subject.Equals(entry.Title, StringComparison.InvariantCultureIgnoreCase) ||
-                        !string.IsNullOrEmpty(oln.Body) && !string.IsNullOrEmpty(entry.Content) && oln.Subject.Equals(entry.Content.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase)
+                    string body = NotePropertiesUtils.GetBody(sync, entry);
+
+                    // only match if there is a note body, else
+                    // a matching google note will be created at each sync                
+                    if (!string.IsNullOrEmpty(oln.Body) && !string.IsNullOrEmpty(body) && oln.Body.Equals(body.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase)
                         )
                     {
                         match.AddGoogleNote(entry);
@@ -409,6 +408,8 @@ namespace GoContactSyncMod
             return result;
         }
 
+        
+
 
 
         public static void SyncNotes(Syncronizer sync)
@@ -466,14 +467,12 @@ namespace GoContactSyncMod
                 {
 
                     // no outlook note
-                    //string outlookId = NotePropertiesUtils.GetGoogleOutlookNoteId(sync.SyncProfile, match.GoogleNote);
-                    //if (outlookId != null)
-                    //{
-                    //    //Avoid recreating a OutlookNote already existing
-                    //    //==> Delete this googleNote instead if previous match existed but no match exists anymore                
-                    //    return;
-
-                    //}
+                    if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id))
+                    {
+                        //Avoid recreating a OutlookNote already existing
+                        //==> Delete this googleNote instead if previous match existed but no match exists anymore                
+                        return;
+                    }
 
 
                     if (sync.SyncOption == SyncOption.OutlookToGoogleOnly)
