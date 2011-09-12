@@ -373,6 +373,14 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncNotes.UseVisualStyleBackColor = true;
+
+
+#if !debug
+            //ToDo: Remove the following lines, as soon as NotesSync implementation is finished
+            this.btSyncNotes.Visible = false;
+            this.btSyncContacts.Visible = false;
+#endif
+
             // 
             // panel1
             // 
