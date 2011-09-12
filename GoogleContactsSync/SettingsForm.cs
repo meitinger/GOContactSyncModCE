@@ -121,11 +121,10 @@ namespace GoContactSyncMod
 				reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
 			if (regKeyAppRoot.GetValue("SyncDeletion") != null)
 				btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
-            //ToDo: Uncomment the following code, as soon as notes Sync is working
-            //if (regKeyAppRoot.GetValue("SyncNotes") != null)
-            //    btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
-            //if (regKeyAppRoot.GetValue("SyncContacts") != null)
-            //    btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncContacts"));
+            if (regKeyAppRoot.GetValue("SyncNotes") != null)
+                btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
+            if (regKeyAppRoot.GetValue("SyncContacts") != null)
+                btSyncContacts.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncContacts"));
 
 			autoSyncCheckBox_CheckedChanged(null, null);
 		}
@@ -147,7 +146,7 @@ namespace GoContactSyncMod
 			regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
 			regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
             regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
-            regKeyAppRoot.SetValue("SyncContacts", btSyncNotes.Checked);
+            regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
 		}
 
 		private bool ValidCredentials
