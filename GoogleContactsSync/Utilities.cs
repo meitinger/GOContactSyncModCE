@@ -304,5 +304,44 @@ namespace GoContactSyncMod
             outlookContact.Categories = outlookContact.Categories.Replace(", " + group, "");
             outlookContact.Categories = outlookContact.Categories.Replace(group, "");
         }
+
+        //ToDo: Workaround to save google Content is also not working, beause of error when closing the StreamWriter
+        //public static bool SaveGoogleNoteContent(Syncronizer sync, Google.Documents.Document updated, Google.Documents.Document googleNote)
+        //{
+
+        //    if (googleNote.DocumentEntry.MediaUri == null || googleNote.MediaSource == null)
+        //        throw new Exception("Must reload note from google.");
+
+        //    StreamWriter writer=null;
+        //    StreamReader reader=null;
+        //    WebClient client = null;
+        //    try
+        //    {
+        //        client = new WebClient();
+        //        client.Headers.Add(HttpRequestHeader.Authorization, "GoogleLogin auth=" + sync.DocumentsRequest.Service.QueryClientLoginToken());
+        //        client.Headers.Add(HttpRequestHeader.ContentType, googleNote.MediaSource.ContentType);
+        //        Stream s = client.OpenWrite(updated.DocumentEntry.MediaUri.ToString(), "PUT");
+        //        writer = new StreamWriter(s);
+        //        reader = new StreamReader(googleNote.MediaSource.GetDataStream());
+        //        string body = reader.ReadToEnd();
+        //        writer.Write(body);
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //    finally
+        //    {
+        //        if (client != null)
+        //            client.Dispose();
+        //        if (writer != null)
+        //            writer.Close(); //This throws an exception 400 (Ungültige Anforderung)
+        //        if (reader != null)
+        //            reader.Close();
+                
+        //    }
+
+        //    return true;
+        //}
     }
 }

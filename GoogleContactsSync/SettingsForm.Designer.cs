@@ -360,7 +360,6 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncContacts.UseVisualStyleBackColor = true;
-            this.btSyncContacts.Visible = false;
             // 
             // btSyncNotes
             // 
@@ -374,7 +373,6 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncNotes.UseVisualStyleBackColor = true;
-            this.btSyncNotes.Visible = false;
             // 
             // panel1
             // 

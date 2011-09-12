@@ -1211,9 +1211,11 @@ namespace GoContactSyncMod
             {
                 try
                 {
-                    googleNote.DocumentEntry.Update();
                     //note already present in google. just update
                     Document updated = _documentsRequest.Update(googleNote);
+
+                    //ToDo: Workaround also doesn't help: Utilities.SaveGoogleNoteContent(this, updated, googleNote);                   
+
                     return updated;
                 }
                 catch (Exception ex)
