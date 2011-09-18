@@ -171,7 +171,7 @@ namespace GoContactSyncMod
 				box.BackColor = Color.LightGreen;
 		}
 
-		private void button4_Click(object sender, EventArgs e)
+		private void syncButton_Click(object sender, EventArgs e)
 		{
 			Sync();
 		}
@@ -223,6 +223,10 @@ namespace GoContactSyncMod
                 _sync.SyncDelete = btSyncDelete.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
                 _sync.SyncContacts = btSyncContacts.Checked;
+
+                if (!_sync.SyncContacts && !_sync.SyncNotes)
+                    throw new NotSupportedException("Wether notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!");
+
                    
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
                 _sync.LoginToOutlook();

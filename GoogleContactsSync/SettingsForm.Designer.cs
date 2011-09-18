@@ -134,7 +134,7 @@ namespace GoContactSyncMod
             this.syncButton.TabIndex = 1;
             this.syncButton.Text = "S&ync";
             this.syncButton.UseVisualStyleBackColor = true;
-            this.syncButton.Click += new System.EventHandler(this.button4_Click);
+            this.syncButton.Click += new System.EventHandler(this.syncButton_Click);
             // 
             // syncOptionBox
             // 
