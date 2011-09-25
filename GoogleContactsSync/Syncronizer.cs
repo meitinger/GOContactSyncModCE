@@ -1498,9 +1498,26 @@ namespace GoContactSyncMod
         public void UpdateNote(Document master, Outlook.NoteItem slave)
         {
             //slave.Subject = master.Title; //The Subject is readonly and set automatically by Outlook
-            slave.Body = NotePropertiesUtils.GetBody(this, master);
+            string body = NotePropertiesUtils.GetBody(this, master);
 
-            NotePropertiesUtils.CreateNoteFile(master.Id, NotePropertiesUtils.GetBody(this, master));
+            if (string.IsNullOrEmpty(body) && slave.Body != null)
+            {
+                //DialogResult result = MessageBox.Show("The body of Google note '" + master.Title + "' is empty. Do you really want to syncronize an empty Google note to a not yet empty Outlook note?", "Empty Google Note", MessageBoxButtons.YesNo);
+
+                //if (result != DialogResult.Yes)
+                //{
+                //    Logger.Log("The body of Google note '" + master.Title + "' is empty. The user decided to skip this note and not to syncronize an empty Google note to a not yet empty Outlook note.", EventType.Information);
+                    Logger.Log("The body of Google note '" + master.Title + "' is empty. It is skipped from syncing, because Outlook note is not empty.", EventType.Warning);
+                    SkippedCount++;
+                    return;
+                //}
+                //Logger.Log("The body of Google note '" + master.Title + "' is empty. The user decided to syncronize an empty Google note to a not yet empty Outlook note (" + slave.Body + ").", EventType.Warning);                
+                
+            }
+
+            slave.Body = body;
+
+            NotePropertiesUtils.CreateNoteFile(master.Id, body);
 
         }
 
