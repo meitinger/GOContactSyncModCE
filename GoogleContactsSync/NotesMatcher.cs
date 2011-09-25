@@ -459,6 +459,7 @@ namespace GoContactSyncMod
                     //create a Google note from Outlook note
                     match.GoogleNote = new Document();
                     match.GoogleNote.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#document"));
+                    //match.GoogleNote.Categories.Add(new AtomCategory("document"));
 
                     sync.UpdateNote(outlookNoteItem, match.GoogleNote);
 

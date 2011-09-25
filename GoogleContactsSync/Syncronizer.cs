@@ -140,6 +140,8 @@ namespace GoContactSyncMod
 			get { return _googleGroups; }
 		}
 
+        private Document _googleNotesFolder;
+
 		private string _propertyPrefix;
 		public string OutlookPropertyPrefix
 		{
@@ -562,16 +564,40 @@ namespace GoContactSyncMod
                 Logger.Log("Loading Google Notes...", EventType.Information);
 
                 _googleNotes = new Collection<Document>();
-
+                
+                //First get the Notes folder or create it, if not yet existing
+                _googleNotesFolder = null;
                 DocumentQuery query = new DocumentQuery(_documentsRequest.BaseUri);
-                //query.Categories.Add(new QueryCategory(new AtomCategory("document")));
+                query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
+                query.Title = "Notes";//ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes"
+                Feed<Document> feed = _documentsRequest.Get<Document>(query);
+
+                if (feed != null)
+                {
+                    foreach (Document a in feed.Entries)
+                    {
+                        _googleNotesFolder = a;
+                        break;
+                    }                    
+                }
+
+                if (_googleNotesFolder == null)
+                {
+                    _googleNotesFolder = new Document();
+                    _googleNotesFolder.Categories.Add(new AtomCategory("folder"));
+                    _googleNotesFolder.Title = query.Title;
+                    SaveGoogleNote(_googleNotesFolder);
+                }
+
+                query = new DocumentQuery(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                query.Categories.Add(new QueryCategory(new AtomCategory("document")));
                 query.NumberToRetrieve = 256;
-                query.StartIndex = 0;
+                query.StartIndex = 0;                
 
                 //query.ShowDeleted = false;
                 //query.OrderBy = "lastmodified";
 
-                Feed<Document> feed = _documentsRequest.Get<Document>(query);
+                feed = _documentsRequest.Get<Document>(query);
 
                 while (feed != null)
                 {
@@ -931,6 +957,7 @@ namespace GoContactSyncMod
                 if (!match.OutlookNote.Saved)// || outlookChanged)
                 {
                     //outlook note was modified. save.
+                    NotePropertiesUtils.SetOutlookGoogleNoteId(this, match.OutlookNote, match.GoogleNote);
                     match.OutlookNote.Save();
                     Logger.Log("Updated Outlook note from Google: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
                 }                
@@ -1190,7 +1217,8 @@ namespace GoContactSyncMod
             if (googleNote.DocumentEntry.Id.Uri == null)
             {
                 //insert contact.
-                Uri feedUri = new Uri(_documentsRequest.BaseUri);
+                //Uri feedUri = new Uri(_documentsRequest.BaseUri);
+                Uri feedUri = new Uri(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
 
                 try
                 {
