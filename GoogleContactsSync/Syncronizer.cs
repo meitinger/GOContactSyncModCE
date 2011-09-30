@@ -555,13 +555,21 @@ namespace GoContactSyncMod
             }
 
 		}
+
         private void LoadGoogleNotes()
         {
+            LoadGoogleNotes(null);
+        }
+
+        private Document LoadGoogleNotes(AtomId id)
+        {
             string message = "Error Loading Google Notes. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
+
+            Document ret = null;
             try
             {
-
-                Logger.Log("Loading Google Notes...", EventType.Information);
+                if (id == null) // Only log, if not specific Google Notes are searched
+                    Logger.Log("Loading Google Notes...", EventType.Information);
 
                 _googleNotes = new Collection<Document>();
                 
@@ -584,12 +592,16 @@ namespace GoContactSyncMod
                 if (_googleNotesFolder == null)
                 {
                     _googleNotesFolder = new Document();
-                    _googleNotesFolder.Categories.Add(new AtomCategory("folder"));
+                    _googleNotesFolder.Type = Document.DocumentType.Folder;
+                    //_googleNotesFolder.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
                     _googleNotesFolder.Title = query.Title;
-                    SaveGoogleNote(_googleNotesFolder);
+                    _googleNotesFolder = SaveGoogleNote(_googleNotesFolder);
                 }
 
-                query = new DocumentQuery(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                if (id == null)
+                    query = new DocumentQuery(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                else //if newly created
+                    query = new DocumentQuery(_documentsRequest.BaseUri);
                 query.Categories.Add(new QueryCategory(new AtomCategory("document")));
                 query.NumberToRetrieve = 256;
                 query.StartIndex = 0;                
@@ -604,6 +616,8 @@ namespace GoContactSyncMod
                     foreach (Document a in feed.Entries)
                     {
                         _googleNotes.Add(a);
+                        if (id != null && id.Equals(a.DocumentEntry.Id))
+                            ret = a;
                     }
                     query.StartIndex += query.NumberToRetrieve;
                     feed = _documentsRequest.Get<Document>(feed, FeedRequestType.Next);
@@ -620,7 +634,9 @@ namespace GoContactSyncMod
             {
                 //Logger.Log(message, EventType.Error);
                 throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
-            }            
+            }
+
+            return ret;
         }
         /// <summary>
         /// Load the contacts from Google and Outlook
@@ -1024,7 +1040,13 @@ namespace GoContactSyncMod
                     {
                         // peer outlook note was deleted, delete google note
                          _documentsRequest.Delete(match.GoogleNote);
-                         try
+                         
+                        //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
+                         Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+                         if (deletedNote != null)
+                             _documentsRequest.Delete(deletedNote);
+                        
+                        try
                          {//Delete also the according temporary NoteFile
                              File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id));
                          }
@@ -1109,8 +1131,27 @@ namespace GoContactSyncMod
         {
             Outlook.NoteItem outlookNoteItem = match.OutlookNote;
             //try
-            //{
-                match.GoogleNote = SaveGoogleNote(match.GoogleNote);                
+            //{  
+
+                //ToDo: Somewhow, the content is not uploaded to Google, only an empty document                
+                //match.GoogleNote = SaveGoogleNote(match.GoogleNote);
+
+                //ToDo: Therefoe I use DocumentService.UploadDocument instead and move it to the NotesFolder
+                if (match.GoogleNote.DocumentEntry.Id.Uri != null)
+                {
+                    _documentsRequest.Delete(match.GoogleNote);
+
+                    //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder
+                    Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+                    if (deletedNote != null)
+                        _documentsRequest.Delete(deletedNote);
+
+                }
+
+                Google.GData.Documents.DocumentEntry entry = _documentsRequest.Service.UploadDocument(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID), match.GoogleNote.Title.Replace(":", String.Empty));                               
+                Document newNote = LoadGoogleNotes(entry.Id);
+                match.GoogleNote = _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);               
+                
                 NotePropertiesUtils.SetOutlookGoogleNoteId(this, outlookNoteItem, match.GoogleNote);
                 outlookNoteItem.Save();
 
@@ -1217,12 +1258,22 @@ namespace GoContactSyncMod
             if (googleNote.DocumentEntry.Id.Uri == null)
             {
                 //insert contact.
-                //Uri feedUri = new Uri(_documentsRequest.BaseUri);
-                Uri feedUri = new Uri(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                Uri feedUri = null;
+
+                try
+                {//In case of Notes folder creation, the _googleNotesFolder.DocumentEntry.Content.AbsoluteUri throws a NullReferenceException
+                    feedUri = new Uri(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                }
+                catch (Exception)
+                { }
+
+                if (feedUri == null)                
+                    feedUri = new Uri(_documentsRequest.BaseUri);               
 
                 try
                 {
                     Document createdEntry = _documentsRequest.Insert(feedUri, googleNote);
+                    //ToDo: Workaround also doesn't help: Utilities.SaveGoogleNoteContent(this, createdEntry, googleNote);    
                     return createdEntry;
                 }
                 catch (Exception ex)
@@ -1485,6 +1536,7 @@ namespace GoContactSyncMod
             string contentType = MediaFileSource.GetContentTypeForFileName(fileName);
 
             //ToDo: Somewhow, the content is not uploaded to Google, only an empty document
+            //Therefoe I use DocumentService.UploadDocument instead.
             slave.MediaSource = new MediaFileSource(fileName, contentType);
 
         }

@@ -374,13 +374,6 @@ namespace GoContactSyncMod
                     "ice versa.");
             this.btSyncNotes.UseVisualStyleBackColor = true;
 
-
-#if !debug
-            //ToDo: Remove the following lines, as soon as NotesSync implementation is finished
-            this.btSyncNotes.Visible = false;
-            this.btSyncContacts.Visible = false;
-#endif
-
             // 
             // panel1
             // 

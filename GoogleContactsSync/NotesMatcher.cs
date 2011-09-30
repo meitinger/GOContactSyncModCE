@@ -182,10 +182,16 @@ namespace GoContactSyncMod
                     Document entry = sync.GoogleNotes[j];
 
                     string body = NotePropertiesUtils.GetBody(sync, entry);
+                    if (!String.IsNullOrEmpty(body))
+                        body = body.Replace("\r\n", string.Empty).Replace(" ", string.Empty).Replace(" ", string.Empty);
+
+                    string outlookBody = null;
+                    if (!string.IsNullOrEmpty(oln.Body))
+                        outlookBody = oln.Body.Replace("\t", "        ").Replace("\r\n", string.Empty).Replace(" ", string.Empty).Replace(" ", string.Empty);
 
                     // only match if there is a note body, else
                     // a matching google note will be created at each sync                
-                    if (!string.IsNullOrEmpty(oln.Body) && !string.IsNullOrEmpty(body) && oln.Body.Equals(body.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase)
+                    if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(body) && outlookBody.Equals(body, StringComparison.InvariantCultureIgnoreCase)
                         )
                     {
                         match.AddGoogleNote(entry);
@@ -458,7 +464,8 @@ namespace GoContactSyncMod
 
                     //create a Google note from Outlook note
                     match.GoogleNote = new Document();
-                    match.GoogleNote.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#document"));
+                    match.GoogleNote.Type = Document.DocumentType.Document;
+                    //match.GoogleNote.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#document"));
                     //match.GoogleNote.Categories.Add(new AtomCategory("document"));
 
                     sync.UpdateNote(outlookNoteItem, match.GoogleNote);
