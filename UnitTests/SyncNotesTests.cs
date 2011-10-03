@@ -324,7 +324,8 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsNotNull(match.OutlookNote);
             Assert.IsNotNull(match.GoogleNote);
 
-            outlookNote.Delete();   
+            System.IO.File.Delete(NotePropertiesUtils.GetFileName(outlookNote.EntryID));
+            outlookNote.Delete();            
         }
 
         private void DeleteTestNotes(NoteMatch match)
