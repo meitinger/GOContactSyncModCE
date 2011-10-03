@@ -13,6 +13,7 @@ namespace GoContactSyncMod
 {
     partial class ProxySettingsForm : Form
     {
+        private static IWebProxy _systemProxy = new System.Net.WebProxy();
 
         private void Form_Changed(object sender, EventArgs e)
         {
@@ -36,7 +37,7 @@ namespace GoContactSyncMod
             {
                 bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\\\/\@\'\%\._\+\-]+)$", RegexOptions.IgnoreCase);
                 bool passwordIsValid = Password.Text.Length != 0;
-                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\\\.&]*)$", RegexOptions.IgnoreCase);
+                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\\\.&]+)$", RegexOptions.IgnoreCase);
                 bool PortIsValid     = Regex.IsMatch(Port.Text, @"^(?'port'[0-9]{2,6})$", RegexOptions.IgnoreCase);
 
 
@@ -72,22 +73,23 @@ namespace GoContactSyncMod
                     {
                         myProxy.Credentials = new System.Net.NetworkCredential(UserName.Text, Password.Text);
                     }
-                    GlobalProxySelection.Select = myProxy;
+                    WebRequest.DefaultWebProxy = myProxy;
                 }
                 catch (Exception ex)
                 {
                     ErrorHandler.Handle(ex);
                 }
             }
-            else
-                GlobalProxySelection.Select = null;
+            else // to do set defaul system proxy
+                WebRequest.DefaultWebProxy = _systemProxy;
         }
 
         public ProxySettingsForm()
         {
             InitializeComponent();
+            _systemProxy = WebRequest.DefaultWebProxy;
             LoadSettings();
-            
+            FormSettings();            
             ProxySet();
         }
 
@@ -121,8 +123,6 @@ namespace GoContactSyncMod
                     }
                 }
             }
-
-            FormSettings();
         }
 
         private void SaveSettings()
@@ -161,11 +161,12 @@ namespace GoContactSyncMod
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            if (!ValidCredentials)
+            if (!ValidCredentials) 
                 return;
 
-            SaveSettings();
             ProxySet();
+            SaveSettings();
+
             this.Hide();
         }
 

@@ -22,9 +22,7 @@ namespace GoContactSyncMod
 		private DateTime lastSync;
 		private bool requestClose = false;
         private bool boolShowBalloonTip = true;
-#if debug
         private ProxySettingsForm _proxy = new ProxySettingsForm(); 
-#endif
 
         //register window for lock/unlock messages of workstation
         private bool registered = false;
@@ -784,66 +782,8 @@ namespace GoContactSyncMod
 
 		private void proxySettingsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			// TODO: Implement a dialog with proxy settings and use them when connecting with Google
-#if debug
             if (_proxy != null) _proxy.Show();
-#else
-			// Alpha quick'm'dirty workaround solution
-		  try
-			{
-				if (MessageBox.Show("The proxy configuration is in beta stage, a more comfortable solution is to come. For now, you have to edit the Applications Config file with administrator privileges.\n\nOpen Configuration file now?",
-					"GO Contact Sync Mod", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK)
-				{
-					StartFileSystemWatcher();
-					try
-					{
-						ProcessStartInfo psi = new ProcessStartInfo();
-						psi.Arguments = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-						// full path not required, notepad is usually installed in system directory
-						psi.FileName = "notepad.exe";
-						// Vista and Win7 UAC Control
-						psi.Verb = "runas";
-						Process.Start(psi);
-					}
-					catch (Exception)
-					{
-						// fallback if notepad is not found/installed
-						// in default configuration this will open Internet Explorer, but user can then see the path and open an editor himself
-						Process.Start(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.Handle(ex);
-			}
-#endif
         }
-
-		FileSystemWatcher fsw = null;
-		
-        private void StartFileSystemWatcher()
-		{
-			if (fsw == null)
-			{
-				fsw = new FileSystemWatcher();
-				fsw.Path = Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-				fsw.Filter = Path.GetFileName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-				fsw.NotifyFilter = NotifyFilters.LastWrite;
-				fsw.Changed += delegate
-				{
-					this.BeginInvoke((MethodInvoker)delegate
-					{
-						MessageBox.Show(this, "If you have changed your proxy configuration, restart the Program to take effect.", "GO Contact Sync Mod");
-					});
-					// cleanup after we've notified the user
-					fsw.EnableRaisingEvents = false;
-					fsw.Dispose();
-					fsw = null;
-				};
-				fsw.EnableRaisingEvents = true;
-			}
-		}
 
 		private void SettingsForm_HelpButtonClicked(object sender, CancelEventArgs e)
 		{
