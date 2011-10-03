@@ -65,6 +65,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GoogleAPI\Google.GData.Contacts.dll</HintPath>
     </Reference>
+    <Reference Include="Google.GData.Documents, Version=1.9.0.0, Culture=neutral, PublicKeyToken=e4daaad656f19bb9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GoogleAPI\Google.GData.Documents.dll</HintPath>
+    </Reference>
     <Reference Include="Google.GData.Extensions, Version=1.1.4.1, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GoogleAPI\Google.GData.Extensions.dll</HintPath>
@@ -86,9 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GoogleAPITests.cs" />
+    <Compile Include="SyncNotesTests.cs" />
     <Compile Include="OutlookTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SyncTests.cs" />
+    <Compile Include="SyncContactsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GoogleContactsSync\GoogleContactsSync.csproj">

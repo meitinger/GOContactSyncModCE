@@ -561,7 +561,7 @@ namespace GoContactSyncMod
             LoadGoogleNotes(null);
         }
 
-        private Document LoadGoogleNotes(AtomId id)
+        internal Document LoadGoogleNotes(AtomId id)
         {
             string message = "Error Loading Google Notes. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
 
