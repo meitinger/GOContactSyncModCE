@@ -973,6 +973,7 @@ namespace GoContactSyncMod
                 if (!match.OutlookNote.Saved)// || outlookChanged)
                 {
                     //outlook note was modified. save.
+                    _syncedCount++;
                     NotePropertiesUtils.SetOutlookGoogleNoteId(this, match.OutlookNote, match.GoogleNote);
                     match.OutlookNote.Save();
                     Logger.Log("Updated Outlook note from Google: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
