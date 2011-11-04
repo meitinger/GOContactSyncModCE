@@ -67,8 +67,9 @@ namespace GoContactSyncMod
                 try
                 {
                     System.Net.WebProxy myProxy = new System.Net.WebProxy(Address.Text, Convert.ToInt16(Port.Text));
-                    myProxy.BypassProxyOnLocal = false;
-
+                    myProxy.BypassProxyOnLocal = true;
+                    myProxy.UseDefaultCredentials = true;
+                                        
                     if (Authorization.Checked)
                     {
                         myProxy.Credentials = new System.Net.NetworkCredential(UserName.Text, Password.Text);
