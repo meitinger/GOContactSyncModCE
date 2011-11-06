@@ -612,7 +612,7 @@ namespace GoContactSyncMod
                     }
 
                     //create a Outlook contact from Google contact
-                    outlookContactItem = sync.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+                    outlookContactItem = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
 
                     sync.UpdateContact(match.GoogleContact, outlookContactItem);
                     match.OutlookContact = new OutlookContactInfo(outlookContactItem, sync);

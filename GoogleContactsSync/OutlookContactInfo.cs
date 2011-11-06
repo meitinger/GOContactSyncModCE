@@ -77,7 +77,7 @@ namespace GoContactSyncMod
             if (this.EntryID == null)
                 throw new ApplicationException("OutlookContactInfo cannot re-create the ContactItem from Outlook because EntryID is null, suggesting that this OutlookContactInfo was not created from an existing Outook contact.");
 
-            ContactItem outlookContactItem = sync.OutlookNameSpace.GetItemFromID(this.EntryID) as ContactItem;
+            ContactItem outlookContactItem = Syncronizer.OutlookNameSpace.GetItemFromID(this.EntryID) as ContactItem;
             if (outlookContactItem == null)
                 throw new ApplicationException("OutlookContactInfo cannot re-create the ContactItem from Outlook because there is no Outlook entry with this EntryID, suggesting that the existing Outook contact may have been deleted.");
 

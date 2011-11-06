@@ -80,8 +80,8 @@ namespace GoContactSyncMod
             get { return _documentsRequest; }
         }
 
-		private Outlook.NameSpace _outlookNamespace;
-        public Outlook.NameSpace OutlookNameSpace
+		private static Outlook.NameSpace _outlookNamespace;
+        public static Outlook.NameSpace OutlookNameSpace
         {
             get {
                 //Just create outlook instance again, in case the namespace is null
@@ -90,8 +90,8 @@ namespace GoContactSyncMod
             }
         }
 
-		private Outlook.Application _outlookApp;
-		public Outlook.Application OutlookApplication
+		private static Outlook.Application _outlookApp;
+		public static Outlook.Application OutlookApplication
 		{
 			get { return _outlookApp; }
 		}
@@ -293,7 +293,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-        private void CreateOutlookInstance()
+        private static void CreateOutlookInstance()
         {
             if (_outlookApp == null || _outlookNamespace == null)
             {
@@ -423,6 +423,8 @@ namespace GoContactSyncMod
                 mapiFolder = null;
             }
         }
+        
+        
         ///// <summary>
         ///// Moves duplicates from _outlookContacts to _outlookContactDuplicates
         ///// </summary>
@@ -1136,11 +1138,13 @@ namespace GoContactSyncMod
 
                 //ToDo: Somewhow, the content is not uploaded to Google, only an empty document                
                 //match.GoogleNote = SaveGoogleNote(match.GoogleNote);
-
+                
                 //ToDo: Therefoe I use DocumentService.UploadDocument instead and move it to the NotesFolder
+                string oldOutlookGoogleNoteId = NotePropertiesUtils.GetOutlookGoogleNoteId(this, outlookNoteItem);
                 if (match.GoogleNote.DocumentEntry.Id.Uri != null)
                 {
                     _documentsRequest.Delete(match.GoogleNote);
+                    NotePropertiesUtils.ResetOutlookGoogleNoteId(this, outlookNoteItem);
 
                     //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder
                     Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
@@ -1151,10 +1155,12 @@ namespace GoContactSyncMod
 
                 Google.GData.Documents.DocumentEntry entry = _documentsRequest.Service.UploadDocument(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID), match.GoogleNote.Title.Replace(":", String.Empty));                               
                 Document newNote = LoadGoogleNotes(entry.Id);
-                match.GoogleNote = _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);               
-                
+                match.GoogleNote = _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);
+
+                //First delete old temporary file, because it was saved with old GoogleNoteID, because every sync to Google becomes a new ID, because updateMedia doesn't work
+                File.Delete(NotePropertiesUtils.GetFileName(oldOutlookGoogleNoteId));
                 NotePropertiesUtils.SetOutlookGoogleNoteId(this, outlookNoteItem, match.GoogleNote);
-                outlookNoteItem.Save();
+                outlookNoteItem.Save();                
 
                 //As GoogleDocuments don't have UserProperties, we have to use the file to check, if Note was already synced or not
                 File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id));
