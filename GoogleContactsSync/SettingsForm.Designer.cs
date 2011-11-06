@@ -74,6 +74,7 @@ namespace GoContactSyncMod
             this.hideButton = new System.Windows.Forms.Button();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
+            this.cmbFolders = new System.Windows.Forms.ComboBox();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -373,7 +374,6 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncNotes.UseVisualStyleBackColor = true;
-
             // 
             // panel1
             // 
@@ -577,6 +577,16 @@ namespace GoContactSyncMod
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
+            // comboBox1
+            // 
+            this.cmbFolders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFolders.FormattingEnabled = true;
+            this.cmbFolders.Location = new System.Drawing.Point(172, 450);
+            this.cmbFolders.Name = "comboBox1";
+            this.cmbFolders.Size = new System.Drawing.Size(303, 21);
+            this.cmbFolders.Sorted = true;
+            this.cmbFolders.TabIndex = 6;
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.syncButton;
@@ -584,6 +594,7 @@ namespace GoContactSyncMod
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.hideButton;
             this.ClientSize = new System.Drawing.Size(722, 490);
+            this.Controls.Add(this.cmbFolders);
             this.Controls.Add(this.Donate);
             this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.resetMatchesLinkLabel);
@@ -668,6 +679,7 @@ namespace GoContactSyncMod
         private System.Windows.Forms.CheckBox reportSyncResultCheckBox;
         private System.Windows.Forms.CheckBox btSyncNotes;
         private System.Windows.Forms.CheckBox btSyncContacts;
+        private System.Windows.Forms.ComboBox cmbFolders;
     }
 }
 

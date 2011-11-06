@@ -673,6 +673,23 @@ namespace GoContactSyncMod
 
         private void ShowForm()
         {
+#if debug
+            //ToDo: Implement folders to be used
+            cmbFolders.Visible = true;
+            try
+            {
+                this.cmbFolders.Items.Clear();
+                Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
+                foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
+                    this.cmbFolders.Items.Add(folder.Name);
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+            }
+#else
+            cmbFolders.Visible = false;
+#endif
             Show();
             WindowState = FormWindowState.Normal;
         }
@@ -715,6 +732,10 @@ namespace GoContactSyncMod
 				// this is the first load, show form
 				ShowForm();
 				UserName.Focus();
+                ShowBalloonToolTip(Application.ProductName,
+                        "Application started and visible in your PC's system tray, click on this balloon or the icon below to open the settings form and enter your Google credentials there.",
+                        ToolTipIcon.Info,
+                        5000);
 			}
 			else
 				HideForm();
@@ -800,8 +821,7 @@ namespace GoContactSyncMod
 			// go to the page showing the help and howto instructions
 			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
-
-     
+    
 	}
 
 	//internal class EventLogger : ILogger
