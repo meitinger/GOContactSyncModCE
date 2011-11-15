@@ -827,7 +827,7 @@ namespace GoContactSyncMod
 					{
                         _errorCount++;
                         _syncedCount--;
-                        string message = String.Format("Failed to synchronize contact: {0}. \nPlease check the contact, if any Email already exists on Google contacts side or if there is too much or invalid data in the notes field. \nIf the problem persists, please try recreating the contact or report the error on SourceForge.", match.OutlookContact.FileAs);
+                        string message = String.Format("Failed to synchronize contact: {0}. \nPlease check the contact, if any Email already exists on Google contacts side or if there is too much or invalid data in the notes field. \nIf the problem persists, please try recreating the contact or report the error on SourceForge:\n{1}", match.OutlookContact != null ? match.OutlookContact.FileAs : match.GoogleContact.Title, ex.Message);
 						Exception newEx = new Exception(message, ex);
 						ErrorEncountered("Error", newEx, EventType.Error);
 					}
@@ -907,6 +907,17 @@ namespace GoContactSyncMod
                         Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook(this);
                         try
                         {
+                            try
+                            {
+                                //First reset OutlookGoogleContactId to restore it later from trash
+                                ContactPropertiesUtils.ResetOutlookGoogleContactId(this, item);
+                                item.Save();                                
+                            }
+                            catch (Exception)
+                            {
+                                Logger.Log("Error resetting match for Outlook contact: \"" + name + "\".", EventType.Warning);
+                            }
+
                             item.Delete();
                             _deletedCount++;
                             Logger.Log("Deleted Outlook contact: \"" + name + "\".", EventType.Information);
@@ -944,6 +955,16 @@ namespace GoContactSyncMod
                     else
                     {
                         // peer outlook contact was deleted, delete google contact
+                        try
+                        {
+                            //First reset GoogleOutlookContactId to restore it later from trash
+                            match.GoogleContact = ResetMatch(match.GoogleContact);
+                        }
+                        catch (Exception)
+                        {
+                            Logger.Log("Error resetting match for Google contact: \"" + name + "\".", EventType.Warning);
+                        }
+
                         _contactsRequest.Delete(match.GoogleContact);
                         _deletedCount++;
                         Logger.Log("Deleted Google contact: \"" + name + "\".", EventType.Information);
@@ -1005,6 +1026,17 @@ namespace GoContactSyncMod
                         Outlook.NoteItem item = match.OutlookNote;
                         //try
                         //{
+                            try
+                            {
+                                //First reset OutlookGoogleContactId to restore it later from trash
+                                NotePropertiesUtils.ResetOutlookGoogleNoteId(this, item);
+                                item.Save();
+                            }
+                            catch (Exception)
+                            {
+                                Logger.Log("Error resetting match for Outlook note: \"" + name + "\".", EventType.Warning);
+                            }
+
                             item.Delete();
                             try
                             { //Delete also the according temporary NoteFile
@@ -1872,14 +1904,16 @@ namespace GoContactSyncMod
         /// <summary>
         /// Reset the match link between Google and Outlook contact        
         /// </summary>
-        public void ResetMatch(Contact googleContact)
+        public Contact ResetMatch(Contact googleContact)
         {
-            
+
             if (googleContact != null)
             {
                 ContactPropertiesUtils.ResetGoogleOutlookContactId(SyncProfile, googleContact);
-                SaveGoogleContact(googleContact);
+                return SaveGoogleContact(googleContact);
             }
+            else
+                return googleContact;
         }
 
         /// <summary>
