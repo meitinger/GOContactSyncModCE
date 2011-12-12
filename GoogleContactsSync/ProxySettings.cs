@@ -37,7 +37,7 @@ namespace GoContactSyncMod
             {
                 bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\\\/\@\'\%\._\+\-]+)$", RegexOptions.IgnoreCase);
                 bool passwordIsValid = Password.Text.Length != 0;
-                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\\\.&]+)$", RegexOptions.IgnoreCase);
+                bool AddressIsValid = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\-\\\.&]+)$", RegexOptions.IgnoreCase);
                 bool PortIsValid     = Regex.IsMatch(Port.Text, @"^(?'port'[0-9]{2,6})$", RegexOptions.IgnoreCase);
 
 
@@ -112,7 +112,6 @@ namespace GoContactSyncMod
 
                     if (Convert.ToBoolean (regKeyAppRoot.GetValue("ProxyAuth"))) 
                     {
-
                          Authorization.Checked = true;
 
                         if (regKeyAppRoot.GetValue("ProxyUsername") != null)
