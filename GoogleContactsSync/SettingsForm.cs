@@ -223,7 +223,10 @@ namespace GoContactSyncMod
                 _sync.SyncContacts = btSyncContacts.Checked;
 
                 if (!_sync.SyncContacts && !_sync.SyncNotes)
-                    throw new NotSupportedException("Wether notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!");
+                {
+                    ShowForm();
+                    throw new NotSupportedException("Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!");
+                }
 
                    
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
@@ -286,7 +289,7 @@ namespace GoContactSyncMod
             {
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
-                ErrorHandler.Handle(ex);
+                ErrorHandler.Handle(ex);                                
             }							
 			finally
 			{                        
@@ -498,6 +501,9 @@ namespace GoContactSyncMod
                     OnSessionUnlock(); // Do something when unlocked
             }*/
 			// If this is WM_QUERYENDSESSION, the form must exit and not just hide
+
+            if (m.Msg == Program.WM_SHOWME)
+                ShowForm();
 			base.WndProc(ref m);
 		} 
 
@@ -671,8 +677,16 @@ namespace GoContactSyncMod
 			}
 		}
 
+        private delegate void InvokeCallback(); 
+
         private void ShowForm()
         {
+            if (this.InvokeRequired)
+            {
+                Invoke(new InvokeCallback(ShowForm));
+            }
+            else
+            {
 #if debug
             //ToDo: Implement folders to be used
             cmbFolders.Visible = true;
@@ -688,10 +702,12 @@ namespace GoContactSyncMod
                 Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
             }
 #else
-            cmbFolders.Visible = false;
+                cmbFolders.Visible = false;
 #endif
-            Show();
-            WindowState = FormWindowState.Normal;
+                Show();
+                Activate();
+                WindowState = FormWindowState.Normal;
+            }
         }
 		private void HideForm()
 		{
@@ -821,6 +837,24 @@ namespace GoContactSyncMod
 			// go to the page showing the help and howto instructions
 			Process.Start("http://googlesyncmod.sourceforge.net/");
 		}
+
+        private void btSyncContacts_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!btSyncContacts.Checked && !btSyncNotes.Checked)
+            {
+                MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on notes for syncing now).", "No sync switched on");
+                btSyncNotes.Checked = true;
+            }
+        }
+
+        private void btSyncNotes_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!btSyncContacts.Checked && !btSyncNotes.Checked)
+            {
+                MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on contacts for syncing now).", "No sync switched on");
+                btSyncContacts.Checked = true;
+            }
+        }
     
 	}
 

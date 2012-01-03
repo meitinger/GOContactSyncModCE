@@ -467,10 +467,17 @@ namespace GoContactSyncMod
             #endregion Name
 
             #region Birtday
-            if (master.Birthday.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
-                slave.ContactEntry.Birthday = null;
-            else
-                slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
+            try
+            {
+                if (master.Birthday.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
+                    slave.ContactEntry.Birthday = null;
+                else
+                    slave.ContactEntry.Birthday = master.Birthday.ToString("yyyy-MM-dd");
+            }            
+            catch (Exception ex)
+            {
+                Logger.Log("Birthday couldn't be updated from Outlook to Google for '" + master.FileAs + "': " + ex.Message, EventType.Error);
+            }
             #endregion Birthday
 
             slave.ContactEntry.Nickname = master.NickName;
@@ -500,15 +507,22 @@ namespace GoContactSyncMod
                     break;
                 }
             }
-            //Then add it again if existing
-            if (!master.Anniversary.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
+            try
             {
-                Event ev = new Event();
-                ev.Relation = relAnniversary;
-                ev.When = new When();
-                ev.When.AllDay = true;
-                ev.When.StartTime = master.Anniversary.Date;            
-                slave.ContactEntry.Events.Add(ev);
+                //Then add it again if existing
+                if (!master.Anniversary.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900
+                {
+                    Event ev = new Event();
+                    ev.Relation = relAnniversary;
+                    ev.When = new When();
+                    ev.When.AllDay = true;
+                    ev.When.StartTime = master.Anniversary.Date;            
+                    slave.ContactEntry.Events.Add(ev);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Anniversary couldn't be updated from Outlook to Google for '" + master.FileAs + "': " + ex.Message, EventType.Error);
             }
             #endregion anniversary
 

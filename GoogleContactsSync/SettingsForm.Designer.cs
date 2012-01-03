@@ -361,6 +361,7 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncContacts.UseVisualStyleBackColor = true;
+            this.btSyncContacts.CheckedChanged += new System.EventHandler(this.btSyncContacts_CheckedChanged);
             // 
             // btSyncNotes
             // 
@@ -374,6 +375,7 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncNotes.UseVisualStyleBackColor = true;
+            this.btSyncNotes.CheckedChanged += new System.EventHandler(this.btSyncNotes_CheckedChanged);
             // 
             // panel1
             // 
@@ -577,12 +579,12 @@ namespace GoContactSyncMod
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
-            // comboBox1
+            // cmbFolders
             // 
             this.cmbFolders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFolders.FormattingEnabled = true;
             this.cmbFolders.Location = new System.Drawing.Point(172, 450);
-            this.cmbFolders.Name = "comboBox1";
+            this.cmbFolders.Name = "cmbFolders";
             this.cmbFolders.Size = new System.Drawing.Size(303, 21);
             this.cmbFolders.Sorted = true;
             this.cmbFolders.TabIndex = 6;

@@ -715,8 +715,7 @@ namespace GoContactSyncMod
 
                     if (_syncContacts)
                         MatchContacts();
-                    
-                    //TODO: Syncing notes is not completely working yet. Until it is working, this feature will not be switched on for users
+                                       
                     if (_syncNotes)
                         MatchNotes();
 
