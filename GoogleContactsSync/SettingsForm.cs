@@ -198,26 +198,26 @@ namespace GoContactSyncMod
 
 		private void Sync_ThreadStarter()
 		{
-			try
-			{
-				TimerSwitch(false);
-				SetLastSyncText("Syncing...");
+            try
+            {
+                TimerSwitch(false);
+                SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
-				SetFormEnabled(false);
+                SetFormEnabled(false);
 
-				if (_sync == null)
-				{
-					_sync = new Syncronizer();
-					_sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
-					_sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);                    
-				}
+                if (_sync == null)
+                {
+                    _sync = new Syncronizer();
+                    _sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
+                    _sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
+                }
 
-				Logger.ClearLog();
-				SetSyncConsoleText("");
-				Logger.Log("Sync started.", EventType.Information);
-				//SetSyncConsoleText(Logger.GetText());
-				_sync.SyncProfile = tbSyncProfile.Text;
-				_sync.SyncOption = _syncOption;
+                Logger.ClearLog();
+                SetSyncConsoleText("");
+                Logger.Log("Sync started.", EventType.Information);
+                //SetSyncConsoleText(Logger.GetText());
+                _sync.SyncProfile = tbSyncProfile.Text;
+                _sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
                 _sync.SyncContacts = btSyncContacts.Checked;
@@ -228,12 +228,12 @@ namespace GoContactSyncMod
                     throw new NotSupportedException("Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!");
                 }
 
-                   
+
                 _sync.LoginToGoogle(UserName.Text, Password.Text);
                 _sync.LoginToOutlook();
 
                 _sync.Sync();
-                    
+
                 lastSync = DateTime.Now;
                 SetLastSyncText("Last synced at " + lastSync.ToString());
 
@@ -272,11 +272,11 @@ namespace GoContactSyncMod
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
 
-                string responseString = (null != ex.InnerException) ? ex.ResponseString : ex.Message;
+                //string responseString = (null != ex.InnerException) ? ex.ResponseString : ex.Message;
 
                 if (ex.InnerException is System.Net.WebException)
                 {
-                    string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ((System.Net.WebException)ex.InnerException).Message + "\r\n" + responseString;
+                    string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ex.InnerException.Message + "\r\n" + ex.ResponseString;
                     Logger.Log(message, EventType.Warning);
                     Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
                 }
@@ -285,11 +285,20 @@ namespace GoContactSyncMod
                     ErrorHandler.Handle(ex);
                 }
             }
+            catch (Google.GData.Client.InvalidCredentialsException ex)
+            {
+                SetLastSyncText("Sync failed.");
+                notifyIcon.Text = Application.ProductName + "\nSync failed";
+
+                Exception exc = new Exception("The credentials are invalid, please correct them in the settings form before you sync again", ex);
+                ErrorHandler.Handle(exc);
+                ShowForm();
+            }
             catch (Exception ex)
             {
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
-                ErrorHandler.Handle(ex);                                
+                ErrorHandler.Handle(ex);
             }							
 			finally
 			{                        
@@ -422,14 +431,14 @@ namespace GoContactSyncMod
 					{
 						autoSyncInterval.Enabled = autoSyncCheckBox.Checked;
 						syncTimer.Enabled = autoSyncCheckBox.Checked;
-						nextSyncLabel.Visible = autoSyncCheckBox.Checked;
+						nextSyncLabel.Visible = autoSyncCheckBox.Checked;                        
 					}
 				}
 				else
 				{                    
 					autoSyncInterval.Enabled = value;
                     syncTimer.Enabled = value;
-					nextSyncLabel.Visible = value;
+					nextSyncLabel.Visible = value;                    
 				}
 			}
 		}
@@ -514,6 +523,8 @@ namespace GoContactSyncMod
                         {
                             TimerSwitch(false);
                         }
+                            
+
                         break;
                     }
                 default:
