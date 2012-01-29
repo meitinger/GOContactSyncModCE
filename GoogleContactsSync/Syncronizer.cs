@@ -268,7 +268,7 @@ namespace GoContactSyncMod
 			{
                 CreateOutlookInstance();
 			}
-			catch (System.Runtime.InteropServices.COMException)
+			catch (COMException)
 			{
 				try
 				{

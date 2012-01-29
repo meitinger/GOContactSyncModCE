@@ -290,15 +290,27 @@ namespace GoContactSyncMod
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
 
-                Exception exc = new Exception("The credentials are invalid, please correct them in the settings form before you sync again", ex);
-                ErrorHandler.Handle(exc);
+                string message = "The credentials (Google Account username and/or password) are invalid, please correct them in the settings form before you sync again";
+                Logger.Log(message, EventType.Error);
                 ShowForm();
+                Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+
             }
             catch (Exception ex)
             {
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
-                ErrorHandler.Handle(ex);
+
+                if (ex is COMException)
+                {
+                    string message = "Outlook exception, please assure that Outlook is running and not closed when syncing";
+                    Logger.Log(message + ": " + ex.Message, EventType.Warning);
+                    Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+                }
+                else
+                {
+                    ErrorHandler.Handle(ex);
+                }
             }							
 			finally
 			{                        
@@ -506,11 +518,11 @@ namespace GoContactSyncMod
                         {                            
                             TimerSwitch(true);
                         }
-                        else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
-                                 m.WParam.ToInt32() == PBT_APMSTANDBY)
-                        {
-                            TimerSwitch(false);
-                        }
+                        //else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
+                        //         m.WParam.ToInt32() == PBT_APMSTANDBY)
+                        //{
+                        //    TimerSwitch(false);
+                        //}
                             
 
                         break;
