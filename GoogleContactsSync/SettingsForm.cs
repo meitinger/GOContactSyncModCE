@@ -449,6 +449,16 @@ namespace GoContactSyncMod
         private const int WM_WTSSESSION_CHANGE = 0x02B1;
         private const int WTS_SESSION_LOCK = 0x7;
         private const int WTS_SESSION_UNLOCK = 0x8;
+
+        //Code to find if workstation is resumed
+        const int WM_POWERBROADCAST = 0x0218;
+        const int PBT_APMSUSPEND = 0x0004;
+        const int PBT_APMSTANDBY = 0x0005;
+        const int PBT_APMRESUMECRITICAL = 0x0006;
+        const int PBT_APMRESUMESUSPEND = 0x0007;
+        const int PBT_APMRESUMESTANDBY = 0x0008;
+        const int PBT_APMRESUMEAUTOMATIC = 0x0012;
+
         
         /*
         protected void OnSessionLock()
@@ -486,6 +496,25 @@ namespace GoContactSyncMod
                             boolShowBalloonTip = true; // Do something when unlocked
                         }
                      break;
+                    }                
+                case WM_POWERBROADCAST:
+                    {
+                        if (m.WParam.ToInt32() == PBT_APMRESUMEAUTOMATIC ||
+                            m.WParam.ToInt32() == PBT_APMRESUMECRITICAL ||
+                            m.WParam.ToInt32() == PBT_APMRESUMESTANDBY ||
+                            m.WParam.ToInt32() == PBT_APMRESUMESUSPEND)
+                        {
+                            //If PC resumes, give him 90 seconds to recover everything before the sync starts
+                            if (lastSync <= DateTime.Now - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
+                                lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+                            TimerSwitch(true);
+                        }
+                        else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
+                            m.WParam.ToInt32() == PBT_APMSTANDBY)
+                        {
+                            TimerSwitch(false);
+                        }
+                        break;
                     }
                 default:
                     break;

@@ -654,7 +654,7 @@ namespace GoContactSyncMod
                                 case SyncOption.GoogleToOutlookOnly:
                                     //overwrite outlook contact
                                     Logger.Log("Outlook and Google contact have been updated, Google contact is overwriting Outlook because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
-                                    sync.UpdateContact(match.GoogleContact, outlookContactItem);                                
+                                    sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                     break;
                                 case SyncOption.MergePrompt:
                                     //promp for sync option
@@ -670,7 +670,7 @@ namespace GoContactSyncMod
                                             sync.UpdateContact(outlookContactItem, match.GoogleContact);
                                             break;
                                         case ConflictResolution.GoogleWins:
-                                            sync.UpdateContact(match.GoogleContact, outlookContactItem);                                        
+                                            sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                             break;
                                         default:
                                             break;
@@ -679,7 +679,7 @@ namespace GoContactSyncMod
                             }
                             return;
                         }
-                    
+
 
                         //check if outlook contact was updated (with X second tolerance)
                         if (sync.SyncOption != SyncOption.GoogleToOutlookOnly &&
@@ -691,7 +691,7 @@ namespace GoContactSyncMod
                         {
                             //outlook contact was changed or changed Google contact will be overwritten
 
-                            if (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance && 
+                            if (lastUpdatedGoogle.Subtract(lastSynced.Value).TotalSeconds > TimeTolerance &&
                                 sync.SyncOption == SyncOption.OutlookToGoogleOnly)
                                 Logger.Log("Google contact has been updated since last sync, but Outlook contact is overwriting Google because of SyncOption " + sync.SyncOption + ": " + match.OutlookContact.FileAs + ".", EventType.Information);
 
@@ -699,7 +699,7 @@ namespace GoContactSyncMod
 
                             //at the moment use outlook as "master" source of contacts - in the event of a conflict google contact will be overwritten.
                             //TODO: control conflict resolution by SyncOption
-                            return;                        
+                            return;
                         }
 
                         //check if google contact was updated (with X second tolerance)
@@ -754,13 +754,21 @@ namespace GoContactSyncMod
                                     default:
                                         break;
                                 }
-                                break;                        
+                                break;
                         }
                     }
 
                 }
                 else
                     throw new ArgumentNullException("ContactMatch has all peers null.");
+            }
+            catch (ArgumentNullException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error syncing contact " + (match.OutlookContact != null ? match.OutlookContact.FileAs : match.GoogleContact.Title) + ": " + e.Message, e);
             }
             finally
             {
