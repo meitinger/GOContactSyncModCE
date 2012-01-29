@@ -285,7 +285,7 @@ namespace GoContactSyncMod
                     ErrorHandler.Handle(ex);
                 }
             }
-            catch (Google.GData.Client.InvalidCredentialsException ex)
+            catch (Google.GData.Client.InvalidCredentialsException)
             {
                 SetLastSyncText("Sync failed.");
                 notifyIcon.Text = Application.ProductName + "\nSync failed";
