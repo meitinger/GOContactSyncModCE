@@ -40,7 +40,7 @@ namespace GoContactSyncMod
 
 			LoadSettings();
 
-			lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+            TimerSwitch(true);
 			lastSyncLabel.Text = "Not synced";
 
 			ValidateSyncButton();
@@ -424,22 +424,12 @@ namespace GoContactSyncMod
 			}
 			else
 			{
-
-				if (value)
-				{
-					if (autoSyncCheckBox.Checked)
-					{
-						autoSyncInterval.Enabled = autoSyncCheckBox.Checked;
-						syncTimer.Enabled = autoSyncCheckBox.Checked;
-						nextSyncLabel.Visible = autoSyncCheckBox.Checked;                        
-					}
-				}
-				else
-				{                    
-					autoSyncInterval.Enabled = value;
-                    syncTimer.Enabled = value;
-					nextSyncLabel.Visible = value;                    
-				}
+                //If PC resumes or unlocks or is started, give him 90 seconds to recover everything before the sync starts
+                if (lastSync <= DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
+                    lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+				autoSyncInterval.Enabled = autoSyncCheckBox.Checked && value;
+				syncTimer.Enabled = autoSyncCheckBox.Checked && value;
+				nextSyncLabel.Visible = autoSyncCheckBox.Checked &&  value;          				
 			}
 		}
 
@@ -503,6 +493,7 @@ namespace GoContactSyncMod
                             //Logger.Log("\nBenutzer inaktiv -> kein ToolTip", EventType.Information);
                             //OnSessionUnlock();
                             boolShowBalloonTip = true; // Do something when unlocked
+                            TimerSwitch(true);
                         }
                      break;
                     }                
@@ -512,14 +503,11 @@ namespace GoContactSyncMod
                             m.WParam.ToInt32() == PBT_APMRESUMECRITICAL ||
                             m.WParam.ToInt32() == PBT_APMRESUMESTANDBY ||
                             m.WParam.ToInt32() == PBT_APMRESUMESUSPEND)
-                        {
-                            //If PC resumes, give him 90 seconds to recover everything before the sync starts
-                            if (lastSync <= DateTime.Now - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
-                                lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+                        {                            
                             TimerSwitch(true);
                         }
                         else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
-                            m.WParam.ToInt32() == PBT_APMSTANDBY)
+                                 m.WParam.ToInt32() == PBT_APMSTANDBY)
                         {
                             TimerSwitch(false);
                         }
@@ -617,33 +605,31 @@ namespace GoContactSyncMod
 
 		private void autoSyncCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-            lastSync = DateTime.Now.AddSeconds(15) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
-			autoSyncInterval.Enabled = autoSyncCheckBox.Checked;
-			syncTimer.Enabled = autoSyncCheckBox.Checked;
-			nextSyncLabel.Visible = autoSyncCheckBox.Checked;
+            lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+            TimerSwitch(true);
 		}
 
 		private void syncTimer_Tick(object sender, EventArgs e)
 		{
-			if (lastSync != null)
-			{
-				TimeSpan syncTime = DateTime.Now - lastSync;
-				TimeSpan limit = new TimeSpan(0, (int)autoSyncInterval.Value, 0);
-				if (syncTime < limit)
-				{
-					TimeSpan diff = limit - syncTime;
-					string str = "Next sync in";
-					if (diff.Hours != 0)
-						str += " " + diff.Hours + " h";
-					if (diff.Minutes != 0 || diff.Hours != 0)
-						str += " " + diff.Minutes + " min";
-					if (diff.Seconds != 0)
-						str += " " + diff.Seconds + " s";
-					nextSyncLabel.Text = str;
-					return;
-				}
-			}
-			Sync();
+			
+			TimeSpan syncTime = DateTime.Now - lastSync;
+			TimeSpan limit = new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+            if (syncTime < limit)
+            {
+                TimeSpan diff = limit - syncTime;
+                string str = "Next sync in";
+                if (diff.Hours != 0)
+                    str += " " + diff.Hours + " h";
+                if (diff.Minutes != 0 || diff.Hours != 0)
+                    str += " " + diff.Minutes + " min";
+                if (diff.Seconds != 0)
+                    str += " " + diff.Seconds + " s";
+                nextSyncLabel.Text = str;
+            }
+            else
+            {
+                Sync();
+            }
 		}
 
 		private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
