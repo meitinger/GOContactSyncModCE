@@ -463,12 +463,16 @@ namespace GoContactSyncMod
 
         //Code to find if workstation is resumed
         const int WM_POWERBROADCAST = 0x0218;
+        const int PBT_APMQUERYSUSPEND = 0x0000;
+        const int PBT_APMQUERYSTANDBY = 0x0001;
+        const int PBT_APMQUERYSUSPENDFAILED = 0x0002;
+        const int PBT_APMQUERYSTANDBYFAILED = 0x0003;
         const int PBT_APMSUSPEND = 0x0004;
         const int PBT_APMSTANDBY = 0x0005;
         const int PBT_APMRESUMECRITICAL = 0x0006;
         const int PBT_APMRESUMESUSPEND = 0x0007;
-        const int PBT_APMRESUMESTANDBY = 0x0008;
-        const int PBT_APMRESUMEAUTOMATIC = 0x0012;
+        const int PBT_APMRESUMESTANDBY = 0x0008;       
+        const int PBT_APMRESUMEAUTOMATIC = 0x0012;        
 
         
         /*
@@ -514,15 +518,19 @@ namespace GoContactSyncMod
                         if (m.WParam.ToInt32() == PBT_APMRESUMEAUTOMATIC ||
                             m.WParam.ToInt32() == PBT_APMRESUMECRITICAL ||
                             m.WParam.ToInt32() == PBT_APMRESUMESTANDBY ||
-                            m.WParam.ToInt32() == PBT_APMRESUMESUSPEND)
+                            m.WParam.ToInt32() == PBT_APMRESUMESUSPEND ||
+                            m.WParam.ToInt32() == PBT_APMQUERYSTANDBYFAILED ||
+                            m.WParam.ToInt32() == PBT_APMQUERYSTANDBYFAILED)
                         {                            
                             TimerSwitch(true);
                         }
-                        //else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
-                        //         m.WParam.ToInt32() == PBT_APMSTANDBY)
-                        //{
-                        //    TimerSwitch(false);
-                        //}
+                        else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
+                                 m.WParam.ToInt32() == PBT_APMSTANDBY ||
+                                 m.WParam.ToInt32() == PBT_APMQUERYSTANDBY ||
+                                 m.WParam.ToInt32() == PBT_APMQUERYSUSPEND)
+                        {
+                            TimerSwitch(false);
+                        }
                             
 
                         break;
