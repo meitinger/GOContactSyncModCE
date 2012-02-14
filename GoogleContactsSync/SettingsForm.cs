@@ -224,8 +224,14 @@ namespace GoContactSyncMod
 
                 if (!_sync.SyncContacts && !_sync.SyncNotes)
                 {
+                    SetLastSyncText("Sync failed.");
+                    notifyIcon.Text = Application.ProductName + "\nSync failed";
+
+                    string messageText = "Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!";
+                    Logger.Log(messageText, EventType.Error);
                     ShowForm();
-                    throw new NotSupportedException("Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!");
+                    Program.Instance.ShowBalloonToolTip("Error", messageText, ToolTipIcon.Error, 5000);
+                    return;
                 }
 
 
