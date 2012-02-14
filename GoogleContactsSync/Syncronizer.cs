@@ -1073,12 +1073,13 @@ namespace GoContactSyncMod
                     else
                     {
                         // peer outlook note was deleted, delete google note
-                         _documentsRequest.Delete(match.GoogleNote);
-                         
-                        //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
-                         Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
-                         if (deletedNote != null)
-                             _documentsRequest.Delete(deletedNote);
+                        _documentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag);
+                        //_documentsRequest.Delete(match.GoogleNote);
+
+                        ////ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
+                        //Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+                        //if (deletedNote != null)
+                        //    _documentsRequest.Delete(deletedNote);
                         
                         try
                          {//Delete also the according temporary NoteFile
@@ -1174,13 +1175,14 @@ namespace GoContactSyncMod
                 string oldOutlookGoogleNoteId = NotePropertiesUtils.GetOutlookGoogleNoteId(this, outlookNoteItem);
                 if (match.GoogleNote.DocumentEntry.Id.Uri != null)
                 {
-                    _documentsRequest.Delete(match.GoogleNote);
+                    _documentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag);
+                    //_documentsRequest.Delete(match.GoogleNote); //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder
                     NotePropertiesUtils.ResetOutlookGoogleNoteId(this, outlookNoteItem);
 
-                    //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder
-                    Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
-                    if (deletedNote != null)
-                        _documentsRequest.Delete(deletedNote);
+                    ////ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder
+                    //Document deletedNote = LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+                    //if (deletedNote != null)
+                    //    _documentsRequest.Delete(deletedNote);
 
                 }
 
