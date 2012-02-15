@@ -484,8 +484,16 @@ namespace GoContactSyncMod
             slave.Location = master.OfficeLocation;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
-            //ToDo: Doesn't work yet with the Google API
-            //slave.ContactEntry.Language = master.Language;
+            slave.ContactEntry.Languages.Clear();
+            if (!string.IsNullOrEmpty(master.Language))
+            {
+                foreach (string language in master.Language.Split(';'))
+                {
+                    Language googleLanguage = new Language();
+                    googleLanguage.Label = language;
+                    slave.ContactEntry.Languages.Add(googleLanguage);
+                }
+            }
 
 			SetEmails(master, slave);
 
@@ -660,8 +668,15 @@ namespace GoContactSyncMod
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
-            //ToDo: Doesn't work yet with the Google API
-            //slave.Language = master.ContactEntry.Language; 
+            if (master.ContactEntry.Languages != null)
+            {
+                slave.Language = string.Empty;
+                foreach (Language language in master.ContactEntry.Languages)
+                    slave.Language = language.Label + ";";
+                if (!string.IsNullOrEmpty(slave.Language))
+                    slave.Language = slave.Language.TrimEnd(';');
+            }
+ 
             
 			SetEmails(master, slave);
 

@@ -183,8 +183,7 @@ namespace GoContactSyncMod.UnitTests
             outlookContact.NickName = "Nickname";
             outlookContact.OfficeLocation = "Location";            
             outlookContact.Initials = "IN";
-            //ToDo: Doesn't work yet with the Google API
-            //outlookContact.Language = "German"; 
+            outlookContact.Language = "German"; 
             
             //outlookContact.Companies = "Company";
             outlookContact.CompanyName = "CompanyName";
@@ -272,8 +271,7 @@ namespace GoContactSyncMod.UnitTests
             Assert.AreEqual(outlookContact.NickName, recreatedOutlookContact.NickName);
             Assert.AreEqual(outlookContact.OfficeLocation, recreatedOutlookContact.OfficeLocation);
             Assert.AreEqual(outlookContact.Initials, recreatedOutlookContact.Initials);
-            //ToDo: Doesn't work yet with the Google API
-            //Assert.AreEqual(outlookContact.Language, recreatedOutlookContact.Language);
+            Assert.AreEqual(outlookContact.Language, recreatedOutlookContact.Language);
 
             Assert.AreEqual(outlookContact.IMAddress, recreatedOutlookContact.IMAddress); 
             Assert.AreEqual(outlookContact.Anniversary, recreatedOutlookContact.Anniversary); 
