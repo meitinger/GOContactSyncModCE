@@ -59,7 +59,11 @@ namespace GoContactSyncMod
             this.btSyncNotes = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btSyncDelete = new System.Windows.Forms.CheckBox();
+#if debug
+            this.cmbSyncProfile = new System.Windows.Forms.ComboBox();
+#else
             this.tbSyncProfile = new System.Windows.Forms.TextBox();
+#endif
             this.label5 = new System.Windows.Forms.Label();
             this.lastSyncLabel = new System.Windows.Forms.Label();
             this.logGroupBox = new System.Windows.Forms.GroupBox();
@@ -337,7 +341,11 @@ namespace GoContactSyncMod
             this.groupBox2.Controls.Add(this.btSyncNotes);
             this.groupBox2.Controls.Add(this.panel1);
             this.groupBox2.Controls.Add(this.btSyncDelete);
+#if debug
+            this.groupBox2.Controls.Add(this.cmbSyncProfile);
+#else
             this.groupBox2.Controls.Add(this.tbSyncProfile);
+#endif
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.syncOptionBox);
             this.groupBox2.Location = new System.Drawing.Point(6, 115);
@@ -399,6 +407,20 @@ namespace GoContactSyncMod
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
             this.btSyncDelete.UseVisualStyleBackColor = true;
+#if debug
+            // 
+            // cmbSyncProfile
+            // 
+            this.cmbSyncProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSyncProfile.FormattingEnabled = true;
+            this.cmbSyncProfile.Location = new System.Drawing.Point(100, 19);
+            this.cmbSyncProfile.Name = "cmbSyncProfile";
+            this.cmbSyncProfile.Size = new System.Drawing.Size(215, 21);
+            this.cmbSyncProfile.TabIndex = 1;
+            this.toolTip.SetToolTip(this.cmbSyncProfile, "This is a profile name of your choice.\r\nIt must be unique in each computer\r\nand a" +
+        "ccount you intend to sync with\r\nyour Google Mail account.");
+            this.cmbSyncProfile.SelectedIndexChanged += new System.EventHandler(this.cmbSyncProfile_SelectedIndexChanged);
+#else
             // 
             // tbSyncProfile
             // 
@@ -411,6 +433,7 @@ namespace GoContactSyncMod
             this.toolTip.SetToolTip(this.tbSyncProfile, "This is a profile name of your choice.\r\nIt must be unique in each computer\r\nand a" +
                     "ccount you intend to sync with\r\nyour Google Mail account.");
             this.tbSyncProfile.TextChanged += new System.EventHandler(this.tbSyncProfile_TextChanged);
+#endif     
             // 
             // label5
             // 
@@ -665,7 +688,6 @@ namespace GoContactSyncMod
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.CheckBox runAtStartupCheckBox;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
-        private System.Windows.Forms.TextBox tbSyncProfile;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox btSyncDelete;
@@ -682,6 +704,11 @@ namespace GoContactSyncMod
         private System.Windows.Forms.CheckBox btSyncNotes;
         private System.Windows.Forms.CheckBox btSyncContacts;
         private System.Windows.Forms.ComboBox cmbFolders;
+#if debug
+        private System.Windows.Forms.ComboBox cmbSyncProfile;
+#else
+        private System.Windows.Forms.TextBox tbSyncProfile;
+#endif
     }
 }
 

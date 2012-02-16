@@ -22,7 +22,26 @@ namespace GoContactSyncMod
 		private DateTime lastSync;
 		private bool requestClose = false;
         private bool boolShowBalloonTip = true;
-        private ProxySettingsForm _proxy = new ProxySettingsForm(); 
+
+        public const string AppRootKey = @"Software\Webgear\GOContactSync";
+
+        private ProxySettingsForm _proxy = new ProxySettingsForm();
+
+        private string _syncProfile
+        {
+            get
+            {
+                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
+                return (regKeyAppRoot.GetValue("SyncProfile") != null) ?
+                       (string)regKeyAppRoot.GetValue("SyncProfile") : null;
+            }
+            set
+            {
+                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
+                if (!string.IsNullOrEmpty(value))
+                    regKeyAppRoot.SetValue("SyncProfile", value);
+            }
+        }
 
         //register window for lock/unlock messages of workstation
         private bool registered = false;
@@ -38,8 +57,14 @@ namespace GoContactSyncMod
             NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);
 			PopulateSyncOptionBox();
 
-			LoadSettings();
-
+#if debug
+            if (fillSyncProfileItems()) 
+                LoadSettings(cmbSyncProfile.Text);
+            else 
+                LoadSettings(null);
+#else
+            LoadSettings();
+#endif
             TimerSwitch(true);
 			lastSyncLabel.Text = "Not synced";
 
@@ -88,8 +113,121 @@ namespace GoContactSyncMod
 				syncOptionBox.Items.Add(str);
 			}
 		}
+#if debug
+        // Fill lists of sync profiles
+        private bool fillSyncProfileItems()
+        {
+            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
+            bool vReturn = false;
 
-		private void LoadSettings()
+            cmbSyncProfile.Items.Clear();
+            cmbSyncProfile.Items.Add("[Add new profile...]");
+
+            foreach (string subKeyName in regKeyAppRoot.GetSubKeyNames())
+            {
+                cmbSyncProfile.Items.Add(subKeyName);
+            }
+
+            if (string.IsNullOrEmpty(_syncProfile))
+                _syncProfile = "Default";
+
+            if (cmbSyncProfile.Items.Count == 1)
+                cmbSyncProfile.Items.Add(_syncProfile);
+            else
+                vReturn = true;
+
+            cmbSyncProfile.Items.Add("[Configuration manager...]");
+            cmbSyncProfile.Text = _syncProfile;
+
+            return vReturn;
+        }
+
+        private void ClearSettings()
+        {
+            SetSyncOption(0);
+            UserName.Text = Password.Text = "";
+            autoSyncCheckBox.Checked = runAtStartupCheckBox.Checked = reportSyncResultCheckBox.Checked = btSyncDelete.Checked = false;
+            autoSyncInterval.Value = 120;
+            _proxy.ClearSettings();
+        }
+
+        private void LoadSettings(string _profile)
+        {
+            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey  + (_profile != null ? ('\\' + _profile) : "")  );
+
+            if (regKeyAppRoot.GetValue("SyncOption") != null)
+            {
+                _syncOption = (SyncOption)regKeyAppRoot.GetValue("SyncOption");
+                SetSyncOption((int)_syncOption);
+            }
+
+            if (regKeyAppRoot.GetValue("Username") != null)
+            {
+                UserName.Text = regKeyAppRoot.GetValue("Username") as string;
+                if (regKeyAppRoot.GetValue("Password") != null)
+                    Password.Text = Encryption.DecryptPassword(UserName.Text, regKeyAppRoot.GetValue("Password") as string);
+            }
+            if (regKeyAppRoot.GetValue("AutoSync") != null)
+                autoSyncCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoSync"));
+            if (regKeyAppRoot.GetValue("AutoSyncInterval") != null)
+                autoSyncInterval.Value = Convert.ToDecimal(regKeyAppRoot.GetValue("AutoSyncInterval"));
+            if (regKeyAppRoot.GetValue("AutoStart") != null)
+                runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
+            if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
+                reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
+            if (regKeyAppRoot.GetValue("SyncDeletion") != null)
+                btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
+
+            _proxy.LoadSettings(_profile);
+        }
+
+		private void SaveSettings()
+		{
+            SaveSettings(cmbSyncProfile.Text);
+		}
+
+        private void SaveSettings(string _profile)
+        {
+            if (!string.IsNullOrEmpty(_profile))
+            {
+                _syncProfile = cmbSyncProfile.Text;
+                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + _profile);
+                regKeyAppRoot.SetValue("SyncOption", (int)_syncOption);
+
+                if (!string.IsNullOrEmpty(UserName.Text))
+                {
+                    regKeyAppRoot.SetValue("Username", UserName.Text);
+                    if (!string.IsNullOrEmpty(Password.Text))
+                        regKeyAppRoot.SetValue("Password", Encryption.EncryptPassword(UserName.Text, Password.Text));
+                }
+                regKeyAppRoot.SetValue("AutoSync", autoSyncCheckBox.Checked.ToString());
+                regKeyAppRoot.SetValue("AutoSyncInterval", autoSyncInterval.Value.ToString());
+                regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
+                regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
+                regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
+                regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
+                regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
+
+                _proxy.SaveSettings(cmbSyncProfile.Text);
+            }
+        }
+
+
+        private bool ValidCredentials
+		{
+			get
+			{
+				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
+				bool passwordIsValid = Password.Text.Length != 0;
+                bool syncProfileNameIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count);
+
+				setBgColor(UserName, userNameIsValid);
+				setBgColor(Password, passwordIsValid);
+				return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
+			}
+		}
+#else
+        private void LoadSettings()
 		{
 			// default
 			SetSyncOption(0);
@@ -161,6 +299,8 @@ namespace GoContactSyncMod
 				return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
 			}
 		}
+#endif
+
 		private void setBgColor(TextBox box, bool isValid)
 		{
 			if (!isValid)
@@ -216,7 +356,11 @@ namespace GoContactSyncMod
                 SetSyncConsoleText("");
                 Logger.Log("Sync started.", EventType.Information);
                 //SetSyncConsoleText(Logger.GetText());
+#if debug
+                _sync.SyncProfile = _syncProfile;
+#else
                 _sync.SyncProfile = tbSyncProfile.Text;
+#endif
                 _sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
@@ -685,7 +829,11 @@ namespace GoContactSyncMod
 
 				_sync.LoginToGoogle(UserName.Text, Password.Text);
 				_sync.LoginToOutlook();
+#if debug
+                _sync.SyncProfile = _syncProfile;
+#else
                 _sync.SyncProfile = tbSyncProfile.Text;
+#endif
 
                 //Load matches, but match them by properties, not sync id
 
@@ -795,7 +943,11 @@ namespace GoContactSyncMod
 		{
 			if (string.IsNullOrEmpty(UserName.Text) ||
 				string.IsNullOrEmpty(Password.Text) ||
+#if debug
+                string.IsNullOrEmpty(cmbSyncProfile.Text))
+#else
 				string.IsNullOrEmpty(tbSyncProfile.Text))
+#endif
 			{
 				// this is the first load, show form
 				ShowForm();
@@ -871,7 +1023,7 @@ namespace GoContactSyncMod
 
 		private void proxySettingsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-            if (_proxy != null) _proxy.Show();
+            if (_proxy != null) _proxy.ShowDialog();
         }
 
 		private void SettingsForm_HelpButtonClicked(object sender, CancelEventArgs e)
@@ -908,7 +1060,40 @@ namespace GoContactSyncMod
             }
         }
     
+#if debug	
+        private void cmbSyncProfile_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+            ComboBox comboBox = (ComboBox)sender;
+
+            if ((0 == comboBox.SelectedIndex) || (comboBox.SelectedIndex == (comboBox.Items.Count - 1))) {
+                ConfigurationManagerForm _configs = new ConfigurationManagerForm();
+
+                if (0 == comboBox.SelectedIndex && _configs != null)
+                    _syncProfile = _configs.AddProfile();
+                
+                if (comboBox.SelectedIndex == (comboBox.Items.Count - 1) && _configs != null)
+                    _configs.ShowDialog();
+
+                fillSyncProfileItems();
+
+                comboBox.Text = _syncProfile;
+            }
+            if (comboBox.SelectedIndex < 0)
+                MessageBox.Show("Please select Sync Profile.", "No sync switched on");
+            else
+            {
+                ClearSettings();
+                LoadSettings(comboBox.Text);
+                _syncProfile = comboBox.Text;
+            }
+
+            ValidateSyncButton();
+
+        }
+#endif
 	}
+
 
 	//internal class EventLogger : ILogger
 	//{

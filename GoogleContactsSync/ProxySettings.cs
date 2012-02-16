@@ -20,6 +20,20 @@ namespace GoContactSyncMod
             FormSettings();
         }
 
+        public ProxySettingsForm()
+        {
+            InitializeComponent();
+            if (null == _systemProxy)
+                _systemProxy = WebRequest.DefaultWebProxy;
+#if debug
+            cbUseGlobalSettings.Visible = true;
+#else
+            cbUseGlobalSettings.Checked = true;
+            cbUseGlobalSettings.Visible = false;
+            LoadSettings(null);
+#endif
+        }
+
         private void setBgColor(TextBox box, bool isValid)
         {
             if (box.Enabled)
@@ -40,7 +54,6 @@ namespace GoContactSyncMod
                 bool AddressIsValid  = Regex.IsMatch(Address.Text, @"^(?'url'[\w\d#@%;$()~_?\-\\\.&]+)$", RegexOptions.IgnoreCase);
                 bool PortIsValid     = Regex.IsMatch(Port.Text, @"^(?'port'[0-9]{2,6})$", RegexOptions.IgnoreCase);
 
-
                 setBgColor(UserName, userNameIsValid);
                 setBgColor(Password, passwordIsValid);
                 setBgColor(Address,  AddressIsValid);
@@ -60,7 +73,7 @@ namespace GoContactSyncMod
             bool isValid = ValidCredentials;
         }
 
-        private void ProxySet()
+        public void ProxySet()
         {
             if (CustomProxy.Checked)
             {
@@ -85,18 +98,15 @@ namespace GoContactSyncMod
                 WebRequest.DefaultWebProxy = _systemProxy;
         }
 
-        public ProxySettingsForm()
+        public void LoadSettings(string _profile)
         {
-            InitializeComponent();
-            _systemProxy = WebRequest.DefaultWebProxy;
-            LoadSettings();
-            FormSettings();            
-            ProxySet();
-        }
+            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(SettingsForm.AppRootKey);
 
-        private void LoadSettings()
-        {   // Load Proxy Settings
-            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
+            if (null != regKeyAppRoot.GetValue("UseGlobalProxySettings"))
+                cbUseGlobalSettings.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("UseGlobalProxySettings"));
+
+            regKeyAppRoot = Registry.CurrentUser.CreateSubKey(SettingsForm.AppRootKey + (_profile != null && !cbUseGlobalSettings.Checked ? ('\\' + _profile) : ""));
+
             if (regKeyAppRoot.GetValue("ProxyUsage") != null)
             {
                 if (Convert.ToBoolean (regKeyAppRoot.GetValue("ProxyUsage")))
@@ -123,11 +133,26 @@ namespace GoContactSyncMod
                     }
                 }
             }
+
+            FormSettings();
+            ProxySet();
+        }
+        public void ClearSettings()
+        {
+            if (!cbUseGlobalSettings.Checked) {
+                SystemProxy.Checked = true;
+                CustomProxy.Checked = Authorization.Checked = !SystemProxy.Checked;
+                Address.Text = Port.Text = UserName.Text = Password.Text;
+            }
         }
 
-        private void SaveSettings()
+        public void SaveSettings(string _profile)
         {
-            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
+            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(SettingsForm.AppRootKey);
+
+            regKeyAppRoot.SetValue("UseGlobalProxySettings", cbUseGlobalSettings.Checked);
+
+            regKeyAppRoot = Registry.CurrentUser.CreateSubKey(SettingsForm.AppRootKey + (_profile != null && !cbUseGlobalSettings.Checked ? ('\\' + _profile) : ""));
             regKeyAppRoot.SetValue("ProxyUsage", CustomProxy.Checked);
 
             if (CustomProxy.Checked)
@@ -163,10 +188,10 @@ namespace GoContactSyncMod
         {
             if (!ValidCredentials) 
                 return;
-
+#if !debug
+            SaveSettings(null);
+#endif
             ProxySet();
-            SaveSettings();
-
             this.Hide();
         }
 

@@ -35,6 +35,7 @@
             this.UserName = new System.Windows.Forms.TextBox();
             this.Password = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbUseGlobalSettings = new System.Windows.Forms.CheckBox();
             this.Authorization = new System.Windows.Forms.CheckBox();
             this.CustomProxy = new System.Windows.Forms.RadioButton();
             this.SystemProxy = new System.Windows.Forms.RadioButton();
@@ -47,13 +48,13 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(181, 216);
+            this.cancelButton.Location = new System.Drawing.Point(181, 224);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(98, 25);
+            this.cancelButton.Size = new System.Drawing.Size(98, 26);
             this.cancelButton.TabIndex = 1;
             this.cancelButton.Text = "&Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
@@ -61,12 +62,12 @@
             // 
             // okButton
             // 
-            this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.okButton.Location = new System.Drawing.Point(12, 216);
+            this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.okButton.Location = new System.Drawing.Point(12, 224);
             this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(98, 25);
+            this.okButton.Size = new System.Drawing.Size(98, 26);
             this.okButton.TabIndex = 0;
             this.okButton.Text = "&OK";
             this.okButton.UseVisualStyleBackColor = true;
@@ -74,7 +75,7 @@
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(7, 142);
+            this.label2.Location = new System.Drawing.Point(7, 158);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(75, 17);
             this.label2.TabIndex = 9;
@@ -82,7 +83,7 @@
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(7, 165);
+            this.label3.Location = new System.Drawing.Point(7, 181);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(75, 16);
             this.label3.TabIndex = 10;
@@ -90,9 +91,9 @@
             // 
             // UserName
             // 
-            this.UserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.UserName.Location = new System.Drawing.Point(100, 139);
+            this.UserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.UserName.Location = new System.Drawing.Point(100, 155);
             this.UserName.Name = "UserName";
             this.UserName.Size = new System.Drawing.Size(167, 20);
             this.UserName.TabIndex = 5;
@@ -100,9 +101,9 @@
             // 
             // Password
             // 
-            this.Password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.Password.Location = new System.Drawing.Point(100, 165);
+            this.Password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Password.Location = new System.Drawing.Point(100, 181);
             this.Password.Name = "Password";
             this.Password.PasswordChar = '*';
             this.Password.Size = new System.Drawing.Size(167, 20);
@@ -111,8 +112,9 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.cbUseGlobalSettings);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.Authorization);
@@ -126,15 +128,29 @@
             this.groupBox1.Controls.Add(this.Port);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(275, 198);
+            this.groupBox1.Size = new System.Drawing.Size(275, 209);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Proxy";
             // 
+            // cbUseGlobalSettings
+            // 
+#if debug
+            this.cbUseGlobalSettings.AutoSize = true;
+            this.cbUseGlobalSettings.Checked = true;
+            this.cbUseGlobalSettings.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbUseGlobalSettings.Location = new System.Drawing.Point(10, 13);
+            this.cbUseGlobalSettings.Name = "cbUseGlobalSettings";
+            this.cbUseGlobalSettings.Size = new System.Drawing.Size(176, 17);
+            this.cbUseGlobalSettings.TabIndex = 11;
+            this.cbUseGlobalSettings.Text = "Use proxy settings for all profiles";
+            this.cbUseGlobalSettings.UseVisualStyleBackColor = true;
+#endif
+            // 
             // Authorization
             // 
             this.Authorization.AutoSize = true;
-            this.Authorization.Location = new System.Drawing.Point(10, 122);
+            this.Authorization.Location = new System.Drawing.Point(10, 138);
             this.Authorization.Name = "Authorization";
             this.Authorization.Size = new System.Drawing.Size(87, 17);
             this.Authorization.TabIndex = 4;
@@ -145,7 +161,7 @@
             // CustomProxy
             // 
             this.CustomProxy.AutoSize = true;
-            this.CustomProxy.Location = new System.Drawing.Point(10, 42);
+            this.CustomProxy.Location = new System.Drawing.Point(10, 58);
             this.CustomProxy.Name = "CustomProxy";
             this.CustomProxy.Size = new System.Drawing.Size(147, 17);
             this.CustomProxy.TabIndex = 1;
@@ -157,7 +173,7 @@
             // 
             this.SystemProxy.AutoSize = true;
             this.SystemProxy.Checked = true;
-            this.SystemProxy.Location = new System.Drawing.Point(10, 19);
+            this.SystemProxy.Location = new System.Drawing.Point(10, 35);
             this.SystemProxy.Name = "SystemProxy";
             this.SystemProxy.Size = new System.Drawing.Size(88, 17);
             this.SystemProxy.TabIndex = 0;
@@ -168,7 +184,7 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(7, 73);
+            this.label1.Location = new System.Drawing.Point(7, 89);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(48, 17);
             this.label1.TabIndex = 7;
@@ -176,7 +192,7 @@
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(7, 96);
+            this.label4.Location = new System.Drawing.Point(7, 112);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(48, 16);
             this.label4.TabIndex = 8;
@@ -184,9 +200,9 @@
             // 
             // Address
             // 
-            this.Address.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.Address.Location = new System.Drawing.Point(61, 70);
+            this.Address.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Address.Location = new System.Drawing.Point(61, 86);
             this.Address.Name = "Address";
             this.Address.Size = new System.Drawing.Size(206, 20);
             this.Address.TabIndex = 2;
@@ -194,9 +210,9 @@
             // 
             // Port
             // 
-            this.Port.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.Port.Location = new System.Drawing.Point(61, 96);
+            this.Port.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Port.Location = new System.Drawing.Point(61, 112);
             this.Port.Name = "Port";
             this.Port.Size = new System.Drawing.Size(37, 20);
             this.Port.TabIndex = 3;
@@ -207,12 +223,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(299, 260);
+            this.ClientSize = new System.Drawing.Size(299, 261);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
             this.Name = "ProxySettingsForm";
             this.Text = "Proxy Settings";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -235,6 +252,7 @@
         private System.Windows.Forms.TextBox Port;
         private System.Windows.Forms.RadioButton CustomProxy;
         private System.Windows.Forms.CheckBox Authorization;
+        private System.Windows.Forms.CheckBox cbUseGlobalSettings;
 
     }
 }
