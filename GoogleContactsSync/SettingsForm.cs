@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting;
 using System.Runtime.InteropServices;
+using System.Collections;
 
 namespace GoContactSyncMod
 {
@@ -25,8 +26,10 @@ namespace GoContactSyncMod
 
         public const string AppRootKey = @"Software\Webgear\GOContactSync";
 
+        private ArrayList _OutlookFolders = new ArrayList();
         private ProxySettingsForm _proxy = new ProxySettingsForm();
 
+        private string _syncFolder = "";
         private string _syncProfile
         {
             get
@@ -58,6 +61,7 @@ namespace GoContactSyncMod
 			PopulateSyncOptionBox();
 
 #if debug
+            fillSyncFolderItems();
             if (fillSyncProfileItems()) 
                 LoadSettings(cmbSyncProfile.Text);
             else 
@@ -113,6 +117,33 @@ namespace GoContactSyncMod
 				syncOptionBox.Items.Add(str);
 			}
 		}
+        private void fillSyncFolderItems()
+        {
+#if debug
+            cmbFolders.Visible = true;
+            try
+            {
+                _OutlookFolders.Clear();
+                Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
+                foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
+                {
+                    _OutlookFolders.Add(new OutlookFolder(folder.Name, folder.EntryID));
+                }
+
+                this.cmbFolders.DataSource = _OutlookFolders;
+                this.cmbFolders.DisplayMember = "FolderName";
+                this.cmbFolders.ValueMember = "FolderID";
+
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+            }
+#else
+                cmbFolders.Visible = false;
+#endif
+        }
+
 #if debug
         // Fill lists of sync profiles
         private bool fillSyncProfileItems()
@@ -177,6 +208,8 @@ namespace GoContactSyncMod
                 reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
             if (regKeyAppRoot.GetValue("SyncDeletion") != null)
                 btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
+            if (regKeyAppRoot.GetValue("SyncFolder") != null)
+                cmbFolders.SelectedValue = regKeyAppRoot.GetValue("SyncFolder") as string;
 
             _proxy.LoadSettings(_profile);
         }
@@ -193,6 +226,7 @@ namespace GoContactSyncMod
                 _syncProfile = cmbSyncProfile.Text;
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + _profile);
                 regKeyAppRoot.SetValue("SyncOption", (int)_syncOption);
+                regKeyAppRoot.SetValue("SyncFolder", cmbFolders.SelectedValue.ToString());
 
                 if (!string.IsNullOrEmpty(UserName.Text))
                 {
@@ -219,11 +253,12 @@ namespace GoContactSyncMod
 			{
 				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
 				bool passwordIsValid = Password.Text.Length != 0;
-                bool syncProfileNameIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count);
+                bool syncProfileIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count);
+                bool syncFolderIsValid = (cmbFolders.SelectedIndex > 0 && cmbFolders.SelectedIndex < cmbFolders.Items.Count);
 
 				setBgColor(UserName, userNameIsValid);
 				setBgColor(Password, passwordIsValid);
-				return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
+                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncFolderIsValid;
 			}
 		}
 #else
@@ -358,6 +393,7 @@ namespace GoContactSyncMod
                 //SetSyncConsoleText(Logger.GetText());
 #if debug
                 _sync.SyncProfile = _syncProfile;
+                _sync.SyncFolder  = _syncFolder;
 #else
                 _sync.SyncProfile = tbSyncProfile.Text;
 #endif
@@ -831,6 +867,7 @@ namespace GoContactSyncMod
 				_sync.LoginToOutlook();
 #if debug
                 _sync.SyncProfile = _syncProfile;
+                _sync.SyncFolder = _syncFolder;
 #else
                 _sync.SyncProfile = tbSyncProfile.Text;
 #endif
@@ -887,23 +924,6 @@ namespace GoContactSyncMod
             }
             else
             {
-#if debug
-            //ToDo: Implement folders to be used
-            cmbFolders.Visible = true;
-            try
-            {
-                this.cmbFolders.Items.Clear();
-                Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
-                foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
-                    this.cmbFolders.Items.Add(folder.Name);
-            }
-            catch (Exception e)
-            {
-                Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
-            }
-#else
-                cmbFolders.Visible = false;
-#endif
                 Show();
                 Activate();
                 WindowState = FormWindowState.Normal;
@@ -944,7 +964,8 @@ namespace GoContactSyncMod
 			if (string.IsNullOrEmpty(UserName.Text) ||
 				string.IsNullOrEmpty(Password.Text) ||
 #if debug
-                string.IsNullOrEmpty(cmbSyncProfile.Text))
+                string.IsNullOrEmpty(cmbSyncProfile.Text) ||
+                string.IsNullOrEmpty(cmbFolders.Text) )
 #else
 				string.IsNullOrEmpty(tbSyncProfile.Text))
 #endif
@@ -1091,6 +1112,12 @@ namespace GoContactSyncMod
             ValidateSyncButton();
 
         }
+
+        private void cmbFolders_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _syncFolder = (sender as ComboBox).SelectedValue.ToString();
+        }
+
 #endif
 	}
 

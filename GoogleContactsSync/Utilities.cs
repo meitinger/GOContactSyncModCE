@@ -344,4 +344,35 @@ namespace GoContactSyncMod
         //    return true;
         //}
     }
+
+    public class OutlookFolder
+    {
+        private string _folderName;
+        private string _folderID;
+
+        public OutlookFolder(string folderName, string folderID)
+        {
+
+            this._folderName = folderName;
+            this._folderID   = folderID;
+        }
+
+        public string FolderName
+        {
+            get
+            {
+                return _folderName;
+            }
+        }
+
+        public string FolderID
+        {
+
+            get
+            {
+                return _folderID;
+            }
+        }
+
+    }
 }

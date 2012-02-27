@@ -177,6 +177,13 @@ namespace GoContactSyncMod
 			set { _syncProfile = value; }
 		}
 
+        private string _syncFolder = "";
+        public string SyncFolder
+        {
+            get { return _syncFolder; }
+            set { _syncFolder = value; }
+        }
+
 		//private ConflictResolution? _conflictResolution;
 		//public ConflictResolution? CResolution
 		//{
@@ -361,7 +368,8 @@ namespace GoContactSyncMod
             _outlookNamespace.Logon(profileName, null, true, false);*/
 
             //Just try to access the outlookNamespace to check, if it is still accessible, throws COMException, if not reachable           
-           _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);                                
+
+            _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
 
         }
 
@@ -412,6 +420,7 @@ namespace GoContactSyncMod
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder)
         {
             Outlook.MAPIFolder mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
+
             try
             {
                 return mapiFolder.Items;
