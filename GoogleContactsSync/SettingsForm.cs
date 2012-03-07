@@ -1113,12 +1113,13 @@ namespace GoContactSyncMod
 
         }
 
+
+#endif
         private void cmbFolders_SelectedIndexChanged(object sender, EventArgs e)
         {
             _syncFolder = (sender as ComboBox).SelectedValue.ToString();
         }
 
-#endif
 	}
 
 
