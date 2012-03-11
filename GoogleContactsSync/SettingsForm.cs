@@ -60,8 +60,8 @@ namespace GoContactSyncMod
             NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);
 			PopulateSyncOptionBox();
 
-#if debug
             fillSyncFolderItems();
+#if debug
             if (fillSyncProfileItems()) 
                 LoadSettings(cmbSyncProfile.Text);
             else 
@@ -123,17 +123,21 @@ namespace GoContactSyncMod
             cmbFolders.Visible = true;
             try
             {
+                this.cmbFolders.BeginUpdate();
+                this.cmbFolders.Items.Clear();
                 _OutlookFolders.Clear();
+
                 Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
                 foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
                 {
                     _OutlookFolders.Add(new OutlookFolder(folder.Name, folder.EntryID));
                 }
+                _OutlookFolders.Sort();
 
                 this.cmbFolders.DataSource = _OutlookFolders;
                 this.cmbFolders.DisplayMember = "FolderName";
                 this.cmbFolders.ValueMember = "FolderID";
-
+                this.cmbFolders.EndUpdate();
             }
             catch (Exception e)
             {
@@ -227,7 +231,7 @@ namespace GoContactSyncMod
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + _profile);
                 regKeyAppRoot.SetValue("SyncOption", (int)_syncOption);
                 regKeyAppRoot.SetValue("SyncFolder", cmbFolders.SelectedValue.ToString());
-
+ 
                 if (!string.IsNullOrEmpty(UserName.Text))
                 {
                     regKeyAppRoot.SetValue("Username", UserName.Text);
@@ -1117,7 +1121,9 @@ namespace GoContactSyncMod
 #endif
         private void cmbFolders_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _syncFolder = (sender as ComboBox).SelectedValue.ToString();
+            if ((sender as ComboBox).SelectedIndex >= 0)
+                _syncFolder = (sender as ComboBox).SelectedValue.ToString();
+            ValidateSyncButton();
         }
 
 	}

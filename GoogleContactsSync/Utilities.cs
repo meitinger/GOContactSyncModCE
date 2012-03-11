@@ -345,7 +345,7 @@ namespace GoContactSyncMod
         //}
     }
 
-    public class OutlookFolder
+    public class OutlookFolder : IComparable 
     {
         private string _folderName;
         private string _folderID;
@@ -374,5 +374,14 @@ namespace GoContactSyncMod
             }
         }
 
+        public int CompareTo(object obj)
+        {
+            if (obj is OutlookFolder)
+            {
+                return this._folderName.CompareTo((obj as OutlookFolder)._folderName);
+            }
+            else
+                throw new ArgumentException("Object is not a OutlookFolder");
+        }
     }
 }

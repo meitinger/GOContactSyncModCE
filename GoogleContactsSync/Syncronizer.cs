@@ -177,7 +177,7 @@ namespace GoContactSyncMod
 			set { _syncProfile = value; }
 		}
 
-        private string _syncFolder = "";
+        private static string _syncFolder = "";
         public string SyncFolder
         {
             get { return _syncFolder; }
@@ -368,8 +368,18 @@ namespace GoContactSyncMod
             _outlookNamespace.Logon(profileName, null, true, false);*/
 
             //Just try to access the outlookNamespace to check, if it is still accessible, throws COMException, if not reachable           
-
+#if debug
+            if (_syncFolder.Length == 0)
+            {
+               _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
+            }
+            else
+            {
+                _outlookNamespace.GetFolderFromID(_syncFolder);
+            }
+#else
             _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
+#endif
 
         }
 
@@ -419,11 +429,35 @@ namespace GoContactSyncMod
 
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder)
         {
+#if debug
+            Outlook.MAPIFolder mapiFolder = null;
+            if (_syncFolder.Length == 0)
+            {
+                mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
+            }
+            else
+            {  
+                Outlook.MAPIFolder Folder = OutlookNameSpace.GetFolderFromID(_syncFolder);
+                if (Folder != null)
+                {
+                    for (int i = 1; i <= Folder.Folders.Count; i++)
+                    {
+                        Outlook.Folder subFolder = Folder.Folders[i] as Outlook.Folder;
+                        if ((Outlook.OlDefaultFolders.olFolderContacts == outlookDefaultFolder && Outlook.OlItemType.olContactItem == subFolder.DefaultItemType) ||
+                                 (Outlook.OlDefaultFolders.olFolderNotes == outlookDefaultFolder && Outlook.OlItemType.olNoteItem == subFolder.DefaultItemType) 
+                                )
+                        {
+                            mapiFolder = subFolder as Outlook.MAPIFolder;
+                        }
+                    }
+                }
+            }
+#else
             Outlook.MAPIFolder mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
-
+#endif
             try
             {
-                return mapiFolder.Items;
+                return ((null==mapiFolder)?null:mapiFolder.Items);
             }
             finally
             {

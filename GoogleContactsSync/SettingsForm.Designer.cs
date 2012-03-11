@@ -611,7 +611,7 @@ namespace GoContactSyncMod
             this.cmbFolders.Location = new System.Drawing.Point(172, 450);
             this.cmbFolders.Name = "cmbFolders";
             this.cmbFolders.Size = new System.Drawing.Size(303, 21);
-            this.cmbFolders.Sorted = true;
+            this.cmbFolders.Sorted = false;
             this.cmbFolders.TabIndex = 6;
             this.cmbFolders.SelectedIndexChanged += new System.EventHandler(this.cmbFolders_SelectedIndexChanged);
             // 
