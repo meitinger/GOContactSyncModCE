@@ -61,14 +61,12 @@ namespace GoContactSyncMod
 			PopulateSyncOptionBox();
 
             fillSyncFolderItems();
-#if debug
+
             if (fillSyncProfileItems()) 
                 LoadSettings(cmbSyncProfile.Text);
             else 
                 LoadSettings(null);
-#else
-            LoadSettings();
-#endif
+
             TimerSwitch(true);
 			lastSyncLabel.Text = "Not synced";
 
@@ -119,7 +117,6 @@ namespace GoContactSyncMod
 		}
         private void fillSyncFolderItems()
         {
-#if debug
             this.contactFoldersComboBox.Visible = true;
             this.noteFoldersComboBox.Visible = true;
             this.cmbSyncProfile.Visible = true;
@@ -185,11 +182,6 @@ namespace GoContactSyncMod
             {
                 Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
             }
-#else
-                contactFoldersComboBox.Visible = false;
-                noteFoldersComboBox.Visible = false;
-                cmbSyncProfile.Visible = false;
-#endif
         }
 
         private void ClearSettings()
@@ -227,7 +219,6 @@ namespace GoContactSyncMod
 
             return vReturn;
         }
-#if debug
                 
 
         private void LoadSettings(string _profile)
@@ -266,6 +257,8 @@ namespace GoContactSyncMod
                 noteFoldersComboBox.SelectedValue = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
 
             autoSyncCheckBox_CheckedChanged(null, null);
+            btSyncContacts_CheckedChanged(null, null);
+            btSyncNotes_CheckedChanged(null, null);
 
             _proxy.LoadSettings(_profile);
         }
@@ -316,80 +309,6 @@ namespace GoContactSyncMod
                 return userNameIsValid && passwordIsValid && syncProfileIsValid && syncFolderIsValid;
 			}
 		}
-#else
-        private void LoadSettings()
-		{
-			// default
-			SetSyncOption(0);
-
-			// load
-			RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
-			if (regKeyAppRoot.GetValue("SyncOption") != null)
-			{
-				_syncOption = (SyncOption)regKeyAppRoot.GetValue("SyncOption");
-				SetSyncOption((int)_syncOption);
-			}
-			if (regKeyAppRoot.GetValue("SyncProfile") != null)
-				tbSyncProfile.Text = (string)regKeyAppRoot.GetValue("SyncProfile");
-			if (regKeyAppRoot.GetValue("Username") != null)
-			{
-				UserName.Text = regKeyAppRoot.GetValue("Username") as string;
-				if (regKeyAppRoot.GetValue("Password") != null)
-					Password.Text = Encryption.DecryptPassword(UserName.Text, regKeyAppRoot.GetValue("Password") as string);
-			}
-			if (regKeyAppRoot.GetValue("AutoSync") != null)
-				autoSyncCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoSync"));
-			if (regKeyAppRoot.GetValue("AutoSyncInterval") != null)
-				autoSyncInterval.Value = Convert.ToDecimal(regKeyAppRoot.GetValue("AutoSyncInterval"));
-			if (regKeyAppRoot.GetValue("AutoStart") != null)
-				runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
-			if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
-				reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
-			if (regKeyAppRoot.GetValue("SyncDeletion") != null)
-				btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
-            if (regKeyAppRoot.GetValue("SyncNotes") != null)
-                btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
-            if (regKeyAppRoot.GetValue("SyncContacts") != null)
-                btSyncContacts.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncContacts"));
-
-			autoSyncCheckBox_CheckedChanged(null, null);
-		}
-		private void SaveSettings()
-		{
-			RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
-			regKeyAppRoot.SetValue("SyncOption", (int)_syncOption);
-			if (!string.IsNullOrEmpty(tbSyncProfile.Text))
-				regKeyAppRoot.SetValue("SyncProfile", tbSyncProfile.Text);
-			if (!string.IsNullOrEmpty(UserName.Text))
-			{
-				regKeyAppRoot.SetValue("Username", UserName.Text);
-				if (!string.IsNullOrEmpty(Password.Text))
-					regKeyAppRoot.SetValue("Password", Encryption.EncryptPassword(UserName.Text, Password.Text));
-			}
-			regKeyAppRoot.SetValue("AutoSync", autoSyncCheckBox.Checked.ToString());
-			regKeyAppRoot.SetValue("AutoSyncInterval", autoSyncInterval.Value.ToString());
-			regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
-			regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
-			regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
-            regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
-            regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
-		}
-
-		private bool ValidCredentials
-		{
-			get
-			{
-				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
-				bool passwordIsValid = Password.Text.Length != 0;
-				bool syncProfileNameIsValid = tbSyncProfile.Text.Length != 0;
-
-				setBgColor(UserName, userNameIsValid);
-				setBgColor(Password, passwordIsValid);
-				setBgColor(tbSyncProfile, syncProfileNameIsValid);
-				return userNameIsValid && passwordIsValid && syncProfileNameIsValid;
-			}
-		}
-#endif
 
 		private void setBgColor(TextBox box, bool isValid)
 		{
@@ -430,23 +349,19 @@ namespace GoContactSyncMod
             {
                 TimerSwitch(false);
 
-#if debug
                 //if the contacts or notes folder has changed ==> Reset matches (to not delete contacts or notes on the one or other side)                
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + _syncProfile);
                 string syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
                 string syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
 
-                if (!string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) ||
-                    !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder))
+                if (!string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) && btSyncContacts.Checked ||
+                    !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder) && btSyncNotes.Checked)
                 {
                     //ToDo: Maybe later differentiate, only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
                     ResetMatches();
                 }
                 regKeyAppRoot.SetValue("SyncContactsFolder", _syncContactsFolder);
                 regKeyAppRoot.SetValue("SyncNotesFolder", _syncNotesFolder);
-
-#endif
-
 
                 SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
@@ -463,13 +378,10 @@ namespace GoContactSyncMod
                 SetSyncConsoleText("");
                 Logger.Log("Sync started.", EventType.Information);
                 //SetSyncConsoleText(Logger.GetText());
-#if debug
                 _sync.SyncProfile = _syncProfile;
                 _sync.SyncContactsFolder  = _syncContactsFolder;
                 _sync.SyncNotesFolder = _syncNotesFolder;
-#else
-                _sync.SyncProfile = tbSyncProfile.Text;
-#endif
+
                 _sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
@@ -947,7 +859,7 @@ namespace GoContactSyncMod
             SetLastSyncText("Resetting matches...");
             notifyIcon.Text = Application.ProductName + "\nResetting matches...";
             SetFormEnabled(false);
-            this.hideButton.Enabled = false;
+            //this.hideButton.Enabled = false;
 
             if (_sync == null)
             {
@@ -963,13 +875,10 @@ namespace GoContactSyncMod
 
             _sync.LoginToGoogle(UserName.Text, Password.Text);
             _sync.LoginToOutlook();
-#if debug
+
             _sync.SyncProfile = _syncProfile;
             _sync.SyncContactsFolder = _syncContactsFolder;
             _sync.SyncNotesFolder = _syncNotesFolder;
-#else
-                _sync.SyncProfile = tbSyncProfile.Text;
-#endif
 
             //Load matches, but match them by properties, not sync id
 
@@ -1042,12 +951,8 @@ namespace GoContactSyncMod
 		{
 			if (string.IsNullOrEmpty(UserName.Text) ||
 				string.IsNullOrEmpty(Password.Text) ||
-#if debug
                 string.IsNullOrEmpty(cmbSyncProfile.Text) ||
                 string.IsNullOrEmpty(contactFoldersComboBox.Text) )
-#else
-				string.IsNullOrEmpty(tbSyncProfile.Text))
-#endif
 			{
 				// this is the first load, show form
 				ShowForm();
@@ -1149,9 +1054,7 @@ namespace GoContactSyncMod
                 MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on notes for syncing now).", "No sync switched on");
                 btSyncNotes.Checked = true;
             }
-#if debug
             contactFoldersComboBox.Visible = btSyncContacts.Checked;
-#endif
         }
 
         private void btSyncNotes_CheckedChanged(object sender, EventArgs e)
@@ -1161,14 +1064,11 @@ namespace GoContactSyncMod
                 MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on contacts for syncing now).", "No sync switched on");
                 btSyncContacts.Checked = true;
             }
-#if debug
             noteFoldersComboBox.Visible = btSyncNotes.Checked;
-#endif
         }
     	
         private void cmbSyncProfile_SelectedIndexChanged(object sender, EventArgs e)
         {
-#if debug   
             ComboBox comboBox = (ComboBox)sender;
 
             if ((0 == comboBox.SelectedIndex) || (comboBox.SelectedIndex == (comboBox.Items.Count - 1))) {
@@ -1198,7 +1098,6 @@ namespace GoContactSyncMod
             }
 
             ValidateSyncButton();
-#endif
         }
 
         private void contacFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -1216,23 +1115,4 @@ namespace GoContactSyncMod
         }        
 
 	}
-
-
-	//internal class EventLogger : ILogger
-	//{
-	//    private TextBox _box;
-	//    public EventLogger(TextBox box)
-	//    {
-	//        _box = box;
-	//    }
-
-	//    #region ILogger Members
-
-	//    public void Log(string message, EventType eventType)
-	//    {
-	//        _box.Text += message;
-	//    }
-
-	//    #endregion
-	//}
 }

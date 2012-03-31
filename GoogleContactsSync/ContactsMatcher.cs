@@ -658,18 +658,24 @@ namespace GoContactSyncMod
                                     break;
                                 case SyncOption.MergePrompt:
                                     //promp for sync option
-                                    ConflictResolver r = new ConflictResolver();
-                                    ConflictResolution res = r.Resolve(outlookContactItem, match.GoogleContact);
-                                    switch (res)
+                                    if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
+                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                    {
+                                        ConflictResolver r = new ConflictResolver();
+                                        sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);
+                                    }
+                                    switch (sync.ConflictResolution)
                                     {
                                         case ConflictResolution.Skip:
                                             break;
                                         case ConflictResolution.Cancel:
-                                            throw new ApplicationException("Canceled");
+                                            throw new ApplicationException("Cancelled");
                                         case ConflictResolution.OutlookWins:
+                                        case ConflictResolution.OutlookWinsAlways:
                                             sync.UpdateContact(outlookContactItem, match.GoogleContact);
                                             break;
                                         case ConflictResolution.GoogleWins:
+                                        case ConflictResolution.GoogleWinsAlways:
                                             sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                             break;
                                         default:
@@ -737,18 +743,24 @@ namespace GoContactSyncMod
                                 break;
                             case SyncOption.MergePrompt:
                                 //promp for sync option
-                                ConflictResolver r = new ConflictResolver();
-                                ConflictResolution res = r.Resolve(outlookContactItem, match.GoogleContact);
-                                switch (res)
+                                if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
+                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                {
+                                    ConflictResolver r = new ConflictResolver();
+                                    sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);
+                                }
+                                switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
                                         break;
                                     case ConflictResolution.Cancel:
-                                        throw new ApplicationException("Canceled");
+                                        throw new ApplicationException("Cancelled");
                                     case ConflictResolution.OutlookWins:
+                                    case ConflictResolution.OutlookWinsAlways:
                                         sync.UpdateContact(outlookContactItem, match.GoogleContact);
                                         break;
                                     case ConflictResolution.GoogleWins:
+                                    case ConflictResolution.GoogleWinsAlways:
                                         sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                         break;
                                     default:

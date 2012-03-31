@@ -537,18 +537,24 @@ namespace GoContactSyncMod
                                     break;
                                 case SyncOption.MergePrompt:
                                     //promp for sync option
-                                    ConflictResolver r = new ConflictResolver();
-                                    ConflictResolution res = r.Resolve(outlookNoteItem, match.GoogleNote);
-                                    switch (res)
+                                    if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
+                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                    {
+                                        ConflictResolver r = new ConflictResolver();
+                                        sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote);
+                                    }
+                                    switch (sync.ConflictResolution)
                                     {
                                         case ConflictResolution.Skip:
                                             break;
                                         case ConflictResolution.Cancel:
                                             throw new ApplicationException("Canceled");
                                         case ConflictResolution.OutlookWins:
+                                        case ConflictResolution.OutlookWinsAlways:
                                             sync.UpdateNote(outlookNoteItem, match.GoogleNote);
                                             break;
                                         case ConflictResolution.GoogleWins:
+                                        case ConflictResolution.GoogleWinsAlways:
                                             sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                                             break;
                                         default:
@@ -616,18 +622,24 @@ namespace GoContactSyncMod
                                 break;
                             case SyncOption.MergePrompt:
                                 //promp for sync option
-                                ConflictResolver r = new ConflictResolver();
-                                ConflictResolution res = r.Resolve(outlookNoteItem, match.GoogleNote);
-                                switch (res)
+                                if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
+                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                {
+                                    ConflictResolver r = new ConflictResolver();
+                                    sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote);
+                                }
+                                switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
                                         break;
                                     case ConflictResolution.Cancel:
                                         throw new ApplicationException("Canceled");
                                     case ConflictResolution.OutlookWins:
+                                    case ConflictResolution.OutlookWinsAlways:
                                         sync.UpdateNote(outlookNoteItem, match.GoogleNote);
                                         break;
                                     case ConflictResolution.GoogleWins:
+                                    case ConflictResolution.GoogleWinsAlways:
                                         sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                                         break;
                                     default:

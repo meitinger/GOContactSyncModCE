@@ -62,6 +62,13 @@ namespace GoContactSyncMod
             get { return _skippedCountNotMatches; }
         }
 
+        private ConflictResolution _conflictResolution = ConflictResolution.Cancel;
+        public ConflictResolution ConflictResolution
+        {
+            set { _conflictResolution = value; }
+            get { return _conflictResolution; }
+        }
+
 
 		public delegate void DuplicatesFoundHandler(string title, string message);
 		public delegate void ErrorNotificationHandler(string title, Exception ex, EventType eventType);
@@ -374,7 +381,6 @@ namespace GoContactSyncMod
             _outlookNamespace.Logon(profileName, null, true, false);*/
 
             //Just try to access the outlookNamespace to check, if it is still accessible, throws COMException, if not reachable           
-#if debug
             if (_syncFolderContacts.Length == 0)
             {
                _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
@@ -383,9 +389,6 @@ namespace GoContactSyncMod
             {
                 _outlookNamespace.GetFolderFromID(_syncFolderContacts);
             }
-#else
-            _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
-#endif
 
         }
 
@@ -435,7 +438,6 @@ namespace GoContactSyncMod
 
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder, string syncFolder)
         {
-#if debug
             Outlook.MAPIFolder mapiFolder = null;
             if (string.IsNullOrEmpty(syncFolder))
             {
@@ -464,11 +466,6 @@ namespace GoContactSyncMod
                 //    }
                 //}
             }
-#else
-            Outlook.MAPIFolder mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
-            if (mapiFolder == null)
-                throw new Exception("Error getting Default OutlookFolder: " + outlookDefaultFolder);
-#endif
 
             try
             {
@@ -774,6 +771,7 @@ namespace GoContactSyncMod
                     _errorCount = 0;
                     _skippedCount = 0;
                     _skippedCountNotMatches = 0;
+                    _conflictResolution = ConflictResolution.Cancel;
 
                     if (_syncContacts)
                         MatchContacts();
