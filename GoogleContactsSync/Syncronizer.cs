@@ -177,11 +177,17 @@ namespace GoContactSyncMod
 			set { _syncProfile = value; }
 		}
 
-        private static string _syncFolder = "";
-        public string SyncFolder
+        private static string _syncFolderContacts = "";
+        public string SyncContactsFolder
         {
-            get { return _syncFolder; }
-            set { _syncFolder = value; }
+            get { return _syncFolderContacts; }
+            set { _syncFolderContacts = value; }
+        }
+        private static string _syncFolderNotes = "";
+        public string SyncNotesFolder
+        {
+            get { return _syncFolderNotes; }
+            set { _syncFolderNotes = value; }
         }
 
 		//private ConflictResolution? _conflictResolution;
@@ -369,13 +375,13 @@ namespace GoContactSyncMod
 
             //Just try to access the outlookNamespace to check, if it is still accessible, throws COMException, if not reachable           
 #if debug
-            if (_syncFolder.Length == 0)
+            if (_syncFolderContacts.Length == 0)
             {
                _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
             }
             else
             {
-                _outlookNamespace.GetFolderFromID(_syncFolder);
+                _outlookNamespace.GetFolderFromID(_syncFolderContacts);
             }
 #else
             _outlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
@@ -418,46 +424,59 @@ namespace GoContactSyncMod
 		private void LoadOutlookContacts()
 		{
 			Logger.Log("Loading Outlook contacts...", EventType.Information);
-            _outlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts);			
+            _outlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts, _syncFolderContacts);			
 		}
 
         private void LoadOutlookNotes()
         {
             Logger.Log("Loading Outlook Notes...", EventType.Information);
-            _outlookNotes = GetOutlookItems(Outlook.OlDefaultFolders.olFolderNotes);
+            _outlookNotes = GetOutlookItems(Outlook.OlDefaultFolders.olFolderNotes, _syncFolderNotes);
         }
 
-        private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder)
+        private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder, string syncFolder)
         {
 #if debug
             Outlook.MAPIFolder mapiFolder = null;
-            if (_syncFolder.Length == 0)
+            if (string.IsNullOrEmpty(syncFolder))
             {
                 mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
+                if (mapiFolder == null)
+                    throw new Exception("Error getting Default OutlookFolder: " + outlookDefaultFolder);
             }
             else
-            {  
-                Outlook.MAPIFolder Folder = OutlookNameSpace.GetFolderFromID(_syncFolder);
-                if (Folder != null)
-                {
-                    for (int i = 1; i <= Folder.Folders.Count; i++)
-                    {
-                        Outlook.Folder subFolder = Folder.Folders[i] as Outlook.Folder;
-                        if ((Outlook.OlDefaultFolders.olFolderContacts == outlookDefaultFolder && Outlook.OlItemType.olContactItem == subFolder.DefaultItemType) ||
-                                 (Outlook.OlDefaultFolders.olFolderNotes == outlookDefaultFolder && Outlook.OlItemType.olNoteItem == subFolder.DefaultItemType) 
-                                )
-                        {
-                            mapiFolder = subFolder as Outlook.MAPIFolder;
-                        }
-                    }
-                }
+            {
+                mapiFolder = OutlookNameSpace.GetFolderFromID(syncFolder);
+                if (mapiFolder == null)
+                    throw new Exception("Error getting OutlookFolder: " + syncFolder);
+                
+                //Outlook.MAPIFolder Folder = OutlookNameSpace.GetFolderFromID(_syncFolder);
+                //if (Folder != null)
+                //{
+                //    for (int i = 1; i <= Folder.Folders.Count; i++)
+                //    {
+                //        Outlook.Folder subFolder = Folder.Folders[i] as Outlook.Folder;
+                //        if ((Outlook.OlDefaultFolders.olFolderContacts == outlookDefaultFolder && Outlook.OlItemType.olContactItem == subFolder.DefaultItemType) ||
+                //                 (Outlook.OlDefaultFolders.olFolderNotes == outlookDefaultFolder && Outlook.OlItemType.olNoteItem == subFolder.DefaultItemType) 
+                //                )
+                //        {
+                //            mapiFolder = subFolder as Outlook.MAPIFolder;
+                //        }
+                //    }
+                //}
             }
 #else
             Outlook.MAPIFolder mapiFolder = OutlookNameSpace.GetDefaultFolder(outlookDefaultFolder);
+            if (mapiFolder == null)
+                throw new Exception("Error getting Default OutlookFolder: " + outlookDefaultFolder);
 #endif
+
             try
             {
-                return ((null==mapiFolder)?null:mapiFolder.Items);
+                Outlook.Items items = mapiFolder.Items;
+                if (items == null)
+                    throw new Exception("Error getting Outlook items from OutlookFolder: " + mapiFolder.Name);
+                else
+                    return items;
             }
             finally
             {

@@ -349,12 +349,15 @@ namespace GoContactSyncMod
     {
         private string _folderName;
         private string _folderID;
+        private bool _isDefaultFolder;
 
-        public OutlookFolder(string folderName, string folderID)
+
+        public OutlookFolder(string folderName, string folderID, bool isDefaultFolder)
         {
 
             this._folderName = folderName;
             this._folderID   = folderID;
+            this._isDefaultFolder = isDefaultFolder;
         }
 
         public string FolderName
@@ -371,6 +374,23 @@ namespace GoContactSyncMod
             get
             {
                 return _folderID;
+            }
+        }
+
+        public bool IsDefaultFolder
+        {
+
+            get
+            {
+                return _isDefaultFolder;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                return _folderName + (_isDefaultFolder?" (Default)":String.Empty);
             }
         }
 
