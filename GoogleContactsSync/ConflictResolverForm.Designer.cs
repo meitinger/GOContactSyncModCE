@@ -32,7 +32,7 @@ namespace GoContactSyncMod
             this.keepOutlook = new System.Windows.Forms.Button();
             this.keepGoogle = new System.Windows.Forms.Button();
             this.cancel = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.skip = new System.Windows.Forms.Button();
             this.OutlookItemTextBox = new System.Windows.Forms.TextBox();
             this.SplitContainer = new System.Windows.Forms.SplitContainer();
             this.OutlookItemLabel = new System.Windows.Forms.Label();
@@ -85,16 +85,16 @@ namespace GoContactSyncMod
             this.cancel.Text = "Cancel";
             this.cancel.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // skip
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.Ignore;
-            this.button1.Location = new System.Drawing.Point(269, 320);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "&Skip";
-            this.button1.UseVisualStyleBackColor = true;
+            this.skip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.skip.DialogResult = System.Windows.Forms.DialogResult.Ignore;
+            this.skip.Location = new System.Drawing.Point(269, 320);
+            this.skip.Name = "skip";
+            this.skip.Size = new System.Drawing.Size(75, 23);
+            this.skip.TabIndex = 3;
+            this.skip.Text = "&Skip";
+            this.skip.UseVisualStyleBackColor = true;
             // 
             // OutlookItemTextBox
             // 
@@ -103,6 +103,7 @@ namespace GoContactSyncMod
             this.OutlookItemTextBox.Multiline = true;
             this.OutlookItemTextBox.Name = "OutlookItemTextBox";
             this.OutlookItemTextBox.ReadOnly = true;
+            this.OutlookItemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.OutlookItemTextBox.Size = new System.Drawing.Size(206, 204);
             this.OutlookItemTextBox.TabIndex = 4;
             // 
@@ -144,6 +145,7 @@ namespace GoContactSyncMod
             this.GoogleItemTextBox.Multiline = true;
             this.GoogleItemTextBox.Name = "GoogleItemTextBox";
             this.GoogleItemTextBox.ReadOnly = true;
+            this.GoogleItemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.GoogleItemTextBox.Size = new System.Drawing.Size(200, 204);
             this.GoogleItemTextBox.TabIndex = 5;
             // 
@@ -176,7 +178,7 @@ namespace GoContactSyncMod
             this.ClientSize = new System.Drawing.Size(434, 355);
             this.Controls.Add(this.AllCheckBox);
             this.Controls.Add(this.SplitContainer);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.skip);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.keepGoogle);
             this.Controls.Add(this.keepOutlook);
@@ -205,7 +207,7 @@ namespace GoContactSyncMod
         private System.Windows.Forms.Button keepGoogle;
         private System.Windows.Forms.Button cancel;
         public System.Windows.Forms.Label messageLabel;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button skip;
         public System.Windows.Forms.TextBox OutlookItemTextBox;
         private System.Windows.Forms.SplitContainer SplitContainer;
         private System.Windows.Forms.Label OutlookItemLabel;
