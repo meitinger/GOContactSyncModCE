@@ -999,12 +999,7 @@ namespace GoContactSyncMod
 		private void deleteDuplicatesButton_Click(object sender, EventArgs e)
 		{
 			//DeleteDuplicatesForm f = new DeleteDuplicatesForm(_sync
-		}
-
-		private void tbSyncProfile_TextChanged(object sender, EventArgs e)
-		{
-			ValidateSyncButton();
-		}        
+		}		       
 
 		private void Donate_Click(object sender, EventArgs e)
 		{

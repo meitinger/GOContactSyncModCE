@@ -56,11 +56,12 @@ namespace GoContactSyncMod
             this.syncTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btSyncContacts = new System.Windows.Forms.CheckBox();
+            this.noteFoldersComboBox = new System.Windows.Forms.ComboBox();
             this.btSyncNotes = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btSyncDelete = new System.Windows.Forms.CheckBox();
             this.cmbSyncProfile = new System.Windows.Forms.ComboBox();
-            this.tbSyncProfile = new System.Windows.Forms.TextBox();
+            this.contactFoldersComboBox = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.lastSyncLabel = new System.Windows.Forms.Label();
             this.logGroupBox = new System.Windows.Forms.GroupBox();
@@ -75,8 +76,6 @@ namespace GoContactSyncMod
             this.hideButton = new System.Windows.Forms.Button();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
-            this.contactFoldersComboBox = new System.Windows.Forms.ComboBox();
-            this.noteFoldersComboBox = new System.Windows.Forms.ComboBox();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -253,7 +252,7 @@ namespace GoContactSyncMod
             this.autoSyncCheckBox.AutoSize = true;
             this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
-            this.autoSyncCheckBox.Size = new System.Drawing.Size(84, 17);
+            this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
             this.autoSyncCheckBox.TabIndex = 1;
             this.autoSyncCheckBox.Text = "&Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
@@ -300,7 +299,7 @@ namespace GoContactSyncMod
             this.reportSyncResultCheckBox.AutoSize = true;
             this.reportSyncResultCheckBox.Location = new System.Drawing.Point(14, 65);
             this.reportSyncResultCheckBox.Name = "reportSyncResultCheckBox";
-            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(226, 17);
+            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(190, 17);
             this.reportSyncResultCheckBox.TabIndex = 6;
             this.reportSyncResultCheckBox.Text = "Re&port Sync Result in System Tray";
             this.reportSyncResultCheckBox.UseVisualStyleBackColor = true;
@@ -310,7 +309,7 @@ namespace GoContactSyncMod
             this.runAtStartupCheckBox.AutoSize = true;
             this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
-            this.runAtStartupCheckBox.Size = new System.Drawing.Size(160, 17);
+            this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
             this.runAtStartupCheckBox.TabIndex = 0;
             this.runAtStartupCheckBox.Text = "&Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
@@ -342,7 +341,6 @@ namespace GoContactSyncMod
             this.groupBox2.Controls.Add(this.btSyncDelete);
             this.groupBox2.Controls.Add(this.cmbSyncProfile);
             this.groupBox2.Controls.Add(this.contactFoldersComboBox);
-            this.groupBox2.Controls.Add(this.tbSyncProfile);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.syncOptionBox);
             this.groupBox2.Location = new System.Drawing.Point(6, 115);
@@ -367,6 +365,18 @@ namespace GoContactSyncMod
                     "ice versa.");
             this.btSyncContacts.UseVisualStyleBackColor = true;
             this.btSyncContacts.CheckedChanged += new System.EventHandler(this.btSyncContacts_CheckedChanged);
+            // 
+            // noteFoldersComboBox
+            // 
+            this.noteFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.noteFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.noteFoldersComboBox.FormattingEnabled = true;
+            this.noteFoldersComboBox.Location = new System.Drawing.Point(218, 65);
+            this.noteFoldersComboBox.Name = "noteFoldersComboBox";
+            this.noteFoldersComboBox.Size = new System.Drawing.Size(181, 21);
+            this.noteFoldersComboBox.TabIndex = 7;
+            this.noteFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.noteFoldersComboBox_SelectedIndexChanged);
             // 
             // btSyncNotes
             // 
@@ -419,17 +429,15 @@ namespace GoContactSyncMod
                     "ccount you intend to sync with\r\nyour Google Mail account.");
             this.cmbSyncProfile.SelectedIndexChanged += new System.EventHandler(this.cmbSyncProfile_SelectedIndexChanged);
             // 
-            // tbSyncProfile
+            // contactFoldersComboBox
             // 
-            this.tbSyncProfile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbSyncProfile.Location = new System.Drawing.Point(100, 19);
-            this.tbSyncProfile.Name = "tbSyncProfile";
-            this.tbSyncProfile.Size = new System.Drawing.Size(299, 21);
-            this.tbSyncProfile.TabIndex = 1;
-            this.toolTip.SetToolTip(this.tbSyncProfile, "This is a profile name of your choice.\r\nIt must be unique in each computer\r\nand a" +
-                    "ccount you intend to sync with\r\nyour Google Mail account.");
-            this.tbSyncProfile.TextChanged += new System.EventHandler(this.tbSyncProfile_TextChanged);
+            this.contactFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.contactFoldersComboBox.FormattingEnabled = true;
+            this.contactFoldersComboBox.Location = new System.Drawing.Point(6, 65);
+            this.contactFoldersComboBox.Name = "contactFoldersComboBox";
+            this.contactFoldersComboBox.Size = new System.Drawing.Size(206, 21);
+            this.contactFoldersComboBox.TabIndex = 6;
+            this.contactFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.contacFoldersComboBox_SelectedIndexChanged);
             // 
             // label5
             // 
@@ -598,28 +606,6 @@ namespace GoContactSyncMod
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
-            // contactFoldersComboBox
-            // 
-            this.contactFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.contactFoldersComboBox.FormattingEnabled = true;
-            this.contactFoldersComboBox.Location = new System.Drawing.Point(6, 65);
-            this.contactFoldersComboBox.Name = "contactFoldersComboBox";
-            this.contactFoldersComboBox.Size = new System.Drawing.Size(206, 21);
-            this.contactFoldersComboBox.TabIndex = 6;
-            this.contactFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.contacFoldersComboBox_SelectedIndexChanged);
-            // 
-            // noteFoldersComboBox
-            // 
-            this.noteFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.noteFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.noteFoldersComboBox.FormattingEnabled = true;
-            this.noteFoldersComboBox.Location = new System.Drawing.Point(218, 65);
-            this.noteFoldersComboBox.Name = "noteFoldersComboBox";
-            this.noteFoldersComboBox.Size = new System.Drawing.Size(181, 21);
-            this.noteFoldersComboBox.TabIndex = 7;
-            this.noteFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.noteFoldersComboBox_SelectedIndexChanged);
-            // 
             // SettingsForm
             // 
             this.AcceptButton = this.syncButton;
@@ -712,7 +698,6 @@ namespace GoContactSyncMod
         private System.Windows.Forms.CheckBox btSyncContacts;
         private System.Windows.Forms.ComboBox contactFoldersComboBox;
         private System.Windows.Forms.ComboBox cmbSyncProfile;
-        private System.Windows.Forms.TextBox tbSyncProfile;
         private System.Windows.Forms.ComboBox noteFoldersComboBox;
 
     }
