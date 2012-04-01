@@ -659,7 +659,8 @@ namespace GoContactSyncMod
                                 case SyncOption.MergePrompt:
                                     //promp for sync option
                                     if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
-                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
+                                        sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
                                         ConflictResolver r = new ConflictResolver();
                                         sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);
@@ -744,7 +745,8 @@ namespace GoContactSyncMod
                             case SyncOption.MergePrompt:
                                 //promp for sync option
                                 if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
-                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
+                                    sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
                                     ConflictResolver r = new ConflictResolver();
                                     sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);

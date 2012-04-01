@@ -119,7 +119,7 @@ namespace GoContactSyncMod.UnitTests
             newEntry.Type = Document.DocumentType.Document;
             newEntry.Title = "AN_OUTLOOK_TEST_NOTE";
 
-            string file = NotePropertiesUtils.CreateNoteFile("AN_OUTLOOK_TEST_NOTE", "This is just a test note to test GoContactSyncMod");
+            string file = NotePropertiesUtils.CreateNoteFile("AN_OUTLOOK_TEST_NOTE", "This is just a test note to test GoContactSyncMod", null);
             newEntry.MediaSource = new MediaFileSource(file, MediaFileSource.GetContentTypeForFileName(file));
 
             #region normal flow, currently not working because of Note content

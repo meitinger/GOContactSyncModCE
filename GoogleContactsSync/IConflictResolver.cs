@@ -27,6 +27,7 @@ namespace GoContactSyncMod
         OutlookWins,
         GoogleWins,
         OutlookWinsAlways,
-        GoogleWinsAlways
+        GoogleWinsAlways,
+        SkipAlways
     }
 }

@@ -130,11 +130,10 @@ namespace GoContactSyncMod
             // 
             // OutlookItemLabel
             // 
-            this.OutlookItemLabel.AutoSize = true;
             this.OutlookItemLabel.Dock = System.Windows.Forms.DockStyle.Top;
             this.OutlookItemLabel.Location = new System.Drawing.Point(0, 0);
             this.OutlookItemLabel.Name = "OutlookItemLabel";
-            this.OutlookItemLabel.Size = new System.Drawing.Size(51, 13);
+            this.OutlookItemLabel.Size = new System.Drawing.Size(206, 13);
             this.OutlookItemLabel.TabIndex = 6;
             this.OutlookItemLabel.Text = "Outlook";
             // 
@@ -151,11 +150,10 @@ namespace GoContactSyncMod
             // 
             // GoogleItemLabel
             // 
-            this.GoogleItemLabel.AutoSize = true;
             this.GoogleItemLabel.Dock = System.Windows.Forms.DockStyle.Top;
             this.GoogleItemLabel.Location = new System.Drawing.Point(0, 0);
             this.GoogleItemLabel.Name = "GoogleItemLabel";
-            this.GoogleItemLabel.Size = new System.Drawing.Size(47, 13);
+            this.GoogleItemLabel.Size = new System.Drawing.Size(200, 13);
             this.GoogleItemLabel.TabIndex = 7;
             this.GoogleItemLabel.Text = "Google";
             // 

@@ -107,22 +107,27 @@ namespace GoContactSyncMod
                      _form.GoogleItemTextBox.Text += address.FormattedAddress + "\r\n";
                 }
             }
-                      
+
+            return Resolve();
+        }
+
+        private ConflictResolution Resolve()
+        {
 
             switch (_form.ShowDialog())
             {
                 case System.Windows.Forms.DialogResult.Ignore:
                     // skip
-                    return ConflictResolution.Skip;
+                    return _form.AllCheckBox.Checked ? ConflictResolution.SkipAlways : ConflictResolution.Skip;
                 case System.Windows.Forms.DialogResult.Cancel:
                     // cancel
                     return ConflictResolution.Cancel;
                 case System.Windows.Forms.DialogResult.No:
                     // google wins
-                    return _form.AllCheckBox.Checked?ConflictResolution.GoogleWinsAlways:ConflictResolution.GoogleWins;
+                    return _form.AllCheckBox.Checked ? ConflictResolution.GoogleWinsAlways : ConflictResolution.GoogleWins;
                 case System.Windows.Forms.DialogResult.Yes:
                     // outlook wins
-                    return _form.AllCheckBox.Checked?ConflictResolution.OutlookWinsAlways:ConflictResolution.OutlookWins;
+                    return _form.AllCheckBox.Checked ? ConflictResolution.OutlookWinsAlways : ConflictResolution.OutlookWins;
                 default:
                     throw new Exception();
             }
@@ -151,7 +156,7 @@ namespace GoContactSyncMod
         //    return ret;
         //}
 
-        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote)
+        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote, Syncronizer sync)
         {
             string name = googleNote.Title;
             
@@ -159,23 +164,10 @@ namespace GoContactSyncMod
                 "Both the outlook note and the google note \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
 
-            switch (_form.ShowDialog())
-            {
-                case System.Windows.Forms.DialogResult.Ignore:
-                    // skip
-                    return ConflictResolution.Skip;
-                case System.Windows.Forms.DialogResult.Cancel:
-                    // cancel
-                    return ConflictResolution.Cancel;
-                case System.Windows.Forms.DialogResult.No:
-                    // google wins
-                    return ConflictResolution.GoogleWins;
-                case System.Windows.Forms.DialogResult.Yes:
-                    // outlook wins
-                    return ConflictResolution.OutlookWins;
-                default:
-                    throw new Exception();
-            }
+            _form.OutlookItemTextBox.Text = outlookNote.Body;
+            _form.GoogleItemTextBox.Text = NotePropertiesUtils.GetBody(sync, googleNote);
+
+            return Resolve();
         }
 
         #endregion

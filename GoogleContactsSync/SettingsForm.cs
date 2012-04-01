@@ -376,7 +376,7 @@ namespace GoContactSyncMod
 
                 Logger.ClearLog();
                 SetSyncConsoleText("");
-                Logger.Log("Sync started.", EventType.Information);
+                Logger.Log("Sync started (" + _syncProfile + ").", EventType.Information);
                 //SetSyncConsoleText(Logger.GetText());
                 _sync.SyncProfile = _syncProfile;
                 _sync.SyncContactsFolder  = _syncContactsFolder;
@@ -868,7 +868,7 @@ namespace GoContactSyncMod
 
             Logger.ClearLog();
             SetSyncConsoleText("");
-            Logger.Log("Reset Matches started.", EventType.Information);
+            Logger.Log("Reset Matches started  (" + _syncProfile + ").", EventType.Information);
 
             _sync.SyncNotes = btSyncNotes.Checked;
             _sync.SyncContacts = btSyncContacts.Checked;

@@ -475,7 +475,7 @@ namespace GoContactSyncMod
                 {
 
                     // no outlook note
-                    if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id))
+                    if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id, sync.SyncProfile))
                     {
                         //Avoid recreating a OutlookNote already existing
                         //==> Delete this googleNote instead if previous match existed but no match exists anymore                
@@ -538,10 +538,11 @@ namespace GoContactSyncMod
                                 case SyncOption.MergePrompt:
                                     //promp for sync option
                                     if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
-                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                        sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
+                                        sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
                                         ConflictResolver r = new ConflictResolver();
-                                        sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote);
+                                        sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync);
                                     }
                                     switch (sync.ConflictResolution)
                                     {
@@ -623,10 +624,11 @@ namespace GoContactSyncMod
                             case SyncOption.MergePrompt:
                                 //promp for sync option
                                 if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
-                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways)
+                                    sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
+                                        sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
                                     ConflictResolver r = new ConflictResolver();
-                                    sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote);
+                                    sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync);
                                 }
                                 switch (sync.ConflictResolution)
                                 {

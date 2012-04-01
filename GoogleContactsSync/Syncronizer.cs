@@ -1099,7 +1099,7 @@ namespace GoContactSyncMod
                             item.Delete();
                             try
                             { //Delete also the according temporary NoteFile
-                                File.Delete(NotePropertiesUtils.GetFileName(NotePropertiesUtils.GetOutlookGoogleNoteId(this,match.OutlookNote)));
+                                File.Delete(NotePropertiesUtils.GetFileName(NotePropertiesUtils.GetOutlookGoogleNoteId(this,match.OutlookNote), _syncProfile));
                             }
                             catch (Exception)
                             { }
@@ -1116,7 +1116,7 @@ namespace GoContactSyncMod
             }
             else if (match.GoogleNote != null && match.OutlookNote == null)
             {
-                if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id))
+                if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id, _syncProfile))
                 {
                     string name = match.GoogleNote.Title;                    
 
@@ -1143,7 +1143,7 @@ namespace GoContactSyncMod
                         
                         try
                          {//Delete also the according temporary NoteFile
-                             File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id));
+                             File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id, _syncProfile));
                          }
                          catch (Exception)
                          {}
@@ -1246,18 +1246,18 @@ namespace GoContactSyncMod
 
                 }
 
-                Google.GData.Documents.DocumentEntry entry = _documentsRequest.Service.UploadDocument(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID), match.GoogleNote.Title.Replace(":", String.Empty));                               
+                Google.GData.Documents.DocumentEntry entry = _documentsRequest.Service.UploadDocument(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID, _syncProfile), match.GoogleNote.Title.Replace(":", String.Empty));                               
                 Document newNote = LoadGoogleNotes(entry.Id);
                 match.GoogleNote = _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);
 
                 //First delete old temporary file, because it was saved with old GoogleNoteID, because every sync to Google becomes a new ID, because updateMedia doesn't work
-                File.Delete(NotePropertiesUtils.GetFileName(oldOutlookGoogleNoteId));
+                File.Delete(NotePropertiesUtils.GetFileName(oldOutlookGoogleNoteId, _syncProfile));
                 NotePropertiesUtils.SetOutlookGoogleNoteId(this, outlookNoteItem, match.GoogleNote);
                 outlookNoteItem.Save();                
 
                 //As GoogleDocuments don't have UserProperties, we have to use the file to check, if Note was already synced or not
-                File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id));
-                File.Move(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID), NotePropertiesUtils.GetFileName(match.GoogleNote.Id));
+                File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id, _syncProfile));
+                File.Move(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID, _syncProfile), NotePropertiesUtils.GetFileName(match.GoogleNote.Id, _syncProfile));
             //}
             //finally
             //{
@@ -1631,7 +1631,7 @@ namespace GoContactSyncMod
         {
             slave.Title = master.Subject;
 
-            string fileName = NotePropertiesUtils.CreateNoteFile(master.EntryID, master.Body);
+            string fileName = NotePropertiesUtils.CreateNoteFile(master.EntryID, master.Body, _syncProfile);
 
             string contentType = MediaFileSource.GetContentTypeForFileName(fileName);
 
@@ -1669,7 +1669,7 @@ namespace GoContactSyncMod
 
             slave.Body = body;
 
-            NotePropertiesUtils.CreateNoteFile(master.Id, body);
+            NotePropertiesUtils.CreateNoteFile(master.Id, body, _syncProfile);
 
         }
 
@@ -1863,7 +1863,7 @@ namespace GoContactSyncMod
 
                     try
                     {
-                        NotePropertiesUtils.DeleteNoteFiles();
+                        NotePropertiesUtils.DeleteNoteFiles(_syncProfile);
                     }
                     catch (Exception ex)
                     {                           

@@ -249,7 +249,7 @@ namespace GoContactSyncMod
             }
         }
 
-        public static string GetFileName(string Id)
+        public static string GetFileName(string Id, string syncProfile)
         {
             string fileName = "Note_" + Id + ".txt";
 
@@ -259,8 +259,27 @@ namespace GoContactSyncMod
                 fileName = fileName.Replace(c, '_');
             }
 
-            fileName = Logger.Folder + "\\" + fileName;
+            //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
+            CopyNoteFiles(syncProfile);
+
+            fileName = Logger.Folder + (string.IsNullOrEmpty(syncProfile)?string.Empty:"\\" + syncProfile) + "\\" + fileName;
             return fileName;
+        }
+
+        private static void CopyNoteFiles(string syncProfile)
+        {
+            //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
+            //Create ProfileSync subfolder and copy all files to there
+            if (!string.IsNullOrEmpty(syncProfile) && !Directory.Exists(Logger.Folder + "\\" + syncProfile))
+            {
+                Directory.CreateDirectory(Logger.Folder + "\\" + syncProfile);
+
+                string[] files = Directory.GetFiles(Logger.Folder, @"Note_*.txt");
+
+                foreach (string file in files)
+                    File.Move(file, file.Replace(Logger.Folder, Logger.Folder + "\\" + syncProfile + "\\"));
+
+            }
         }
 
         public static string GetBody(Syncronizer sync, Document entry)
@@ -280,17 +299,17 @@ namespace GoContactSyncMod
             return body;
         }
 
-        public static bool NoteFileExists(string Id)
+        public static bool NoteFileExists(string Id, string syncProfile)
         {
-            if (System.IO.File.Exists(GetFileName(Id)))
+            if (System.IO.File.Exists(GetFileName(Id, syncProfile)))
                 return true;
 
             return false;
         }
 
-        public static string CreateNoteFile(string Id, string body)
+        public static string CreateNoteFile(string Id, string body, string syncProfile)
         {
-            string fileName = NotePropertiesUtils.GetFileName(Id);
+            string fileName = NotePropertiesUtils.GetFileName(Id, syncProfile);
 
             StreamWriter writer = null;
             try
@@ -308,9 +327,12 @@ namespace GoContactSyncMod
             return fileName;
         }
 
-        public static void DeleteNoteFiles()        
+        public static void DeleteNoteFiles(string syncProfile)        
         {
-            string[] files = Directory.GetFiles(Logger.Folder,@"Note_*.txt");
+            //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
+            CopyNoteFiles(syncProfile);
+
+            string[] files = Directory.GetFiles(Logger.Folder + "\\" + syncProfile, @"Note_*.txt");
 
             foreach (string file in files)
                 File.Delete(file);
