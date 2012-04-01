@@ -39,7 +39,14 @@ namespace GoContactSyncMod
                 Directory.CreateDirectory(Folder);
             try
             {
-                logwriter = new StreamWriter(Folder + "log.txt", true);
+                string logFileName = Folder + "log.txt";
+                
+                //If log file is bigger than 1 MB, move it to backup file and create new file
+                FileInfo logFile = new FileInfo(logFileName);
+                if (logFile.Length >= 1000000)
+                    File.Move(logFileName, logFileName + "_" + DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss"));
+
+                logwriter = new StreamWriter(logFileName, true);
             }
             catch (Exception ex)
             {
