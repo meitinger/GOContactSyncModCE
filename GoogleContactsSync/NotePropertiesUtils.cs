@@ -256,7 +256,7 @@ namespace GoContactSyncMod
 
             foreach (char c in System.IO.Path.GetInvalidFileNameChars())
             {
-                fileName = fileName.Replace(c, '_');
+                fileName = fileName.Replace(c, '_');                
             }
 
             //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
@@ -270,6 +270,12 @@ namespace GoContactSyncMod
         {
             //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
             //Create ProfileSync subfolder and copy all files to there
+
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+            {
+                syncProfile = syncProfile.Replace(c, '_');
+            }
+
             if (!string.IsNullOrEmpty(syncProfile) && !Directory.Exists(Logger.Folder + "\\" + syncProfile))
             {
                 Directory.CreateDirectory(Logger.Folder + "\\" + syncProfile);
