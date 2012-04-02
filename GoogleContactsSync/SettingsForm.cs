@@ -14,6 +14,7 @@ using System.Runtime.Remoting;
 using System.Runtime.InteropServices;
 using System.Collections;
 
+
 namespace GoContactSyncMod
 {
 	internal partial class SettingsForm : Form
@@ -160,11 +161,14 @@ namespace GoContactSyncMod
                 this.contactFoldersComboBox.EndUpdate();
                 this.noteFoldersComboBox.EndUpdate();
 
+                this.contactFoldersComboBox.SelectedValue = "";
+                this.noteFoldersComboBox.SelectedValue = "";
+
                 //Select Default Folder per Default
                 foreach (OutlookFolder folder in contactFoldersComboBox.Items)
                     if (folder.IsDefaultFolder)
                     {
-                        this.contactFoldersComboBox.SelectedItem = folder;
+                        this.contactFoldersComboBox.SelectedValue = folder.FolderID;
                         break;
                     }
 
@@ -289,6 +293,11 @@ namespace GoContactSyncMod
                 regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
                 regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
                 regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
+
+                if (btSyncContacts.Checked)
+                    regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
+                if (btSyncNotes.Checked)
+                    regKeyAppRoot.SetValue("SyncNotesFolder", noteFoldersComboBox.SelectedValue.ToString());
 
                 _proxy.SaveSettings(cmbSyncProfile.Text);
             }
@@ -874,12 +883,14 @@ namespace GoContactSyncMod
             _sync.SyncNotes = btSyncNotes.Checked;
             _sync.SyncContacts = btSyncContacts.Checked;
 
+            _sync.SyncContactsFolder = _syncContactsFolder;
+            _sync.SyncNotesFolder = _syncNotesFolder;
+            _sync.SyncProfile = _syncProfile;
+
             _sync.LoginToGoogle(UserName.Text, Password.Text);
             _sync.LoginToOutlook();
 
-            _sync.SyncProfile = _syncProfile;
-            _sync.SyncContactsFolder = _syncContactsFolder;
-            _sync.SyncNotesFolder = _syncNotesFolder;
+            
 
             //Load matches, but match them by properties, not sync id
 
@@ -1098,15 +1109,20 @@ namespace GoContactSyncMod
 
         private void contacFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((sender as ComboBox).SelectedIndex >= 0)
+            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count)
                 _syncContactsFolder = (sender as ComboBox).SelectedValue.ToString();
+            else
+                _syncContactsFolder = "";
             ValidateSyncButton();
         }
 
         private void noteFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((sender as ComboBox).SelectedIndex >= 0)
+            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count)
                 _syncNotesFolder = (sender as ComboBox).SelectedValue.ToString();
+            else
+                _syncNotesFolder = "";
+
             ValidateSyncButton();
         }        
 
