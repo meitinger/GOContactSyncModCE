@@ -302,11 +302,12 @@ namespace GoContactSyncMod
 				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
 				bool passwordIsValid = Password.Text.Length != 0;
                 bool syncProfileIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count);
-                bool syncFolderIsValid = (contactFoldersComboBox.SelectedIndex > 0 && contactFoldersComboBox.SelectedIndex < contactFoldersComboBox.Items.Count);
+                bool syncContactFolderIsValid = (contactFoldersComboBox.SelectedIndex >= 0 && contactFoldersComboBox.SelectedIndex < contactFoldersComboBox.Items.Count) || !btSyncContacts.Checked;
+                bool syncNotesFolderIsValid = (noteFoldersComboBox.SelectedIndex >= 0 && noteFoldersComboBox.SelectedIndex < noteFoldersComboBox.Items.Count) || !btSyncNotes.Checked;
 
 				setBgColor(UserName, userNameIsValid);
 				setBgColor(Password, passwordIsValid);
-                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncFolderIsValid;
+                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncContactFolderIsValid && syncNotesFolderIsValid;
 			}
 		}
 
