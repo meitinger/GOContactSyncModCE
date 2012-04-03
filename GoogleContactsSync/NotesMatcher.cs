@@ -439,6 +439,7 @@ namespace GoContactSyncMod
         public static void SyncNote(NoteMatch match, Syncronizer sync)
         {
             Outlook.NoteItem outlookNoteItem = match.OutlookNote;
+           
             //try
             //{
                 if (match.GoogleNote == null && match.OutlookNote != null)
@@ -491,7 +492,7 @@ namespace GoContactSyncMod
                     }
 
                     //create a Outlook note from Google note
-                    outlookNoteItem = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+                    outlookNoteItem = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
 
                     sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                     match.OutlookNote = outlookNoteItem;
@@ -657,13 +658,13 @@ namespace GoContactSyncMod
             //}
             //finally
             //{
-            //    if (outlookNoteItem != null &&
-            //        match.OutlookNote != null)
-            //    {
-            //        match.OutlookNote.Update(outlookNoteItem, sync);
-            //        Marshal.ReleaseComObject(outlookNoteItem);
-            //        outlookNoteItem = null;
-            //    }
+                //if (outlookNoteItem != null &&
+                //    match.OutlookNote != null)
+                //{
+                //    match.OutlookNote.Update(outlookNoteItem, sync);
+                //    Marshal.ReleaseComObject(outlookNoteItem);
+                //    outlookNoteItem = null;
+                //}
             //}
 
         }

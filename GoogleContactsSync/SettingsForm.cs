@@ -294,9 +294,9 @@ namespace GoContactSyncMod
                 regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
                 regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
 
-                if (btSyncContacts.Checked)
+                if (btSyncContacts.Checked && contactFoldersComboBox.SelectedValue != null)
                     regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
-                if (btSyncNotes.Checked)
+                if (btSyncNotes.Checked && noteFoldersComboBox.SelectedValue != null)
                     regKeyAppRoot.SetValue("SyncNotesFolder", noteFoldersComboBox.SelectedValue.ToString());
 
                 _proxy.SaveSettings(cmbSyncProfile.Text);
@@ -367,7 +367,8 @@ namespace GoContactSyncMod
                 //only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
                 bool syncContacts = !string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) && btSyncContacts.Checked;
                 bool syncNotes = !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder) && btSyncNotes.Checked;                                
-                ResetMatches(syncContacts, syncNotes);
+                if (syncContacts || syncNotes)
+                    ResetMatches(syncContacts, syncNotes);
                 
                 //Then save the Contacts and Notes Folders used at last sync
                 if (btSyncContacts.Checked)

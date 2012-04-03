@@ -561,6 +561,7 @@ namespace GoContactSyncMod
 		public static void SyncContact(ContactMatch match, Syncronizer sync)
 		{
             Outlook.ContactItem outlookContactItem = match.OutlookContact != null ? match.OutlookContact.GetOriginalItemFromOutlook(sync) : null;
+            
             try
             {
                 if (match.GoogleContact == null && match.OutlookContact != null)
@@ -611,8 +612,8 @@ namespace GoContactSyncMod
                         return;
                     }
 
-                    //create a Outlook contact from Google contact
-                    outlookContactItem = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+                    //create a Outlook contact from Google contact                                                            
+                    outlookContactItem = Syncronizer.CreateOutlookContactItem(sync.SyncContactsFolder);
 
                     sync.UpdateContact(match.GoogleContact, outlookContactItem);
                     match.OutlookContact = new OutlookContactInfo(outlookContactItem, sync);

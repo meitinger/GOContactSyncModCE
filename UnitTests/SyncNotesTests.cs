@@ -38,29 +38,26 @@ namespace GoContactSyncMod.UnitTests
                 Logger.LogUpdated += _logUpdateHandler;
             }
 
+            string gmailUsername;
+            string gmailPassword;
+            string syncProfile;
+            string syncContactsFolder;
+            string syncNotesFolder;
+
+            GoogleAPITests.LoadSettings(out gmailUsername, out gmailPassword, out syncProfile, out syncContactsFolder, out syncNotesFolder);
+
             sync = new Syncronizer();
-            sync.SyncProfile = "test profile";
-            //sync.LoginToGoogle(ConfigurationManager.AppSettings["Gmail.Username"],  ConfigurationManager.AppSettings["Gmail.Password"]);
-            //ToDo: Reading the username and config from the App.Config file doesn't work. If it works, consider special characters like & = &amp; in the XML file
-            //ToDo: Maybe add a common Test account to the App.config and read it from there, encrypt the password
-            //For now, read the userName and Password from the Registry (same settings as for GoogleContactsSync Application
-            string gmailUsername = "";
-            string gmailPassword = "";
-
-			Microsoft.Win32.RegistryKey regKeyAppRoot = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
-            if (regKeyAppRoot.GetValue("Username") != null)
-            {
-                gmailUsername = regKeyAppRoot.GetValue("Username") as string;
-                if (regKeyAppRoot.GetValue("Password") != null)
-                    gmailPassword = Encryption.DecryptPassword(gmailUsername, regKeyAppRoot.GetValue("Password") as string);
-            }
-
             sync.SyncContacts = false;
             sync.SyncNotes = true;
+            sync.SyncProfile = syncProfile;
+            sync.SyncNotesFolder = syncNotesFolder;           
+
             sync.LoginToGoogle(gmailUsername, gmailPassword);
             sync.LoginToOutlook();
 
-        }
+            
+
+        }        
 
         [SetUp]
         public void SetUp()
@@ -110,7 +107,7 @@ namespace GoContactSyncMod.UnitTests
         public void TestSync()
         {
             // create new note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             //outlookNote.Subject = name;          
             outlookNote.Body = body;
            
@@ -133,7 +130,7 @@ namespace GoContactSyncMod.UnitTests
             match = FindMatch(match.GoogleNote);
             //NotesMatcher.SyncNote(match, sync);
 
-            Outlook.NoteItem recreatedOutlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            Outlook.NoteItem recreatedOutlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             sync.UpdateNote(match.GoogleNote, recreatedOutlookNote);
 
             // match recreatedOutlookNote with outlookNote
@@ -151,7 +148,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncDelete = true;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             outlookNote.Body = body;            
             outlookNote.Save();
 
@@ -193,7 +190,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncDelete = true;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             outlookNote.Body = body;            
             outlookNote.Save();
 
@@ -237,7 +234,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncOption = SyncOption.MergeOutlookWins;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             outlookNote.Body = body;           
             outlookNote.Save();
 
@@ -281,7 +278,7 @@ namespace GoContactSyncMod.UnitTests
             DeleteTestNotes();    
 
             // create new Note to sync
-            outlookNote = Syncronizer.OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
             outlookNote.Body = body;          
             outlookNote.Save();
 

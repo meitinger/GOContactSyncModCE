@@ -2187,6 +2187,48 @@ namespace GoContactSyncMod
                 MessageBox.Show(string.Format(msg, oCount, gCount, mCount), "DEBUG INFO", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 		}
+
+        public static Outlook.ContactItem CreateOutlookContactItem(string syncContactsFolder)
+        {
+            //outlookContact = OutlookApplication.CreateItem(Outlook.OlItemType.olContactItem) as Outlook.ContactItem; //This will only create it in the default folder, but we have to consider the selected folder
+            Outlook.ContactItem outlookContact = null;
+            Outlook.MAPIFolder contactsFolder = null;
+            Outlook.Items items = null;
+
+            try
+            {
+                contactsFolder = OutlookNameSpace.GetFolderFromID(syncContactsFolder);
+                items = contactsFolder.Items;
+                outlookContact = items.Add(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
+            }
+            finally
+            {
+                if (items != null) Marshal.ReleaseComObject(items);
+                if (contactsFolder != null) Marshal.ReleaseComObject(contactsFolder);
+            }
+            return outlookContact;
+        }
+
+        public static Outlook.NoteItem CreateOutlookNoteItem(string syncNotesFolder)
+        {
+            //outlookNote = OutlookApplication.CreateItem(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem; //This will only create it in the default folder, but we have to consider the selected folder
+            Outlook.NoteItem outlookNote = null;
+            Outlook.MAPIFolder notesFolder = null;
+            Outlook.Items items = null;
+
+            try
+            {
+                notesFolder = OutlookNameSpace.GetFolderFromID(syncNotesFolder);
+                items = notesFolder.Items;
+                outlookNote = items.Add(Outlook.OlItemType.olNoteItem) as Outlook.NoteItem;
+            }
+            finally
+            {
+                if (items != null) Marshal.ReleaseComObject(items);
+                if (notesFolder != null) Marshal.ReleaseComObject(notesFolder);
+            }
+            return outlookNote;
+        }
 	}
 
 	internal enum SyncOption

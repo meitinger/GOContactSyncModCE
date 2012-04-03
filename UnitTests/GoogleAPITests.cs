@@ -17,16 +17,10 @@ namespace GoContactSyncMod.UnitTests
         [Test]
         public void CreateNewContact()
         {
-            string gmailUsername = "";
-            string gmailPassword = "";
-
-            Microsoft.Win32.RegistryKey regKeyAppRoot = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
-            if (regKeyAppRoot.GetValue("Username") != null)
-            {
-                gmailUsername = regKeyAppRoot.GetValue("Username") as string;
-                if (regKeyAppRoot.GetValue("Password") != null)
-                    gmailPassword = Encryption.DecryptPassword(gmailUsername, regKeyAppRoot.GetValue("Password") as string);
-            }
+            string gmailUsername;
+            string gmailPassword;
+            string syncProfile;
+            GoogleAPITests.LoadSettings(out gmailUsername, out gmailPassword, out syncProfile);
 
             RequestSettings rs = new RequestSettings("GoogleContactSyncMod", gmailUsername, gmailPassword);
             ContactsRequest service = new ContactsRequest(rs);
@@ -154,6 +148,45 @@ namespace GoContactSyncMod.UnitTests
             #endregion
 
             System.IO.File.Delete(file);
+        }
+
+        internal static void LoadSettings(out string gmailUsername, out string gmailPassword, out string syncProfile, out string syncContactsFolder, out string syncNotesFolder)
+        {
+            Microsoft.Win32.RegistryKey regKeyAppRoot = LoadSettings(out gmailUsername, out gmailPassword, out syncProfile);
+
+            syncContactsFolder = "";
+            syncNotesFolder = "";
+            if (regKeyAppRoot.GetValue("SyncContactsFolder") != null)
+                syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
+            if (regKeyAppRoot.GetValue("SyncNotesFolder") != null)
+                syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;           
+        }
+
+        private static Microsoft.Win32.RegistryKey LoadSettings(out string gmailUsername, out string gmailPassword, out string syncProfile)
+        {
+            //sync.LoginToGoogle(ConfigurationManager.AppSettings["Gmail.Username"],  ConfigurationManager.AppSettings["Gmail.Password"]);
+            //ToDo: Reading the username and config from the App.Config file doesn't work. If it works, consider special characters like & = &amp; in the XML file
+            //ToDo: Maybe add a common Test account to the App.config and read it from there, encrypt the password
+            //For now, read the userName and Password from the Registry (same settings as for GoogleContactsSync Application
+            gmailUsername = "";
+            gmailPassword = "";
+
+            const string appRootKey = @"Software\Webgear\GOContactSync";
+            Microsoft.Win32.RegistryKey regKeyAppRoot = regKeyAppRoot = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(appRootKey);
+            syncProfile = "Default Profile";
+            if (regKeyAppRoot.GetValue("SyncProfile") != null)
+                syncProfile = regKeyAppRoot.GetValue("SyncProfile") as string;
+
+            regKeyAppRoot = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(appRootKey + (syncProfile != null ? ('\\' + syncProfile) : ""));
+
+            if (regKeyAppRoot.GetValue("Username") != null)
+            {
+                gmailUsername = regKeyAppRoot.GetValue("Username") as string;
+                if (regKeyAppRoot.GetValue("Password") != null)
+                    gmailPassword = Encryption.DecryptPassword(gmailUsername, regKeyAppRoot.GetValue("Password") as string);
+            }
+
+            return regKeyAppRoot;
         }
     }
 
