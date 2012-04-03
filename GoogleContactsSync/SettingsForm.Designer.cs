@@ -368,7 +368,7 @@ namespace GoContactSyncMod
             // 
             // noteFoldersComboBox
             // 
-            this.noteFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.noteFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.noteFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.noteFoldersComboBox.FormattingEnabled = true;
@@ -376,6 +376,7 @@ namespace GoContactSyncMod
             this.noteFoldersComboBox.Name = "noteFoldersComboBox";
             this.noteFoldersComboBox.Size = new System.Drawing.Size(181, 21);
             this.noteFoldersComboBox.TabIndex = 7;
+            this.toolTip.SetToolTip(this.noteFoldersComboBox, "Select the Outlook Contacts folder you want to sync");
             this.noteFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.noteFoldersComboBox_SelectedIndexChanged);
             // 
             // btSyncNotes
@@ -437,6 +438,7 @@ namespace GoContactSyncMod
             this.contactFoldersComboBox.Name = "contactFoldersComboBox";
             this.contactFoldersComboBox.Size = new System.Drawing.Size(206, 21);
             this.contactFoldersComboBox.TabIndex = 6;
+            this.toolTip.SetToolTip(this.contactFoldersComboBox, "Select the Outlook Contacts folder you want to sync");
             this.contactFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.contacFoldersComboBox_SelectedIndexChanged);
             // 
             // label5

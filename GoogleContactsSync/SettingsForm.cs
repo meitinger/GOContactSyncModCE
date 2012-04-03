@@ -1111,21 +1111,39 @@ namespace GoContactSyncMod
 
         private void contacFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count)
+            string message = "Select the Outlook Contacts folder you want to sync";
+            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
+            {
                 _syncContactsFolder = (sender as ComboBox).SelectedValue.ToString();
+                toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
+            }
             else
+            {
                 _syncContactsFolder = "";
+                toolTip.SetToolTip((sender as ComboBox), message);
+            }
             ValidateSyncButton();
+
+            
         }
 
         private void noteFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count)
+            string message = "Select the Outlook Notes folder you want to sync";
+            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
+            {
                 _syncNotesFolder = (sender as ComboBox).SelectedValue.ToString();
+                toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
+            }
             else
+            {
                 _syncNotesFolder = "";
+                toolTip.SetToolTip((sender as ComboBox), message);
+            }
 
             ValidateSyncButton();
+
+            
         }        
 
 	}
