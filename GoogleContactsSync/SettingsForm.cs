@@ -364,14 +364,16 @@ namespace GoContactSyncMod
                 string syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
                 string syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
 
-                if (!string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) && btSyncContacts.Checked ||
-                    !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder) && btSyncNotes.Checked)
-                {
-                    //ToDo: Maybe later differentiate, only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
-                    ResetMatches();
-                }
-                regKeyAppRoot.SetValue("SyncContactsFolder", _syncContactsFolder);
-                regKeyAppRoot.SetValue("SyncNotesFolder", _syncNotesFolder);
+                //only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
+                bool syncContacts = !string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) && btSyncContacts.Checked;
+                bool syncNotes = !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder) && btSyncNotes.Checked;                                
+                ResetMatches(syncContacts, syncNotes);
+                
+                //Then save the Contacts and Notes Folders used at last sync
+                if (btSyncContacts.Checked)
+                    regKeyAppRoot.SetValue("SyncContactsFolder", _syncContactsFolder);
+                if (btSyncNotes.Checked)
+                    regKeyAppRoot.SetValue("SyncNotesFolder", _syncNotesFolder);
 
                 SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
@@ -840,7 +842,7 @@ namespace GoContactSyncMod
 			Application.DoEvents();
 			try
 			{
-                ResetMatches();                
+                ResetMatches(btSyncContacts.Checked,btSyncNotes.Checked);                
 			}
 			catch (Exception ex)
             {
@@ -863,7 +865,7 @@ namespace GoContactSyncMod
 			}
 		}
 
-        private void ResetMatches()
+        private void ResetMatches(bool syncContacts, bool syncNotes)
         {
             TimerSwitch(false);
             SetLastSyncText("Resetting matches...");
@@ -880,8 +882,8 @@ namespace GoContactSyncMod
             SetSyncConsoleText("");
             Logger.Log("Reset Matches started  (" + _syncProfile + ").", EventType.Information);
 
-            _sync.SyncNotes = btSyncNotes.Checked;
-            _sync.SyncContacts = btSyncContacts.Checked;
+            _sync.SyncNotes = syncNotes;
+            _sync.SyncContacts = syncContacts;
 
             _sync.SyncContactsFolder = _syncContactsFolder;
             _sync.SyncNotesFolder = _syncNotesFolder;
