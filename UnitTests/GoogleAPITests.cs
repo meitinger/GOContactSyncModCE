@@ -77,16 +77,10 @@ namespace GoContactSyncMod.UnitTests
         [Test]
         public void CreateNewNote()
         {
-            string gmailUsername = "";
-            string gmailPassword = "";
-
-            Microsoft.Win32.RegistryKey regKeyAppRoot = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\Webgear\GOContactSync");
-            if (regKeyAppRoot.GetValue("Username") != null)
-            {
-                gmailUsername = regKeyAppRoot.GetValue("Username") as string;
-                if (regKeyAppRoot.GetValue("Password") != null)
-                    gmailPassword = Encryption.DecryptPassword(gmailUsername, regKeyAppRoot.GetValue("Password") as string);
-            }
+            string gmailUsername;
+            string gmailPassword;
+            string syncProfile;
+            GoogleAPITests.LoadSettings(out gmailUsername, out gmailPassword, out syncProfile);
 
             RequestSettings rs = new RequestSettings("GoogleContactSyncMod", gmailUsername, gmailPassword);
             DocumentsRequest service = new DocumentsRequest(rs);
