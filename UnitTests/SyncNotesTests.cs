@@ -202,9 +202,13 @@ namespace GoContactSyncMod.UnitTests
             //save Notes
             sync.SaveNote(match);
 
+            Document deletedNote = sync.LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+            Assert.IsNotNull(deletedNote);
+            AtomId deletedNoteAtomId = deletedNote.DocumentEntry.Id;
+            string deletedNoteId = deletedNote.Id;
+
             // delete google Note
-            //sync.DocumentsRequest.Delete(match.GoogleNote);    
-            DeleteTestNote(match.GoogleNote);
+            sync.DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag); 
 
             // sync
             sync.MatchNotes();
@@ -224,7 +228,13 @@ namespace GoContactSyncMod.UnitTests
             // check if outlook Note still exists
             Assert.IsNull(match);
 
-            DeleteTestNotes(match);    
+            deletedNote = sync.LoadGoogleNotes(deletedNoteAtomId);
+            Assert.IsNull(deletedNote);
+
+            Assert.IsFalse(File.Exists(NotePropertiesUtils.GetFileName(deletedNote.Id, sync.SyncProfile)));
+
+            DeleteTestNotes(match);
+                      
         }
 
        
@@ -356,12 +366,13 @@ namespace GoContactSyncMod.UnitTests
         {
             if (googleNote != null)
             {
-                sync.DocumentsRequest.Delete(googleNote);
+                sync.DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + googleNote.ResourceId), googleNote.ETag);
+                //sync.DocumentsRequest.Delete(googleNote);
 
-                //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
-                Document deletedNote = sync.LoadGoogleNotes(googleNote.DocumentEntry.Id);
-                if (deletedNote != null)
-                    sync.DocumentsRequest.Delete(deletedNote);
+                ////ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
+                //Document deletedNote = sync.LoadGoogleNotes(googleNote.DocumentEntry.Id);
+                //if (deletedNote != null)
+                //    sync.DocumentsRequest.Delete(deletedNote);
 
                 try
                 {//Delete also the according temporary NoteFile
