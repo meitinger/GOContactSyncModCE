@@ -37,7 +37,7 @@ namespace GoContactSyncMod.UnitTests
                 if (entry.PrimaryEmail != null && entry.PrimaryEmail.Address == "johndoe@example.com")
                 {
                     service.Delete(entry);
-                    break;
+                    //break;
                 }
             }
             #endregion
@@ -94,10 +94,11 @@ namespace GoContactSyncMod.UnitTests
 
             foreach (Document entry in feed.Entries)
             {
-                if (entry.Title == "OutlookTestNote")
+                if (entry.Title == "AN_OUTLOOK_TEST_NOTE")
                 {
-                    service.Delete(entry);
-                    break;
+                    //service.Delete(entry);
+                    service.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + entry.ResourceId), entry.ETag); 
+                    //break;
                 }
             }
             #endregion
@@ -130,7 +131,8 @@ namespace GoContactSyncMod.UnitTests
                     service.Delete(entry);
                     break;
                 }
-            }
+            }            
+
             #endregion
 
             #region workaround flow to use UploadDocument
@@ -138,7 +140,8 @@ namespace GoContactSyncMod.UnitTests
             
             Assert.IsNotNull(createdEntry2.Id.Uri);
 
-            service.Service.Delete(createdEntry2);
+            //service.Service.Delete(createdEntry2);
+            service.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + createdEntry2.ResourceId), createdEntry2.Etag); 
             #endregion
 
             System.IO.File.Delete(file);
