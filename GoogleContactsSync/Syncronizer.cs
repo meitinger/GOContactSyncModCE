@@ -1085,6 +1085,7 @@ namespace GoContactSyncMod
                         Outlook.NoteItem item = match.OutlookNote;
                         //try
                         //{
+                        string outlookNoteId = NotePropertiesUtils.GetOutlookGoogleNoteId(this, match.OutlookNote);
                             try
                             {
                                 //First reset OutlookGoogleContactId to restore it later from trash
@@ -1099,7 +1100,7 @@ namespace GoContactSyncMod
                             item.Delete();
                             try
                             { //Delete also the according temporary NoteFile
-                                File.Delete(NotePropertiesUtils.GetFileName(NotePropertiesUtils.GetOutlookGoogleNoteId(this,match.OutlookNote), _syncProfile));
+                                File.Delete(NotePropertiesUtils.GetFileName(outlookNoteId, _syncProfile));
                             }
                             catch (Exception)
                             { }

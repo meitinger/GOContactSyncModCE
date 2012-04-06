@@ -348,7 +348,9 @@ namespace GoContactSyncMod
             //        }
 
             //        if (!duplicateFound)
-            //            Logger.Log(string.Format("No match found for outlook note ({0})", olci.FileAs), EventType.Information);
+            if (match.GoogleNote == null)
+                Logger.Log(string.Format("No match found for outlook note ({0}) => {1}", match.OutlookNote.Subject, (NotePropertiesUtils.GetOutlookGoogleNoteId(sync, match.OutlookNote) != null ? "Delete from Outlook" : "Add to Google")), EventType.Information);
+            
             //    }
             //    else
             //    {
@@ -372,7 +374,7 @@ namespace GoContactSyncMod
 
 
 
-            //    }
+            //    }                
 
                 result.Add(match);
             }
@@ -407,6 +409,7 @@ namespace GoContactSyncMod
                 }
                 else
                 {
+                    Logger.Log(string.Format("No match found for google note ({0}) => {1}", entry.Title, (NotePropertiesUtils.NoteFileExists(entry.Id, sync.SyncProfile) ? "Delete from Google" : "Add to Outlook")), EventType.Information);
                     NoteMatch match = new NoteMatch(null, entry);
                     result.Add(match);
                 }

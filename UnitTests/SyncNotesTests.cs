@@ -207,6 +207,8 @@ namespace GoContactSyncMod.UnitTests
             AtomId deletedNoteAtomId = deletedNote.DocumentEntry.Id;
             string deletedNoteId = deletedNote.Id;
 
+            Assert.IsTrue(File.Exists(NotePropertiesUtils.GetFileName(deletedNoteId, sync.SyncProfile)));
+
             // delete google Note
             sync.DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag); 
 
@@ -231,7 +233,8 @@ namespace GoContactSyncMod.UnitTests
             deletedNote = sync.LoadGoogleNotes(deletedNoteAtomId);
             Assert.IsNull(deletedNote);
 
-            Assert.IsFalse(File.Exists(NotePropertiesUtils.GetFileName(deletedNote.Id, sync.SyncProfile)));
+            Assert.IsFalse(File.Exists(NotePropertiesUtils.GetFileName(deletedNoteId, sync.SyncProfile)));
+            Assert.IsFalse(File.Exists(NotePropertiesUtils.GetFileName(id, sync.SyncProfile)));
 
             DeleteTestNotes(match);
                       

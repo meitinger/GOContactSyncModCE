@@ -405,7 +405,7 @@ namespace GoContactSyncMod
                     }
 
                     if (!duplicateFound)
-                        Logger.Log(string.Format("No match found for outlook contact ({0})", olci.FileAs), EventType.Information);
+                        Logger.Log(string.Format("No match found for outlook contact ({0}) => {1}", olci.FileAs, (olci.UserProperties.GoogleContactId != null?"Delete from Outlook":"Add to Google")), EventType.Information);
                 }
                 else
                 {
@@ -475,6 +475,7 @@ namespace GoContactSyncMod
                 }
                 else
                 {
+                    Logger.Log(string.Format("No match found for google contact ({0}) => {1}", entry.Title, (!string.IsNullOrEmpty(googleOutlookId)? "Delete from Google" : "Add to Outlook")), EventType.Information);
 					ContactMatch match = new ContactMatch(null, entry);
 					result.Add(match);
 				}				
@@ -529,31 +530,8 @@ namespace GoContactSyncMod
 			{
                 ContactMatch match = sync.Contacts[i];
                 if (NotificationReceived != null)
-                {
-                    string name = string.Empty;
-                    if (match.OutlookContact != null)
-                    {
-                        name = match.OutlookContact.FileAs;
-                        if (string.IsNullOrEmpty(name))
-                            name = match.OutlookContact.FullName;
-                        if (string.IsNullOrEmpty(name))
-                            name = match.OutlookContact.Company;
-                        if (string.IsNullOrEmpty(name))
-                            name = match.OutlookContact.Email1Address;
-                    }
-                    else if (match.GoogleContact != null)
-                    {
-                        name = match.GoogleContact.Title;
-                        if (string.IsNullOrEmpty(name))
-                            name = match.GoogleContact.Name.FullName;
-                        if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
-                            name = match.GoogleContact.Organizations[0].Name;
-                        if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
-                            name = match.GoogleContact.Emails[0].Address;
-                    }
-                    
-                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, name));
-                }
+                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, match.Name));
+                
 
 				SyncContact(match, sync);
 			}
@@ -870,38 +848,38 @@ namespace GoContactSyncMod
     //    public List<ContactMatch>(int capacity) : base(capacity) { }
     //}
 
-	internal class ContactMatch
-	{
-		public OutlookContactInfo OutlookContact;
-		public Contact GoogleContact;
-		public readonly List<Contact> AllGoogleContactMatches = new List<Contact>(1);
-		public Contact LastGoogleContact;
+    internal class ContactMatch
+    {
+        public OutlookContactInfo OutlookContact;
+        public Contact GoogleContact;
+        public readonly List<Contact> AllGoogleContactMatches = new List<Contact>(1);
+        public Contact LastGoogleContact;
 
-		public ContactMatch(OutlookContactInfo outlookContact, Contact googleContact)
-		{
-			OutlookContact = outlookContact;
-			GoogleContact = googleContact;
-		}
+        public ContactMatch(OutlookContactInfo outlookContact, Contact googleContact)
+        {
+            OutlookContact = outlookContact;
+            GoogleContact = googleContact;
+        }
 
-		public void AddGoogleContact(Contact googleContact)
-		{
-			if (googleContact == null)
-				return;
-			//throw new ArgumentNullException("googleContact must not be null.");
+        public void AddGoogleContact(Contact googleContact)
+        {
+            if (googleContact == null)
+                return;
+            //throw new ArgumentNullException("googleContact must not be null.");
 
-			if (GoogleContact == null)
-				GoogleContact = googleContact;
+            if (GoogleContact == null)
+                GoogleContact = googleContact;
 
-			//this to avoid searching the entire collection. 
-			//if last contact it what we are trying to add the we have already added it earlier
-			if (LastGoogleContact == googleContact)
-				return;
+            //this to avoid searching the entire collection. 
+            //if last contact it what we are trying to add the we have already added it earlier
+            if (LastGoogleContact == googleContact)
+                return;
 
-			if (!AllGoogleContactMatches.Contains(googleContact))
-				AllGoogleContactMatches.Add(googleContact);
+            if (!AllGoogleContactMatches.Contains(googleContact))
+                AllGoogleContactMatches.Add(googleContact);
 
-			LastGoogleContact = googleContact;
-		}
+            LastGoogleContact = googleContact;
+        }
 
         //public void Delete(ContactsRequest googleService)
         //{
@@ -910,6 +888,46 @@ namespace GoContactSyncMod
         //    if (OutlookContact != null)
         //        OutlookContact.Delete();
         //}
-	}
+        public string Name
+        {
+            get
+            {
+                if (OutlookContact != null)
+                    return GetOutlookContactName(OutlookContact);
+                else if (GoogleContact != null)
+                    return GetGoogleContactName(GoogleContact);
+                else
+                    return string.Empty;
+            }
+        }
+
+        public static string GetOutlookContactName(OutlookContactInfo outlookContact)
+        {
+            string name = outlookContact.FileAs;
+            if (string.IsNullOrEmpty(name))
+                name = outlookContact.FullName;
+            if (string.IsNullOrEmpty(name))
+                name = outlookContact.Company;
+            if (string.IsNullOrEmpty(name))
+                name = outlookContact.Email1Address;
+
+            return name;
+        }
+
+        public static string GetGoogleContactName(Contact googleContact)
+        {
+            string name = googleContact.Title;
+            if (string.IsNullOrEmpty(name))
+                name = googleContact.Name.FullName;
+            if (string.IsNullOrEmpty(name) && googleContact.Organizations.Count > 0)
+                name = googleContact.Organizations[0].Name;
+            if (string.IsNullOrEmpty(name) && googleContact.Emails.Count > 0)
+                name = googleContact.Emails[0].Address;
+
+            return name;
+        }
+    }
+
+    
     		
 }

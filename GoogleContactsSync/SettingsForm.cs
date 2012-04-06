@@ -56,6 +56,7 @@ namespace GoContactSyncMod
 		public SettingsForm()
 		{
 			InitializeComponent();
+            Text = Text + " - " + Application.ProductVersion;
 			Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
             ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
             NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);

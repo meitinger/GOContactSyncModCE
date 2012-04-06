@@ -16,25 +16,16 @@ namespace GoContactSyncMod
         {
             _form = new ConflictResolverForm();
         }
-        public ConflictResolver(ConflictResolverForm form)
-        {
-            _form = form;
-        }
-
-
+        
 
         #region IConflictResolver Members
 
         public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.ContactItem outlookContact, Contact googleContact)
         {
-            string name = googleContact.Title;
-            if (string.IsNullOrEmpty(name))
-                name = googleContact.Name.FullName;
-            if (string.IsNullOrEmpty(name) && googleContact.Organizations.Count > 0)
-                name = googleContact.Organizations[0].Name;
-            if (string.IsNullOrEmpty(name) && googleContact.Emails.Count > 0)
-                name = googleContact.Emails[0].Address;
-
+            string name = String.Empty;
+            if (googleContact != null)
+                ContactMatch.GetGoogleContactName(googleContact);
+           
             _form.messageLabel.Text =
                 "Both the outlook contact and the google contact \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
