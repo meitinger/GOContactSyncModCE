@@ -84,7 +84,7 @@ namespace GoContactSyncMod
             _form.keepGoogle.Text = "Delete Outlook";
             _form.skip.Enabled = false;
 
-            return ResolveDeletedGoogleContact();
+            return ResolveDeletedGoogle();
         }
 
         public DeleteResolution Resolve(Contact googleContact)
@@ -104,7 +104,7 @@ namespace GoContactSyncMod
             _form.keepGoogle.Text = "Delete Google";
             _form.skip.Enabled = false;
 
-            return ResolveDeletedOutlookContact();
+            return ResolveDeletedOutlook();
         }
 
         
@@ -128,7 +128,7 @@ namespace GoContactSyncMod
             }
         }
 
-        private DeleteResolution ResolveDeletedOutlookContact()
+        private DeleteResolution ResolveDeletedOutlook()
         {
 
             switch (_form.ShowDialog())
@@ -144,7 +144,7 @@ namespace GoContactSyncMod
             }
         }
 
-        private DeleteResolution ResolveDeletedGoogleContact()
+        private DeleteResolution ResolveDeletedGoogle()
         {
 
             switch (_form.ShowDialog())
@@ -209,6 +209,41 @@ namespace GoContactSyncMod
             
 
             return Resolve();
+        }
+        public DeleteResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote)
+        {            
+
+            _form.Text = "Google note deleted";
+            _form.messageLabel.Text =
+                "Google note \"" + outlookNote.Subject +
+                "\" doesn't exist aynmore. Do you want to delete it also on Outlook side?";
+
+            _form.OutlookItemTextBox.Text = outlookNote.Body;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            
+            _form.keepOutlook.Text = "Keep Outlook";
+            _form.keepGoogle.Text = "Delete Outlook";
+            _form.skip.Enabled = false;
+
+            return ResolveDeletedGoogle();
+        }
+
+        public DeleteResolution Resolve(Document googleNote, Syncronizer sync)
+        {
+
+            _form.Text = "Outlook note deleted";
+            _form.messageLabel.Text =
+                "Outlook note \"" + googleNote.Title +
+                "\" doesn't exist aynmore. Do you want to delete it also on Google side?";
+
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = NotePropertiesUtils.GetBody(sync, googleNote);
+
+            _form.keepOutlook.Text = "Keep Google";
+            _form.keepGoogle.Text = "Delete Google";
+            _form.skip.Enabled = false;
+
+            return ResolveDeletedOutlook();
         }
 
         #endregion

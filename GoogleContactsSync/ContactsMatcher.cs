@@ -547,9 +547,7 @@ namespace GoContactSyncMod
                     //no google contact                               
                     string googleContactId = match.OutlookContact.UserProperties.GoogleContactId;
                     if (!string.IsNullOrEmpty(googleContactId))
-                    {
-                        //Avoid recreating a GoogleContact already existing
-                        //==> Delete this outlookContact instead if previous match existed but no match exists anymore
+                    {                        
                         //Redundant check if exist, but in case an error occurred in MatchContacts
                         Contact matchingGoogleContact = sync.GetGoogleContactById(googleContactId);
                         if (matchingGoogleContact == null)
@@ -571,7 +569,7 @@ namespace GoContactSyncMod
                                 case DeleteResolution.DeleteOutlook:
                                 case DeleteResolution.DeleteOutlookAlways:
                                     //Avoid recreating a GoogleContact already existing
-                                    //==> Delete this outlookContact instead if previous match existed but no match exists anymore                
+                                    //==> Delete this outlookContact instead if previous match existed but no match exists anymore
                                     return;
                                 default:
                                     throw new ApplicationException("Cancelled");

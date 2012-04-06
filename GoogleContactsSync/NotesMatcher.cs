@@ -450,13 +450,32 @@ namespace GoContactSyncMod
                     //no google note                               
                     string googleNotetId = NotePropertiesUtils.GetOutlookGoogleNoteId(sync, outlookNoteItem);
                     if (!string.IsNullOrEmpty(googleNotetId))
-                    {
-                        //Avoid recreating a GoogleNote already existing
-                        //==> Delete this outlookNote instead if previous match existed but no match exists anymore
+                    {                        
                         //Redundant check if exist, but in case an error occurred in MatchNotes
                         Document matchingGoogleNote = sync.GetGoogleNoteById(googleNotetId);
                         if (matchingGoogleNote == null)
-                            return;
+                            if (!sync.PromptDelete)
+                                sync.DeleteOutlookResolution = DeleteResolution.DeleteOutlookAlways;
+                            else if (sync.DeleteOutlookResolution != DeleteResolution.DeleteOutlookAlways &&
+                                     sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
+                            {
+                                ConflictResolver r = new ConflictResolver();
+                                sync.DeleteOutlookResolution = r.Resolve(match.OutlookNote);
+                            }
+                        switch (sync.DeleteOutlookResolution)
+                        {
+                            case DeleteResolution.KeepOutlook:
+                            case DeleteResolution.KeepOutlookAlways:
+                                NotePropertiesUtils.ResetOutlookGoogleNoteId(sync, match.OutlookNote);
+                                break;
+                            case DeleteResolution.DeleteOutlook:
+                            case DeleteResolution.DeleteOutlookAlways:
+                                //Avoid recreating a GoogleNote already existing
+                                //==> Delete this outlookNote instead if previous match existed but no match exists anymore
+                                return;
+                            default:
+                                throw new ApplicationException("Cancelled");
+                        }
                     }
 
                     if (sync.SyncOption == SyncOption.GoogleToOutlookOnly)
@@ -480,10 +499,29 @@ namespace GoContactSyncMod
 
                     // no outlook note
                     if (NotePropertiesUtils.NoteFileExists(match.GoogleNote.Id, sync.SyncProfile))
-                    {
-                        //Avoid recreating a OutlookNote already existing
-                        //==> Delete this googleNote instead if previous match existed but no match exists anymore                
-                        return;
+                    {                                       
+                        if (!sync.PromptDelete)
+                            sync.DeleteGoogleResolution = DeleteResolution.DeleteGoogleAlways;
+                        else if (sync.DeleteGoogleResolution != DeleteResolution.DeleteGoogleAlways &&
+                                 sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
+                        {
+                            ConflictResolver r = new ConflictResolver();
+                            sync.DeleteGoogleResolution = r.Resolve(match.GoogleNote, sync);
+                        }
+                        switch (sync.DeleteGoogleResolution)
+                        {
+                            case DeleteResolution.KeepGoogle:
+                            case DeleteResolution.KeepGoogleAlways:
+                                System.IO.File.Delete(NotePropertiesUtils.GetFileName(match.GoogleNote.Id, sync.SyncProfile));                                
+                                break;
+                            case DeleteResolution.DeleteGoogle:
+                            case DeleteResolution.DeleteGoogleAlways:
+                                //Avoid recreating a OutlookNote already existing
+                                //==> Delete this googleNote instead if previous match existed but no match exists anymore 
+                                return;
+                            default:
+                                throw new ApplicationException("Cancelled");
+                        }         
                     }
 
 
@@ -552,8 +590,6 @@ namespace GoContactSyncMod
                                     {
                                         case ConflictResolution.Skip:
                                             break;
-                                        case ConflictResolution.Cancel:
-                                            throw new ApplicationException("Canceled");
                                         case ConflictResolution.OutlookWins:
                                         case ConflictResolution.OutlookWinsAlways:
                                             sync.UpdateNote(outlookNoteItem, match.GoogleNote);
@@ -563,6 +599,7 @@ namespace GoContactSyncMod
                                             sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                                             break;
                                         default:
+                                            throw new ApplicationException("Canceled");
                                             break;
                                     }
                                     break;
@@ -638,8 +675,6 @@ namespace GoContactSyncMod
                                 {
                                     case ConflictResolution.Skip:
                                         break;
-                                    case ConflictResolution.Cancel:
-                                        throw new ApplicationException("Canceled");
                                     case ConflictResolution.OutlookWins:
                                     case ConflictResolution.OutlookWinsAlways:
                                         sync.UpdateNote(outlookNoteItem, match.GoogleNote);
@@ -649,6 +684,7 @@ namespace GoContactSyncMod
                                         sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                                         break;
                                     default:
+                                        throw new ApplicationException("Canceled");
                                         break;
                                 }
                                 break;
