@@ -55,6 +55,47 @@ namespace GoContactSyncMod
             return Resolve();
         }
 
+        public ConflictResolution Resolve(ContactMatch match, out Contact googleContact)
+        {
+            string name = match.ToString();
+
+            _form.messageLabel.Text =
+                     "There are mutliple Google Contacts matching unique properties for Outlook Contact \"" + name +
+                     "\". Please choose the Google Contact you would like to match with the Outlook Contact.";
+
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            if (match.OutlookContact != null)
+            {
+                Microsoft.Office.Interop.Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook();
+                try
+                {
+                    _form.OutlookItemTextBox.Text = ContactMatch.GetSummary(item);
+                }
+                finally
+                {
+                    if (item != null)
+                    {
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                        item = null;
+                    }
+                }
+
+            }
+
+            _form.GoogleComboBox.DataSource = match.AllGoogleContactMatches;
+
+            _form.GoogleComboBox.Visible = true;
+            _form.AllCheckBox.Visible = false;
+            
+
+            ConflictResolution res = Resolve();
+            googleContact = _form.GoogleComboBox.SelectedItem as Contact;
+
+            return res;
+
+        }
+
         public DeleteResolution Resolve(OutlookContactInfo outlookContact)
         {
             string name = ContactMatch.GetName(outlookContact);

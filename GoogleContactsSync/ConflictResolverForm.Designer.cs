@@ -39,6 +39,7 @@ namespace GoContactSyncMod
             this.GoogleItemTextBox = new System.Windows.Forms.TextBox();
             this.GoogleItemLabel = new System.Windows.Forms.Label();
             this.AllCheckBox = new System.Windows.Forms.CheckBox();
+            this.GoogleComboBox = new System.Windows.Forms.ComboBox();
             this.SplitContainer.Panel1.SuspendLayout();
             this.SplitContainer.Panel2.SuspendLayout();
             this.SplitContainer.SuspendLayout();
@@ -168,12 +169,25 @@ namespace GoContactSyncMod
             this.AllCheckBox.Text = "For all following items";
             this.AllCheckBox.UseVisualStyleBackColor = true;
             // 
+            // GoogleComboBox
+            // 
+            this.GoogleComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.GoogleComboBox.FormattingEnabled = true;
+            this.GoogleComboBox.Location = new System.Drawing.Point(225, 293);
+            this.GoogleComboBox.Name = "GoogleComboBox";
+            this.GoogleComboBox.Size = new System.Drawing.Size(200, 21);
+            this.GoogleComboBox.TabIndex = 7;
+            this.GoogleComboBox.Visible = false;
+            this.GoogleComboBox.SelectedIndexChanged += new System.EventHandler(this.GoogleComboBox_SelectedIndexChanged);
+            // 
             // ConflictResolverForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancel;
             this.ClientSize = new System.Drawing.Size(434, 355);
+            this.Controls.Add(this.GoogleComboBox);
             this.Controls.Add(this.AllCheckBox);
             this.Controls.Add(this.SplitContainer);
             this.Controls.Add(this.skip);
@@ -212,5 +226,6 @@ namespace GoContactSyncMod
         public System.Windows.Forms.TextBox GoogleItemTextBox;
         private System.Windows.Forms.Label GoogleItemLabel;
         public System.Windows.Forms.CheckBox AllCheckBox;
+        public System.Windows.Forms.ComboBox GoogleComboBox;
     }
 }

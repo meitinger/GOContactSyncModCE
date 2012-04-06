@@ -149,8 +149,21 @@ namespace GoContactSyncMod
                                 {
                                     if (!string.IsNullOrEmpty(googleContactId))
                                     {
-                                        Logger.Log("Duplicate Outlook contact found, resetting match and try to match again: " + duplicate.FileAs, EventType.Warning);
-                                        idProp.Value = "";
+                                        Logger.Log("Duplicate Outlook contact found, resetting match and trying to match again: " + duplicate.FileAs, EventType.Warning);
+                                        Outlook.ContactItem item = duplicate.GetOriginalItemFromOutlook();
+                                        try
+                                        {
+                                            ContactPropertiesUtils.ResetOutlookGoogleContactId(sync, item);
+                                            item.Save();
+                                        }
+                                        finally
+                                        {
+                                            if (item != null)
+                                            {
+                                                Marshal.ReleaseComObject(item);
+                                                item = null;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -173,24 +186,8 @@ namespace GoContactSyncMod
                                     sync.GoogleContacts.Remove(foundContact);
                                 }
                                 else
-                                {
-                                    ////If no match found, is the contact either deleted on Google side or was a copy on Outlook side 
-                                    ////If it is a copy on Outlook side, the idProp.Value must be emptied to assure, the contact is created on Google side and not deleted on Outlook side
-                                    ////bool matchIsDuplicate = false;
-                                    //foreach (ContactMatch existingMatch in result)
-                                    //{
-                                    //    if (existingMatch.OutlookContact.UserProperties[sync.OutlookPropertyNameId].Value.Equals(idProp.Value))
-                                    //    {
-                                    //        //matchIsDuplicate = true;
-                                    //        idProp.Value = "";
-                                    //        break;
-                                    //    }
-
-                                    //}
+                                {                                    
                                     outlookContactsWithoutOutlookGoogleId.Add(olci);
-
-                                    //if (!matchIsDuplicate)
-                                    //    result.Add(match);
                                 }
                             }
                         }
@@ -394,6 +391,7 @@ namespace GoContactSyncMod
                            )
                         {
                             duplicateFound = true;
+                            duplicate.AddOutlookContact(olci);
                             sync.OutlookContactDuplicates.Add(match);
                             if (string.IsNullOrEmpty(duplicateOutlookContacts))
                                 duplicateOutlookContacts = "Outlook contact found that has been already identified as duplicate Google contact (either same email, Mobile or FullName) and cannot be synchronized. Please delete or resolve duplicates of:";
@@ -401,6 +399,8 @@ namespace GoContactSyncMod
                             string str = olci.FileAs + " (" + olci.Email1Address + ", " + olci.MobileTelephoneNumber + ")";
                             if (!duplicateOutlookContacts.Contains(str))
                                 duplicateOutlookContacts += Environment.NewLine + str;
+                            
+                            break;
                         }
                     }
 
@@ -687,6 +687,8 @@ namespace GoContactSyncMod
                                     switch (sync.ConflictResolution)
                                     {
                                         case ConflictResolution.Skip:
+                                            Logger.Log(string.Format("User skipped contact ({0}).", match.ToString()), EventType.Information);
+                                            sync.SkippedCount++;
                                             break;
                                         case ConflictResolution.OutlookWins:
                                         case ConflictResolution.OutlookWinsAlways:
@@ -772,6 +774,8 @@ namespace GoContactSyncMod
                                 switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
+                                        Logger.Log(string.Format("User skipped contact ({0}).", match.ToString()), EventType.Information);
+                                        sync.SkippedCount++;
                                         break;
                                     case ConflictResolution.OutlookWins:
                                     case ConflictResolution.OutlookWinsAlways:
@@ -783,7 +787,6 @@ namespace GoContactSyncMod
                                         break;
                                     default:
                                         throw new ApplicationException("Cancelled");
-                                        break;
                                 }
                                 break;
                         }
@@ -890,13 +893,14 @@ namespace GoContactSyncMod
     {
         public OutlookContactInfo OutlookContact;
         public Contact GoogleContact;
-        public readonly List<Contact> AllGoogleContactMatches = new List<Contact>(1);
-        public Contact LastGoogleContact;
+        public readonly List<Contact> AllGoogleContactMatches = new List<Contact>();
+        public readonly List<OutlookContactInfo> AllOutlookContactMatches = new List<OutlookContactInfo>();
+        //public Contact LastGoogleContact;
 
         public ContactMatch(OutlookContactInfo outlookContact, Contact googleContact)
         {
-            OutlookContact = outlookContact;
-            GoogleContact = googleContact;
+            AddOutlookContact(outlookContact);
+            AddGoogleContact(googleContact);
         }
 
         public void AddGoogleContact(Contact googleContact)
@@ -910,13 +914,33 @@ namespace GoContactSyncMod
 
             //this to avoid searching the entire collection. 
             //if last contact it what we are trying to add the we have already added it earlier
-            if (LastGoogleContact == googleContact)
-                return;
+            //if (LastGoogleContact == googleContact)
+            //    return;
 
             if (!AllGoogleContactMatches.Contains(googleContact))
                 AllGoogleContactMatches.Add(googleContact);
 
-            LastGoogleContact = googleContact;
+            //LastGoogleContact = googleContact;
+        }
+
+        public void AddOutlookContact(OutlookContactInfo outlookContact)
+        {
+            if (outlookContact == null)
+                return;
+            //throw new ArgumentNullException("outlookContact must not be null.");
+
+            if (OutlookContact == null)
+                OutlookContact = outlookContact;
+
+            //this to avoid searching the entire collection. 
+            //if last contact it what we are trying to add the we have already added it earlier
+            //if (LastGoogleContact == googleContact)
+            //    return;
+
+            if (!AllOutlookContactMatches.Contains(outlookContact))
+                AllOutlookContactMatches.Add(outlookContact);
+
+            //LastGoogleContact = googleContact;
         }
 
         

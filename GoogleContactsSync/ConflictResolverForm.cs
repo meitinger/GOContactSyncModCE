@@ -15,5 +15,11 @@ namespace GoContactSyncMod
         {
             InitializeComponent();
         }
+
+        private void GoogleComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (GoogleComboBox.SelectedItem != null)
+                GoogleItemTextBox.Text = ContactMatch.GetSummary((Google.Contacts.Contact)GoogleComboBox.SelectedItem);
+        }
     }
 }
