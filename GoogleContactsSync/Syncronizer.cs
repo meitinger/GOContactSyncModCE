@@ -69,6 +69,20 @@ namespace GoContactSyncMod
             get { return _conflictResolution; }
         }
 
+        private DeleteResolution _deleteGoogleResolution = DeleteResolution.Cancel;
+        public DeleteResolution DeleteGoogleResolution
+        {
+            set { _deleteGoogleResolution = value; }
+            get { return _deleteGoogleResolution; }
+        }
+
+        private DeleteResolution _deleteOutlookResolution = DeleteResolution.Cancel;
+        public DeleteResolution DeleteOutlookResolution
+        {
+            set { _deleteOutlookResolution = value; }
+            get { return _deleteOutlookResolution; }
+        }
+
 
 		public delegate void DuplicatesFoundHandler(string title, string message);
 		public delegate void ErrorNotificationHandler(string title, Exception ex, EventType eventType);
@@ -234,6 +248,13 @@ namespace GoContactSyncMod
 			get { return _syncDelete; }
 			set { _syncDelete = value; }
 		}
+
+        private bool _promptDelete;       
+        public bool PromptDelete
+        {
+            get { return _promptDelete; }
+            set { _promptDelete = value; }
+        }
 
         private bool _syncNotes;
         /// <summary>
@@ -963,7 +984,7 @@ namespace GoContactSyncMod
                     else
                     {
                         // peer google contact was deleted, delete outlook contact
-                        Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook(this);
+                        Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook();
                         try
                         {
                             try
@@ -992,24 +1013,17 @@ namespace GoContactSyncMod
             else if (match.GoogleContact != null && match.OutlookContact == null)
 			{
 				if (ContactPropertiesUtils.GetGoogleOutlookContactId(SyncProfile, match.GoogleContact) != null)
-				{
-                    string name = match.GoogleContact.Title;
-                    if (string.IsNullOrEmpty(name))
-                        name = match.GoogleContact.Name.FullName;
-                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Organizations.Count > 0)
-                        name = match.GoogleContact.Organizations[0].Name;
-                    if (string.IsNullOrEmpty(name) && match.GoogleContact.Emails.Count > 0)
-                        name = match.GoogleContact.Emails[0].Address;
+				{                    
 
                     if (_syncOption == SyncOption.GoogleToOutlookOnly)
                     {
                         _skippedCount++;
-                        Logger.Log("Skipped Deletion of Google contact because of SyncOption " + _syncOption + ":" + name + ".", EventType.Information);
+                        Logger.Log("Skipped Deletion of Google contact because of SyncOption " + _syncOption + ":" + ContactMatch.GetName(match.GoogleContact) + ".", EventType.Information);
                     }
                     else if (!_syncDelete)
                     {
                         _skippedCount++;
-                        Logger.Log("Skipped Deletion of Google contact because SyncDeletion is switched off :" + name + ".", EventType.Information);
+                        Logger.Log("Skipped Deletion of Google contact because SyncDeletion is switched off :" + ContactMatch.GetName(match.GoogleContact) + ".", EventType.Information);
                     }
                     else
                     {
@@ -1021,12 +1035,12 @@ namespace GoContactSyncMod
                         }
                         catch (Exception)
                         {
-                            Logger.Log("Error resetting match for Google contact: \"" + name + "\".", EventType.Warning);
+                            Logger.Log("Error resetting match for Google contact: \"" + ContactMatch.GetName(match.GoogleContact) + "\".", EventType.Warning);
                         }
 
                         _contactsRequest.Delete(match.GoogleContact);
                         _deletedCount++;
-                        Logger.Log("Deleted Google contact: \"" + name + "\".", EventType.Information);
+                        Logger.Log("Deleted Google contact: \"" + ContactMatch.GetName(match.GoogleContact) + "\".", EventType.Information);
                     }
 				}
 			}
@@ -1205,7 +1219,7 @@ namespace GoContactSyncMod
 		}
 		public void SaveGoogleContact(ContactMatch match)
 		{
-            Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook(this);
+            Outlook.ContactItem outlookContactItem = match.OutlookContact.GetOriginalItemFromOutlook();
             try
             {
                 ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, match.GoogleContact, outlookContactItem);
@@ -1782,16 +1796,8 @@ namespace GoContactSyncMod
                                 ResetMatch(googleContact);
                         }
                         catch (Exception ex)
-                        {
-                            string name =googleContact.Title;
-                            if (string.IsNullOrEmpty(name))
-                                name = googleContact.Name.FullName;
-                            if (string.IsNullOrEmpty(name) && googleContact.Organizations.Count > 0)
-                                name = googleContact.Organizations[0].Name;
-                            if (string.IsNullOrEmpty(name) && googleContact.Emails.Count > 0)
-                                name = googleContact.Emails[0].Address;
-
-                            Logger.Log("The match of Google contact " + name + " couldn't be reset: " + ex.Message, EventType.Warning);
+                        {                           
+                            Logger.Log("The match of Google contact " + ContactMatch.GetName(googleContact) + " couldn't be reset: " + ex.Message, EventType.Warning);
                         }
 				    }
 

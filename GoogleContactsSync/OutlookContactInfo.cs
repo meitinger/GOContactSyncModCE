@@ -72,7 +72,7 @@ namespace GoContactSyncMod
             Marshal.ReleaseComObject(userProperties);
         }
 
-        internal ContactItem GetOriginalItemFromOutlook(Syncronizer sync)
+        internal ContactItem GetOriginalItemFromOutlook()
         {
             if (this.EntryID == null)
                 throw new ApplicationException("OutlookContactInfo cannot re-create the ContactItem from Outlook because EntryID is null, suggesting that this OutlookContactInfo was not created from an existing Outook contact.");

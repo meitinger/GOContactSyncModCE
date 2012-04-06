@@ -201,11 +201,11 @@ namespace GoContactSyncMod
 
         #endregion
 
-        private System.Windows.Forms.Button keepOutlook;
-        private System.Windows.Forms.Button keepGoogle;
+        public System.Windows.Forms.Button keepOutlook;
+        public System.Windows.Forms.Button keepGoogle;
         private System.Windows.Forms.Button cancel;
         public System.Windows.Forms.Label messageLabel;
-        private System.Windows.Forms.Button skip;
+        public System.Windows.Forms.Button skip;
         public System.Windows.Forms.TextBox OutlookItemTextBox;
         private System.Windows.Forms.SplitContainer SplitContainer;
         private System.Windows.Forms.Label OutlookItemLabel;

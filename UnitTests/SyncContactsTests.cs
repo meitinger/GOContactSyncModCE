@@ -1056,7 +1056,7 @@ namespace GoContactSyncMod.UnitTests
 
             // reset matches
             //Not, because null: sync.ResetMatch(match.GoogleContact);
-            sync.ResetMatch(match.OutlookContact.GetOriginalItemFromOutlook(sync));
+            sync.ResetMatch(match.OutlookContact.GetOriginalItemFromOutlook());
 
             // load same contact match
             sync.MatchContacts();
@@ -1100,7 +1100,7 @@ namespace GoContactSyncMod.UnitTests
         private void DeleteTestContact(OutlookContactInfo outlookContact)
         {
             if (outlookContact != null)
-                DeleteTestContact(outlookContact.GetOriginalItemFromOutlook(sync));             
+                DeleteTestContact(outlookContact.GetOriginalItemFromOutlook());             
         }
 
         private void DeleteTestContact(Contact googleContact)

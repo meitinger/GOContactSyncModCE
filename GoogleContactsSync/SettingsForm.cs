@@ -193,7 +193,7 @@ namespace GoContactSyncMod
         {
             SetSyncOption(0);
             UserName.Text = Password.Text = "";
-            autoSyncCheckBox.Checked = runAtStartupCheckBox.Checked = reportSyncResultCheckBox.Checked = btSyncDelete.Checked = false;
+            autoSyncCheckBox.Checked = runAtStartupCheckBox.Checked = reportSyncResultCheckBox.Checked = false;
             autoSyncInterval.Value = 120;
             _proxy.ClearSettings();
         }
@@ -249,9 +249,11 @@ namespace GoContactSyncMod
             if (regKeyAppRoot.GetValue("AutoStart") != null)
                 runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
             if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
-                reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));
+                reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));            
             if (regKeyAppRoot.GetValue("SyncDeletion") != null)
                 btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
+            if (regKeyAppRoot.GetValue("PromptDeletion") != null)
+                btPromptDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("PromptDeletion"));        
             if (regKeyAppRoot.GetValue("SyncNotes") != null)
                 btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
             if (regKeyAppRoot.GetValue("SyncContacts") != null)
@@ -292,6 +294,7 @@ namespace GoContactSyncMod
                 regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
                 regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
                 regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
+                regKeyAppRoot.SetValue("PromptDeletion", btPromptDelete.Checked);
                 regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
                 regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
 
@@ -398,6 +401,7 @@ namespace GoContactSyncMod
 
                 _sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
+                _sync.PromptDelete = btPromptDelete.Checked && btSyncDelete.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
                 _sync.SyncContacts = btSyncContacts.Checked;
 
@@ -1146,6 +1150,12 @@ namespace GoContactSyncMod
             ValidateSyncButton();
 
             
+        }
+
+        private void btSyncDelete_CheckedChanged(object sender, EventArgs e)
+        {
+            btPromptDelete.Visible = btSyncDelete.Checked;
+            btPromptDelete.Checked = btSyncDelete.Checked;
         }        
 
 	}

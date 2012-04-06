@@ -20,87 +20,94 @@ namespace GoContactSyncMod
 
         #region IConflictResolver Members
 
-        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.ContactItem outlookContact, Contact googleContact)
+        public ConflictResolution Resolve(ContactMatch match)
         {
-            string name = String.Empty;
-            if (googleContact != null)
-                ContactMatch.GetGoogleContactName(googleContact);
-           
-            _form.messageLabel.Text =
-                "Both the outlook contact and the google contact \"" + name +
-                "\" have been changed. Choose which you would like to keep.";
+            string name = match.ToString();
+
+           _form.messageLabel.Text =
+                    "Both the outlook contact and the google contact \"" + name +
+                    "\" have been changed. Choose which you would like to keep.";
             
-            _form.OutlookItemTextBox.Text = "Name: " + outlookContact.FileAs + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.Email1Address))
-                _form.OutlookItemTextBox.Text += "Email1: " + outlookContact.Email1Address + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.Email2Address))
-                _form.OutlookItemTextBox.Text += "Email2: " + outlookContact.Email2Address + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.Email3Address))
-                _form.OutlookItemTextBox.Text += "Email3: " + outlookContact.Email3Address + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.MobileTelephoneNumber))
-                _form.OutlookItemTextBox.Text += "MobilePhone: " + outlookContact.MobileTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.HomeTelephoneNumber))
-                _form.OutlookItemTextBox.Text += "HomePhone: " + outlookContact.HomeTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.Home2TelephoneNumber))
-                _form.OutlookItemTextBox.Text += "HomePhone2: " + outlookContact.HomeTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.BusinessTelephoneNumber))
-               _form.OutlookItemTextBox.Text += "BusinessPhone: " + outlookContact.BusinessTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.Business2TelephoneNumber))
-               _form.OutlookItemTextBox.Text += "BusinessPhone2: " + outlookContact.BusinessTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.OtherTelephoneNumber))                
-                _form.OutlookItemTextBox.Text += "OtherPhone: " + outlookContact.OtherTelephoneNumber + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.HomeAddress))
-                _form.OutlookItemTextBox.Text += "HomeAddress: " + outlookContact.HomeAddress + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.BusinessAddress))
-                _form.OutlookItemTextBox.Text += "BusinessAddress: " + outlookContact.BusinessAddress + "\r\n";
-            if (!string.IsNullOrEmpty(outlookContact.OtherAddress))
-                _form.OutlookItemTextBox.Text += "OtherAddress: " + outlookContact.OtherAddress + "\r\n";
-
-            _form.GoogleItemTextBox.Text = "Name: " + googleContact.Name.FullName + "\r\n";
-            for (int i = 0; i < googleContact.Emails.Count; i++)
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            if (match.OutlookContact != null)
             {
-                string email = googleContact.Emails[i].Address;
-                if (!string.IsNullOrEmpty(email))
+                Microsoft.Office.Interop.Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook();
+                try
                 {
-                    _form.GoogleItemTextBox.Text += "Email" + (i+1) + ": " + email + "\r\n";
+                    _form.OutlookItemTextBox.Text = ContactMatch.GetSummary(item);
                 }
-            }
-            foreach (PhoneNumber phone in googleContact.Phonenumbers)
-            {
-                if (!string.IsNullOrEmpty(phone.Value))
+                finally
                 {
-                    if (phone.Rel == ContactsRelationships.IsMobile)
-                        _form.GoogleItemTextBox.Text += "MobilePhone: ";
-                    if (phone.Rel == ContactsRelationships.IsHome)
-                        _form.GoogleItemTextBox.Text += "HomePhone: ";
-                    if (phone.Rel == ContactsRelationships.IsWork)
-                        _form.GoogleItemTextBox.Text += "BusinessPhone: ";
-                    if (phone.Rel == ContactsRelationships.IsOther)
-                        _form.GoogleItemTextBox.Text += "OtherPhone: ";
-
-                    _form.GoogleItemTextBox.Text += phone.Value + "\r\n";
+                    if (item != null)
+                    {
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                        item = null;
+                    }
                 }
 
-                
             }
 
-            foreach (StructuredPostalAddress address in googleContact.PostalAddresses)
-            {
-                if (!string.IsNullOrEmpty(address.FormattedAddress))
-                {
-                    if (address.Rel == ContactsRelationships.IsHome)
-                        _form.GoogleItemTextBox.Text += "HomeAddress: ";
-                    if (address.Rel == ContactsRelationships.IsWork)
-                        _form.GoogleItemTextBox.Text += "BusinessAddress: ";
-                    if (address.Rel == ContactsRelationships.IsOther)
-                        _form.GoogleItemTextBox.Text += "OtherAddress: ";   
-
-                     _form.GoogleItemTextBox.Text += address.FormattedAddress + "\r\n";
-                }
-            }
+            if (match.GoogleContact != null)
+                _form.GoogleItemTextBox.Text = ContactMatch.GetSummary(match.GoogleContact);
+           
 
             return Resolve();
         }
+
+        public DeleteResolution Resolve(OutlookContactInfo outlookContact)
+        {
+            string name = ContactMatch.GetName(outlookContact);
+
+            _form.Text = "Google contact deleted";
+            _form.messageLabel.Text =
+                "Google contact \"" + name +
+                "\" doesn't exist aynmore. Do you want to delete it also on Outlook side?";            
+
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            Microsoft.Office.Interop.Outlook.ContactItem item = outlookContact.GetOriginalItemFromOutlook();
+            try
+            {
+                _form.OutlookItemTextBox.Text = ContactMatch.GetSummary(item);
+            }
+            finally
+            {
+                if (item != null)
+                {
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                    item = null;
+                }
+            }       
+            
+            _form.keepOutlook.Text = "Keep Outlook";
+            _form.keepGoogle.Text = "Delete Outlook";
+            _form.skip.Enabled = false;
+
+            return ResolveDeletedGoogleContact();
+        }
+
+        public DeleteResolution Resolve(Contact googleContact)
+        {
+            string name = ContactMatch.GetName(googleContact);
+
+            _form.Text = "Outlook contact deleted";
+            _form.messageLabel.Text =
+                "Outlook contact \"" + name +
+                "\" doesn't exist aynmore. Do you want to delete it also on Google side?";                       
+
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = ContactMatch.GetSummary(googleContact);
+
+            _form.keepOutlook.Text = "Keep Google";
+            _form.keepGoogle.Text = "Delete Google";
+            _form.skip.Enabled = false;
+
+            return ResolveDeletedOutlookContact();
+        }
+
+        
 
         private ConflictResolution Resolve()
         {
@@ -110,9 +117,6 @@ namespace GoContactSyncMod
                 case System.Windows.Forms.DialogResult.Ignore:
                     // skip
                     return _form.AllCheckBox.Checked ? ConflictResolution.SkipAlways : ConflictResolution.Skip;
-                case System.Windows.Forms.DialogResult.Cancel:
-                    // cancel
-                    return ConflictResolution.Cancel;
                 case System.Windows.Forms.DialogResult.No:
                     // google wins
                     return _form.AllCheckBox.Checked ? ConflictResolution.GoogleWinsAlways : ConflictResolution.GoogleWins;
@@ -120,7 +124,39 @@ namespace GoContactSyncMod
                     // outlook wins
                     return _form.AllCheckBox.Checked ? ConflictResolution.OutlookWinsAlways : ConflictResolution.OutlookWins;
                 default:
-                    throw new Exception();
+                    return ConflictResolution.Cancel;
+            }
+        }
+
+        private DeleteResolution ResolveDeletedOutlookContact()
+        {
+
+            switch (_form.ShowDialog())
+            {              
+                case System.Windows.Forms.DialogResult.No:
+                    // google wins
+                    return _form.AllCheckBox.Checked ? DeleteResolution.DeleteGoogleAlways : DeleteResolution.DeleteGoogle;
+                case System.Windows.Forms.DialogResult.Yes:
+                    // outlook wins
+                    return _form.AllCheckBox.Checked ? DeleteResolution.KeepGoogleAlways : DeleteResolution.KeepGoogle;
+                default:
+                    return DeleteResolution.Cancel;
+            }
+        }
+
+        private DeleteResolution ResolveDeletedGoogleContact()
+        {
+
+            switch (_form.ShowDialog())
+            {               
+                case System.Windows.Forms.DialogResult.No:
+                    // google wins
+                    return _form.AllCheckBox.Checked ? DeleteResolution.DeleteOutlookAlways : DeleteResolution.DeleteOutlook;
+                case System.Windows.Forms.DialogResult.Yes:
+                    // outlook wins
+                    return _form.AllCheckBox.Checked ? DeleteResolution.KeepOutlookAlways : DeleteResolution.KeepOutlook;
+                default:
+                    return DeleteResolution.Cancel;
             }
         }
 
@@ -149,14 +185,28 @@ namespace GoContactSyncMod
 
         public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote, Syncronizer sync)
         {
-            string name = googleNote.Title;
+            string name = string.Empty;
+
+            _form.OutlookItemTextBox.Text = string.Empty;
+            _form.GoogleItemTextBox.Text = string.Empty;
+            if (outlookNote != null)
+            {
+                name = outlookNote.Subject;
+                _form.OutlookItemTextBox.Text = outlookNote.Body;
+            }
+
+            if (googleNote != null)
+            {
+                name = googleNote.Title;
+                _form.GoogleItemTextBox.Text = NotePropertiesUtils.GetBody(sync, googleNote);
+            }
             
             _form.messageLabel.Text =
                 "Both the outlook note and the google note \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
 
-            _form.OutlookItemTextBox.Text = outlookNote.Body;
-            _form.GoogleItemTextBox.Text = NotePropertiesUtils.GetBody(sync, googleNote);
+           
+            
 
             return Resolve();
         }

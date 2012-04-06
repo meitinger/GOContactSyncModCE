@@ -17,7 +17,11 @@ namespace GoContactSyncMod
         /// <param name="outlookContact"></param>
         /// <param name="googleContact"></param>
         /// <returns>Returns ConflictResolution (enum)</returns>
-        ConflictResolution Resolve(Outlook.ContactItem outlookContact, Contact googleContact);
+        ConflictResolution Resolve(ContactMatch match);
+
+        DeleteResolution Resolve(OutlookContactInfo outlookContact);
+
+        DeleteResolution Resolve(Contact googleContact);
     }
 
     internal enum ConflictResolution
@@ -33,7 +37,6 @@ namespace GoContactSyncMod
 
     internal enum DeleteResolution
     {
-        Skip,
         Cancel,
         DeleteOutlook,
         DeleteGoogle,
@@ -42,7 +45,6 @@ namespace GoContactSyncMod
         DeleteOutlookAlways,
         DeleteGoogleAlways,
         KeepOutlookAlways,
-        KeepGoogleAlways,
-        SkipAlways
-    }
+        KeepGoogleAlways
+    }    
 }

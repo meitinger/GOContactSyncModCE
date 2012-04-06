@@ -530,7 +530,7 @@ namespace GoContactSyncMod
 			{
                 ContactMatch match = sync.Contacts[i];
                 if (NotificationReceived != null)
-                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, match.Name));
+                    NotificationReceived(String.Format("Syncing contact {0} of {1}: {2} ...", i + 1, sync.Contacts.Count, match.ToString()));
                 
 
 				SyncContact(match, sync);
@@ -538,7 +538,7 @@ namespace GoContactSyncMod
 		}
 		public static void SyncContact(ContactMatch match, Syncronizer sync)
 		{
-            Outlook.ContactItem outlookContactItem = match.OutlookContact != null ? match.OutlookContact.GetOriginalItemFromOutlook(sync) : null;
+            Outlook.ContactItem outlookContactItem = match.OutlookContact != null ? match.OutlookContact.GetOriginalItemFromOutlook() : null;
             
             try
             {
@@ -553,7 +553,30 @@ namespace GoContactSyncMod
                         //Redundant check if exist, but in case an error occurred in MatchContacts
                         Contact matchingGoogleContact = sync.GetGoogleContactById(googleContactId);
                         if (matchingGoogleContact == null)
-                            return;
+                        {
+                            if (!sync.PromptDelete)
+                                 sync.DeleteOutlookResolution = DeleteResolution.DeleteOutlookAlways;
+                            else if (sync.DeleteOutlookResolution != DeleteResolution.DeleteOutlookAlways &&
+                                     sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
+                            {
+                                ConflictResolver r = new ConflictResolver();
+                                sync.DeleteOutlookResolution = r.Resolve(match.OutlookContact);
+                            }
+                            switch (sync.DeleteOutlookResolution)
+                            {
+                                case DeleteResolution.KeepOutlook:
+                                case DeleteResolution.KeepOutlookAlways:
+                                    ContactPropertiesUtils.ResetOutlookGoogleContactId(sync, outlookContactItem);
+                                    break;
+                                case DeleteResolution.DeleteOutlook:
+                                case DeleteResolution.DeleteOutlookAlways:
+                                    //Avoid recreating a GoogleContact already existing
+                                    //==> Delete this outlookContact instead if previous match existed but no match exists anymore                
+                                    return;
+                                default:
+                                    throw new ApplicationException("Cancelled");
+                            }
+                        }
                     }
 
                     if (sync.SyncOption == SyncOption.GoogleToOutlookOnly)
@@ -576,9 +599,28 @@ namespace GoContactSyncMod
                     string outlookId = ContactPropertiesUtils.GetGoogleOutlookContactId(sync.SyncProfile, match.GoogleContact);
                     if (outlookId != null)
                     {
-                        //Avoid recreating a OutlookContact already existing
-                        //==> Delete this googleContact instead if previous match existed but no match exists anymore                
-                        return;
+                        if (!sync.PromptDelete)
+                            sync.DeleteGoogleResolution = DeleteResolution.DeleteGoogleAlways;
+                        else if (sync.DeleteGoogleResolution != DeleteResolution.DeleteGoogleAlways &&
+                                 sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
+                        {
+                            ConflictResolver r = new ConflictResolver();
+                            sync.DeleteGoogleResolution = r.Resolve(match.GoogleContact);
+                        }
+                        switch (sync.DeleteGoogleResolution)
+                        {                           
+                            case DeleteResolution.KeepGoogle:
+                            case DeleteResolution.KeepGoogleAlways:
+                                ContactPropertiesUtils.ResetGoogleOutlookContactId(sync.SyncProfile, match.GoogleContact);
+                                break;
+                            case DeleteResolution.DeleteGoogle:
+                            case DeleteResolution.DeleteGoogleAlways:
+                                //Avoid recreating a OutlookContact already existing
+                                //==> Delete this googleContact instead if previous match existed but no match exists anymore                
+                                return;
+                            default:
+                                throw new ApplicationException("Cancelled");
+                        }                        
 
                     }
 
@@ -642,14 +684,12 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
                                         ConflictResolver r = new ConflictResolver();
-                                        sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);
+                                        sync.ConflictResolution = r.Resolve(match);
                                     }
                                     switch (sync.ConflictResolution)
                                     {
                                         case ConflictResolution.Skip:
                                             break;
-                                        case ConflictResolution.Cancel:
-                                            throw new ApplicationException("Cancelled");
                                         case ConflictResolution.OutlookWins:
                                         case ConflictResolution.OutlookWinsAlways:
                                             sync.UpdateContact(outlookContactItem, match.GoogleContact);
@@ -659,6 +699,7 @@ namespace GoContactSyncMod
                                             sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                             break;
                                         default:
+                                            throw new ApplicationException("Cancelled");
                                             break;
                                     }
                                     break;
@@ -728,14 +769,12 @@ namespace GoContactSyncMod
                                     sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
                                     ConflictResolver r = new ConflictResolver();
-                                    sync.ConflictResolution = r.Resolve(outlookContactItem, match.GoogleContact);
+                                    sync.ConflictResolution = r.Resolve(match);
                                 }
                                 switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
                                         break;
-                                    case ConflictResolution.Cancel:
-                                        throw new ApplicationException("Cancelled");
                                     case ConflictResolution.OutlookWins:
                                     case ConflictResolution.OutlookWinsAlways:
                                         sync.UpdateContact(outlookContactItem, match.GoogleContact);
@@ -745,6 +784,7 @@ namespace GoContactSyncMod
                                         sync.UpdateContact(match.GoogleContact, outlookContactItem);
                                         break;
                                     default:
+                                        throw new ApplicationException("Cancelled");
                                         break;
                                 }
                                 break;
@@ -881,27 +921,19 @@ namespace GoContactSyncMod
             LastGoogleContact = googleContact;
         }
 
-        //public void Delete(ContactsRequest googleService)
-        //{
-        //    if (GoogleContact != null)
-        //         googleService.Delete(GoogleContact);
-        //    if (OutlookContact != null)
-        //        OutlookContact.Delete();
-        //}
-        public string Name
+        
+        public override string  ToString()
         {
-            get
-            {
-                if (OutlookContact != null)
-                    return GetOutlookContactName(OutlookContact);
-                else if (GoogleContact != null)
-                    return GetGoogleContactName(GoogleContact);
-                else
-                    return string.Empty;
-            }
+ 	        if (OutlookContact != null)
+                return GetName(OutlookContact);
+            else if (GoogleContact != null)
+                return GetName(GoogleContact);
+            else
+                return string.Empty;            
         }
+        
 
-        public static string GetOutlookContactName(OutlookContactInfo outlookContact)
+        public static string GetName(OutlookContactInfo outlookContact)
         {
             string name = outlookContact.FileAs;
             if (string.IsNullOrEmpty(name))
@@ -913,8 +945,9 @@ namespace GoContactSyncMod
 
             return name;
         }
-
-        public static string GetGoogleContactName(Contact googleContact)
+       
+        
+        public static string GetName(Contact googleContact)
         {
             string name = googleContact.Title;
             if (string.IsNullOrEmpty(name))
@@ -925,6 +958,85 @@ namespace GoContactSyncMod
                 name = googleContact.Emails[0].Address;
 
             return name;
+        }
+
+        public static string GetSummary(Outlook.ContactItem outlookContact)
+        {
+            string summary = "Name: " + outlookContact.FileAs + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Email1Address))
+                summary += "Email1: " + outlookContact.Email1Address + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Email2Address))
+                summary += "Email2: " + outlookContact.Email2Address + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Email3Address))
+                summary += "Email3: " + outlookContact.Email3Address + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.MobileTelephoneNumber))
+                summary += "MobilePhone: " + outlookContact.MobileTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.HomeTelephoneNumber))
+                summary += "HomePhone: " + outlookContact.HomeTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Home2TelephoneNumber))
+                summary += "HomePhone2: " + outlookContact.HomeTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.BusinessTelephoneNumber))
+                summary += "BusinessPhone: " + outlookContact.BusinessTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Business2TelephoneNumber))
+                summary += "BusinessPhone2: " + outlookContact.BusinessTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.OtherTelephoneNumber))
+                summary += "OtherPhone: " + outlookContact.OtherTelephoneNumber + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.HomeAddress))
+                summary += "HomeAddress: " + outlookContact.HomeAddress + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.BusinessAddress))
+                summary += "BusinessAddress: " + outlookContact.BusinessAddress + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.OtherAddress))
+                summary += "OtherAddress: " + outlookContact.OtherAddress + "\r\n";
+
+            return summary;
+        }
+
+        public static string GetSummary(Contact googleContact)
+        {
+            string summary = "Name: " + googleContact.Name.FullName + "\r\n";
+            for (int i = 0; i < googleContact.Emails.Count; i++)
+            {
+                string email = googleContact.Emails[i].Address;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    summary += "Email" + (i + 1) + ": " + email + "\r\n";
+                }
+            }
+            foreach (PhoneNumber phone in googleContact.Phonenumbers)
+            {
+                if (!string.IsNullOrEmpty(phone.Value))
+                {
+                    if (phone.Rel == ContactsRelationships.IsMobile)
+                        summary += "MobilePhone: ";
+                    if (phone.Rel == ContactsRelationships.IsHome)
+                        summary += "HomePhone: ";
+                    if (phone.Rel == ContactsRelationships.IsWork)
+                        summary += "BusinessPhone: ";
+                    if (phone.Rel == ContactsRelationships.IsOther)
+                        summary += "OtherPhone: ";
+
+                    summary += phone.Value + "\r\n";
+                }
+
+
+            }
+
+            foreach (StructuredPostalAddress address in googleContact.PostalAddresses)
+            {
+                if (!string.IsNullOrEmpty(address.FormattedAddress))
+                {
+                    if (address.Rel == ContactsRelationships.IsHome)
+                        summary += "HomeAddress: ";
+                    if (address.Rel == ContactsRelationships.IsWork)
+                        summary += "BusinessAddress: ";
+                    if (address.Rel == ContactsRelationships.IsOther)
+                        summary += "OtherAddress: ";
+
+                    summary += address.FormattedAddress + "\r\n";
+                }
+            }
+
+            return summary;
         }
     }
 
