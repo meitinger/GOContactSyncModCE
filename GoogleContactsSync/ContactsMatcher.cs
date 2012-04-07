@@ -701,7 +701,6 @@ namespace GoContactSyncMod
                                             break;
                                         default:
                                             throw new ApplicationException("Cancelled");
-                                            break;
                                     }
                                     break;
                             }

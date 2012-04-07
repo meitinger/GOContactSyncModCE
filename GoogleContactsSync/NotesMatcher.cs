@@ -603,7 +603,6 @@ namespace GoContactSyncMod
                                             break;
                                         default:
                                             throw new ApplicationException("Canceled");
-                                            break;
                                     }
                                     break;
                             }
@@ -691,7 +690,6 @@ namespace GoContactSyncMod
                                         break;
                                     default:
                                         throw new ApplicationException("Canceled");
-                                        break;
                                 }
                                 break;
                         }
