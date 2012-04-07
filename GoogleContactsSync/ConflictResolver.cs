@@ -55,36 +55,35 @@ namespace GoContactSyncMod
             return Resolve();
         }
 
-        public ConflictResolution Resolve(ContactMatch match, out Contact googleContact)
+        public ConflictResolution Resolve(OutlookContactInfo outlookContact, List<Contact> googleContacts, out Contact googleContact)
         {
-            string name = match.ToString();
+            string name = ContactMatch.GetName(outlookContact);
 
             _form.messageLabel.Text =
-                     "There are mutliple Google Contacts matching unique properties for Outlook Contact \"" + name +
-                     "\". Please choose the Google Contact you would like to match with the Outlook Contact.";
+                     "There are mutliple Google Contacts (" + googleContacts.Count + ") matching unique properties for Outlook Contact \"" + name +
+                     "\". Please choose from the combobox below the Google Contact you would like to match with Outlook and if you want to keep the Google or Outlook properties of the selected contact.";
+
 
             _form.OutlookItemTextBox.Text = string.Empty;
             _form.GoogleItemTextBox.Text = string.Empty;
-            if (match.OutlookContact != null)
+            
+            Microsoft.Office.Interop.Outlook.ContactItem item = outlookContact.GetOriginalItemFromOutlook();
+            try
             {
-                Microsoft.Office.Interop.Outlook.ContactItem item = match.OutlookContact.GetOriginalItemFromOutlook();
-                try
+                _form.OutlookItemTextBox.Text = ContactMatch.GetSummary(item);
+            }
+            finally
+            {
+                if (item != null)
                 {
-                    _form.OutlookItemTextBox.Text = ContactMatch.GetSummary(item);
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                    item = null;
                 }
-                finally
-                {
-                    if (item != null)
-                    {
-                        System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
-                        item = null;
-                    }
-                }
-
             }
 
-            _form.GoogleComboBox.DataSource = match.AllGoogleContactMatches;
+            
 
+            _form.GoogleComboBox.DataSource = googleContacts;
             _form.GoogleComboBox.Visible = true;
             _form.AllCheckBox.Visible = false;
             

@@ -589,6 +589,7 @@ namespace GoContactSyncMod
                                     switch (sync.ConflictResolution)
                                     {
                                         case ConflictResolution.Skip:
+                                        case ConflictResolution.SkipAlways:
                                             Logger.Log(string.Format("User skipped note ({0}).", match.ToString()), EventType.Information);
                                             sync.SkippedCount++;
                                             break;
@@ -676,6 +677,7 @@ namespace GoContactSyncMod
                                 switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
+                                    case ConflictResolution.SkipAlways:
                                         Logger.Log(string.Format("User skipped note ({0}).", match.ToString()), EventType.Information);
                                         sync.SkippedCount++;
                                         break;

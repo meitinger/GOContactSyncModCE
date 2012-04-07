@@ -173,10 +173,12 @@ namespace GoContactSyncMod
             // 
             this.GoogleComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.GoogleComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.GoogleComboBox.FormattingEnabled = true;
             this.GoogleComboBox.Location = new System.Drawing.Point(225, 293);
             this.GoogleComboBox.Name = "GoogleComboBox";
             this.GoogleComboBox.Size = new System.Drawing.Size(200, 21);
+            this.GoogleComboBox.Sorted = true;
             this.GoogleComboBox.TabIndex = 7;
             this.GoogleComboBox.Visible = false;
             this.GoogleComboBox.SelectedIndexChanged += new System.EventHandler(this.GoogleComboBox_SelectedIndexChanged);
