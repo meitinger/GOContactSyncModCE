@@ -764,7 +764,6 @@ namespace GoContactSyncMod
                                 break;
                             case SyncOption.MergePrompt:
                                 //promp for sync option
-                                Contact googleContact;
                                 if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
                                     sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                     sync.ConflictResolution != ConflictResolution.SkipAlways)
