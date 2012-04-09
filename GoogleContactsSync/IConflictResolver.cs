@@ -6,6 +6,7 @@ using Google.GData.Client;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Google.Contacts;
+using Google.Documents;
 
 namespace GoContactSyncMod
 {
@@ -17,11 +18,21 @@ namespace GoContactSyncMod
         /// <param name="outlookContact"></param>
         /// <param name="googleContact"></param>
         /// <returns>Returns ConflictResolution (enum)</returns>
-        ConflictResolution Resolve(ContactMatch match);
+        ConflictResolution Resolve(ContactMatch match, bool isNewMatch);
 
-        DeleteResolution Resolve(OutlookContactInfo outlookContact);
+        ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote, Syncronizer sync, bool isNewMatch);
 
-        DeleteResolution Resolve(Contact googleContact);
+        ConflictResolution ResolveDuplicate(OutlookContactInfo outlookContact, List<Contact> googleContacts, out Contact googleContact);
+
+        DeleteResolution ResolveDelete(OutlookContactInfo outlookContact);
+
+        DeleteResolution ResolveDelete(Contact googleContact);
+
+        DeleteResolution ResolveDelete(Document googleNote, Syncronizer sync);
+
+        DeleteResolution ResolveDelete(Microsoft.Office.Interop.Outlook.NoteItem outlookNote);
+
+        
     }
 
     internal enum ConflictResolution

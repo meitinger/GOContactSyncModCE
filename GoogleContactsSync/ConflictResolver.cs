@@ -20,13 +20,23 @@ namespace GoContactSyncMod
 
         #region IConflictResolver Members
 
-        public ConflictResolution Resolve(ContactMatch match)
+        public ConflictResolution Resolve(ContactMatch match, bool isNewMatch)
         {
             string name = match.ToString();
 
-           _form.messageLabel.Text =
+            if (isNewMatch)
+            {
+                _form.messageLabel.Text =
+                    "This is the first time, this outlook and google contact \"" + name +
+                    "\" are synced. Choose which you would like to keep.";
+                _form.skip.Text = "Keep both";
+            }
+            else
+            {
+                _form.messageLabel.Text =
                     "Both the outlook contact and the google contact \"" + name +
                     "\" have been changed. Choose which you would like to keep.";
+            }
             
             _form.OutlookItemTextBox.Text = string.Empty;
             _form.GoogleItemTextBox.Text = string.Empty;
@@ -55,7 +65,7 @@ namespace GoContactSyncMod
             return Resolve();
         }
 
-        public ConflictResolution Resolve(OutlookContactInfo outlookContact, List<Contact> googleContacts, out Contact googleContact)
+        public ConflictResolution ResolveDuplicate(OutlookContactInfo outlookContact, List<Contact> googleContacts, out Contact googleContact)
         {
             string name = ContactMatch.GetName(outlookContact);
 
@@ -86,6 +96,7 @@ namespace GoContactSyncMod
             _form.GoogleComboBox.DataSource = googleContacts;
             _form.GoogleComboBox.Visible = true;
             _form.AllCheckBox.Visible = false;
+            _form.skip.Text = "Keeb both";
             
 
             ConflictResolution res = Resolve();
@@ -95,7 +106,7 @@ namespace GoContactSyncMod
 
         }
 
-        public DeleteResolution Resolve(OutlookContactInfo outlookContact)
+        public DeleteResolution ResolveDelete(OutlookContactInfo outlookContact)
         {
             string name = ContactMatch.GetName(outlookContact);
 
@@ -127,7 +138,7 @@ namespace GoContactSyncMod
             return ResolveDeletedGoogle();
         }
 
-        public DeleteResolution Resolve(Contact googleContact)
+        public DeleteResolution ResolveDelete(Contact googleContact)
         {
             string name = ContactMatch.GetName(googleContact);
 
@@ -223,7 +234,7 @@ namespace GoContactSyncMod
         //    return ret;
         //}
 
-        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote, Syncronizer sync)
+        public ConflictResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote, Document googleNote, Syncronizer sync, bool isNewMatch)
         {
             string name = string.Empty;
 
@@ -240,17 +251,28 @@ namespace GoContactSyncMod
                 name = googleNote.Title;
                 _form.GoogleItemTextBox.Text = NotePropertiesUtils.GetBody(sync, googleNote);
             }
-            
-            _form.messageLabel.Text =
+
+            if (isNewMatch)
+            {
+                _form.messageLabel.Text =
+                    "This is the first time, this outlook and google note \"" + name +
+                    "\" are synced. Choose which you would like to keep.";
+                _form.skip.Text = "Keep both";
+            }
+            else
+            {
+                _form.messageLabel.Text =
                 "Both the outlook note and the google note \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
+            }
+            
 
            
             
 
             return Resolve();
         }
-        public DeleteResolution Resolve(Microsoft.Office.Interop.Outlook.NoteItem outlookNote)
+        public DeleteResolution ResolveDelete(Microsoft.Office.Interop.Outlook.NoteItem outlookNote)
         {            
 
             _form.Text = "Google note deleted";
@@ -268,7 +290,7 @@ namespace GoContactSyncMod
             return ResolveDeletedGoogle();
         }
 
-        public DeleteResolution Resolve(Document googleNote, Syncronizer sync)
+        public DeleteResolution ResolveDelete(Document googleNote, Syncronizer sync)
         {
 
             _form.Text = "Outlook note deleted";

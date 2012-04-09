@@ -822,7 +822,7 @@ namespace GoContactSyncMod
                                     if (_syncOption == SyncOption.MergePrompt)
                                     {
                                         //For each OutlookDuplicate: Ask user for the GoogleContact to be synced with
-                                        for (int j = match.AllOutlookContactMatches.Count - 1; j >= 0 && (match.AllOutlookContactMatches.Count > 1  || match.AllGoogleContactMatches.Count > 1); j--)
+                                        for (int j = match.AllOutlookContactMatches.Count - 1; j >= 0 && match.AllGoogleContactMatches.Count > 0; j--)
                                         {
                                             OutlookContactInfo olci = match.AllOutlookContactMatches[j];
                                             Outlook.ContactItem outlookContactItem = olci.GetOriginalItemFromOutlook();
@@ -831,20 +831,24 @@ namespace GoContactSyncMod
                                             {
                                                 Contact googleContact;
                                                 ConflictResolver r = new ConflictResolver();
-                                                switch (r.Resolve(olci, match.AllGoogleContactMatches, out googleContact))
+                                                switch (r.ResolveDuplicate(olci, match.AllGoogleContactMatches, out googleContact))
                                                 {
                                                     case ConflictResolution.Skip:
-                                                    case ConflictResolution.SkipAlways:
+                                                    case ConflictResolution.SkipAlways: //Keep both entries and sync it to both sides
+                                                        match.AllGoogleContactMatches.Remove(googleContact);
+                                                        match.AllOutlookContactMatches.Remove(olci);
+                                                        _contactMatches.Add(new ContactMatch(null, googleContact));
+                                                        _contactMatches.Add(new ContactMatch(olci, null));                                                        
                                                         break;
                                                     case ConflictResolution.OutlookWins:
-                                                    case ConflictResolution.OutlookWinsAlways:
+                                                    case ConflictResolution.OutlookWinsAlways: //Keep Outlook and overwrite Google
                                                         match.AllGoogleContactMatches.Remove(googleContact);
                                                         match.AllOutlookContactMatches.Remove(olci);                                                         
                                                         UpdateContact(outlookContactItem, googleContact);
                                                         SaveContact(new ContactMatch(olci, googleContact));                                                        
                                                         break;
                                                     case ConflictResolution.GoogleWins:
-                                                    case ConflictResolution.GoogleWinsAlways:
+                                                    case ConflictResolution.GoogleWinsAlways: //Keep Google and overwrite Outlook
                                                         match.AllGoogleContactMatches.Remove(googleContact);
                                                         match.AllOutlookContactMatches.Remove(olci);                                                       
                                                         UpdateContact(googleContact, outlookContactItem);
@@ -885,8 +889,15 @@ namespace GoContactSyncMod
                                         foreach (Contact googleContact in match.AllGoogleContactMatches)
                                             _contactMatches.Add(new ContactMatch(null, googleContact));
                                     }
-                                    else if (match.AllGoogleContactMatches.Count > 1 ||
-                                             match.AllOutlookContactMatches.Count > 1)
+                                    else if (match.AllGoogleContactMatches.Count == 0)
+                                    {
+                                        //If all GoogleContacts have been assigned by the users ==> Create one match for each remaining Outlook Contact to sync them to Google
+                                        _contactMatches.Remove(match);
+                                        foreach (OutlookContactInfo outlookContact in match.AllOutlookContactMatches)
+                                            _contactMatches.Add(new ContactMatch(outlookContact, null));
+                                    }
+                                    else // if (match.AllGoogleContactMatches.Count > 1 ||
+                                    //         match.AllOutlookContactMatches.Count > 1)
                                     {
                                         _skippedCount++;
                                         _contactMatches.Remove(match);

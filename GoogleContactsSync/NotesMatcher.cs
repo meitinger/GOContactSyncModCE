@@ -460,7 +460,7 @@ namespace GoContactSyncMod
                                      sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
                             {
                                 ConflictResolver r = new ConflictResolver();
-                                sync.DeleteOutlookResolution = r.Resolve(match.OutlookNote);
+                                sync.DeleteOutlookResolution = r.ResolveDelete(match.OutlookNote);
                             }
                         switch (sync.DeleteOutlookResolution)
                         {
@@ -506,7 +506,7 @@ namespace GoContactSyncMod
                                  sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
                         {
                             ConflictResolver r = new ConflictResolver();
-                            sync.DeleteGoogleResolution = r.Resolve(match.GoogleNote, sync);
+                            sync.DeleteGoogleResolution = r.ResolveDelete(match.GoogleNote, sync);
                         }
                         switch (sync.DeleteGoogleResolution)
                         {
@@ -584,7 +584,7 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
                                         ConflictResolver r = new ConflictResolver();
-                                        sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync);
+                                        sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync, false);
                                     }
                                     switch (sync.ConflictResolution)
                                     {
@@ -671,14 +671,14 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
                                     ConflictResolver r = new ConflictResolver();
-                                    sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync);
+                                    sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync, true);
                                 }
                                 switch (sync.ConflictResolution)
                                 {
-                                    case ConflictResolution.Skip:
-                                    case ConflictResolution.SkipAlways:
-                                        Logger.Log(string.Format("User skipped note ({0}).", match.ToString()), EventType.Information);
-                                        sync.SkippedCount++;
+                                    case ConflictResolution.Skip:                                    
+                                    case ConflictResolution.SkipAlways: //Keep both, Google AND Outlook
+                                        sync.Notes.Add(new NoteMatch(match.OutlookNote, null));
+                                        sync.Notes.Add(new NoteMatch(null, match.GoogleNote));
                                         break;
                                     case ConflictResolution.OutlookWins:
                                     case ConflictResolution.OutlookWinsAlways:

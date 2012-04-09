@@ -558,7 +558,7 @@ namespace GoContactSyncMod
                                      sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
                             {
                                 ConflictResolver r = new ConflictResolver();
-                                sync.DeleteOutlookResolution = r.Resolve(match.OutlookContact);
+                                sync.DeleteOutlookResolution = r.ResolveDelete(match.OutlookContact);
                             }
                             switch (sync.DeleteOutlookResolution)
                             {
@@ -603,7 +603,7 @@ namespace GoContactSyncMod
                                  sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
                         {
                             ConflictResolver r = new ConflictResolver();
-                            sync.DeleteGoogleResolution = r.Resolve(match.GoogleContact);
+                            sync.DeleteGoogleResolution = r.ResolveDelete(match.GoogleContact);
                         }
                         switch (sync.DeleteGoogleResolution)
                         {                           
@@ -682,7 +682,7 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
                                         ConflictResolver r = new ConflictResolver();
-                                        sync.ConflictResolution = r.Resolve(match);
+                                        sync.ConflictResolution = r.Resolve(match, false);
                                     }
                                     switch (sync.ConflictResolution)
                                     {
@@ -764,19 +764,20 @@ namespace GoContactSyncMod
                                 break;
                             case SyncOption.MergePrompt:
                                 //promp for sync option
+                                Contact googleContact;
                                 if (sync.ConflictResolution != ConflictResolution.GoogleWinsAlways &&
                                     sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                     sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
                                     ConflictResolver r = new ConflictResolver();
-                                    sync.ConflictResolution = r.Resolve(match);
+                                    sync.ConflictResolution = r.Resolve(match, true);
                                 }
                                 switch (sync.ConflictResolution)
                                 {
                                     case ConflictResolution.Skip:
-                                    case ConflictResolution.SkipAlways:
-                                        Logger.Log(string.Format("User skipped contact ({0}).", match.ToString()), EventType.Information);
-                                        sync.SkippedCount++;
+                                    case ConflictResolution.SkipAlways: //Keep both, Google AND Outlook
+                                        sync.Contacts.Add(new ContactMatch(match.OutlookContact, null));
+                                        sync.Contacts.Add(new ContactMatch(null, match.GoogleContact));
                                         break;
                                     case ConflictResolution.OutlookWins:
                                     case ConflictResolution.OutlookWinsAlways:
