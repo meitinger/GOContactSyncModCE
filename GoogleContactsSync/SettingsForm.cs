@@ -128,24 +128,29 @@ namespace GoContactSyncMod
             {
                 this.contactFoldersComboBox.BeginUpdate();
                 this.contactFoldersComboBox.Items.Clear();
-                outlookContactFolders.Clear();
-                outlookNoteFolders.Clear();
 
                 Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
                 foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
                 {
-                    foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
+                    try
                     {
-                        if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem)
+                        foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
                         {
-                            bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID);
-                            outlookContactFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
+                            if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem)
+                            {
+                                bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID);
+                                outlookContactFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
+                            }
+                            if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
+                            {
+                                bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderNotes).EntryID);
+                                outlookNoteFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
+                            }
                         }
-                        if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
-                        {
-                            bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderNotes).EntryID);
-                            outlookNoteFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
                     }
                 }
                 outlookContactFolders.Sort();
