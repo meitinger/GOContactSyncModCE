@@ -122,7 +122,7 @@ namespace GoContactSyncMod.UnitTests
 
             //save Note to google.
             sync.SaveGoogleNote(match);
-            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++)
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             googleNote = null;
@@ -163,7 +163,7 @@ namespace GoContactSyncMod.UnitTests
             //save Notes
             sync.SaveNote(match);
 
-            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++)
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             // delete outlook Note
@@ -210,7 +210,7 @@ namespace GoContactSyncMod.UnitTests
             //save Notes
             sync.SaveNote(match);
 
-            for (int i = 0; !match.AsyncUpdateCompleted && i < 100; i++)
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 100; i++)
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             Document deletedNote = sync.LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
@@ -270,7 +270,7 @@ namespace GoContactSyncMod.UnitTests
             //save Note to google.
             sync.SaveNote(match);
 
-            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++ )
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++ )
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             //load the same Note from google.
@@ -318,7 +318,7 @@ namespace GoContactSyncMod.UnitTests
             //save Note to google.
             sync.SaveNote(match);
 
-            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++)
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             //load the same Note from google.

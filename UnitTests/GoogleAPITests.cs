@@ -16,7 +16,6 @@ namespace GoContactSyncMod.UnitTests
     [TestFixture]
     public class GoogleAPITests
     {
-        ResumableUploader _uploader;
         ClientLoginAuthenticator _authenticator;
         static Logger.LogUpdatedHandler _logUpdateHandler = null;
         void Logger_LogUpdated(string message)
@@ -53,11 +52,14 @@ namespace GoContactSyncMod.UnitTests
 
             Feed<Contact> feed = service.Get<Contact>(query);
 
+            Logger.Log("Loaded Google contacts", EventType.Information);
+
             foreach (Contact entry in feed.Entries)
             {
                 if (entry.PrimaryEmail != null && entry.PrimaryEmail.Address == "johndoe@example.com")
                 {
                     service.Delete(entry);
+                    Logger.Log("Deleted Google contact", EventType.Information);
                     //break;
                 }
             }
@@ -126,43 +128,32 @@ namespace GoContactSyncMod.UnitTests
             string file = NotePropertiesUtils.CreateNoteFile("AN_OUTLOOK_TEST_NOTE", "This is just a test note to test GoContactSyncMod", null);
             newEntry.MediaSource = new MediaFileSource(file, MediaFileSource.GetContentTypeForFileName(file));
 
-            //#region normal flow, currently not working because of Note content
-            //Uri feedUri = new Uri(service.BaseUri);
+            #region normal flow, only working to create documents without content (metadata only), e.g. for Notes folder
 
-            //Document createdEntry = service.Insert(feedUri, newEntry);
+            Document createdEntry = Syncronizer.SaveGoogleNote(null, newEntry, service);
 
-            //Assert.IsNotNull(createdEntry.DocumentEntry.Id.Uri);
+            Assert.IsNotNull(createdEntry.DocumentEntry.Id.Uri);
 
-            ////delete test note            
-            //DeleteTestNote(service);
-            //#endregion
+            Logger.Log("Created Google note", EventType.Information);
 
-            //#region workaround flow to use UploadDocument
+            //delete test note            
+            DeleteTestNote(service);
+            #endregion
+
+            #region workaround flow to use UploadDocument, not needed anymore because of new approach to use ResumableUploader
             //Google.GData.Documents.DocumentEntry createdEntry2 = service.Service.UploadDocument(file, newEntry.Title);
             
             //Assert.IsNotNull(createdEntry2.Id.Uri);
 
             ////delete test note            
             //DeleteTestNote(service);
-            //#endregion
+            #endregion
 
             #region New approach how to update an existing document: https://developers.google.com/google-apps/documents-list/#updatingchanging_documents_and_files            
             //Instantiate the ResumableUploader component.      
-            _uploader = new ResumableUploader();
-
-            // Define the resumable upload link      
-            Uri createUploadUrl = new Uri("https://docs.google.com/feeds/upload/create-session/default/private/full"); 
-            //Uri createUploadUrl = new Uri(_googleNotesFolder.AtomEntry.EditUri.ToString()); 
-            AtomLink link = new AtomLink(createUploadUrl.AbsoluteUri); 
-            link.Rel = ResumableUploader.CreateMediaRelation; 
-            newEntry.DocumentEntry.Links.Add(link);  
-            //match.GoogleNote.DocumentEntry.ParentFolders.Add(new AtomLink(_googleNotesFolder.DocumentEntry.SelfUri.ToString()));
-            // Set the service to be used to parse the returned entry 
-            newEntry.DocumentEntry.Service = service.Service;
-            _uploader.AsyncOperationCompleted += new AsyncOperationCompletedEventHandler(OnGoogleNoteCreated);
-            // Start the upload process   
-            //uploader.InsertAsync(_authenticator, match.GoogleNote.DocumentEntry, new object());
-            _uploader.InsertAsync(_authenticator, newEntry.DocumentEntry, file);
+            ResumableUploader uploader = new ResumableUploader();            
+            uploader.AsyncOperationCompleted += new AsyncOperationCompletedEventHandler(OnGoogleNoteCreated);
+            Syncronizer.CreateGoogleNote(newEntry, file, service, uploader, _authenticator);            
             #endregion            
 
             //Wait 5 seconds to give the testcase the chance to finish the Async events
@@ -209,6 +200,8 @@ namespace GoContactSyncMod.UnitTests
             query.NumberToRetrieve = 500;
 
             Feed<Document> feed = service.Get<Document>(query);
+
+            Logger.Log("Loaded Google notes", EventType.Information);
 
             foreach (Document entry in feed.Entries)
             {

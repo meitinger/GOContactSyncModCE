@@ -722,7 +722,7 @@ namespace GoContactSyncMod
         public Document GoogleNote;
         public readonly List<Document> AllGoogleNoteMatches = new List<Document>(1);
         public Document LastGoogleNote;
-        public bool AsyncUpdateCompleted = false;
+        public bool? AsyncUpdateCompleted = null; //false, if AsyncUpdate started, but not yet finished. true, if AsyncUpdate finished. Null if no AsyncUpdate started
 
         public NoteMatch(Outlook.NoteItem outlookNote, Document googleNote)
         {

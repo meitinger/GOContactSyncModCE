@@ -682,7 +682,7 @@ namespace GoContactSyncMod
                     _googleNotesFolder.Type = Document.DocumentType.Folder;
                     //_googleNotesFolder.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
                     _googleNotesFolder.Title = query.Title;
-                    _googleNotesFolder = SaveGoogleNote(_googleNotesFolder);
+                    _googleNotesFolder = SaveGoogleNote(null, _googleNotesFolder, _documentsRequest);
                 }
 
                 if (id == null)
@@ -975,6 +975,11 @@ namespace GoContactSyncMod
                         NotesMatcher.SyncNotes(this);
 
                         SaveNotes(_noteMatches);
+
+                        //Because notes are uploaded asynchonously, wait until all notes have been successfully uploaded
+                        foreach (NoteMatch match in _noteMatches)
+                            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++)
+                                System.Threading.Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
                     }
                 }
                 finally
@@ -1314,7 +1319,7 @@ namespace GoContactSyncMod
             outlookContact.Save();
             SaveOutlookPhoto(googleContact, outlookContact);
         }
-		private string EscapeXml(string xml)
+		private static string EscapeXml(string xml)
 		{
 			string encodedXml = System.Security.SecurityElement.Escape(xml);
 			return encodedXml;
@@ -1375,21 +1380,11 @@ namespace GoContactSyncMod
                 }
                 else
                 {
-
-                    // Define the resumable upload link      
-                    Uri createUploadUrl = new Uri("https://docs.google.com/feeds/upload/create-session/default/private/full"); 
-                    //Uri createUploadUrl = new Uri(_googleNotesFolder.AtomEntry.EditUri.ToString()); 
-                    AtomLink link = new AtomLink(createUploadUrl.AbsoluteUri); 
-                    link.Rel = ResumableUploader.CreateMediaRelation; 
-                    match.GoogleNote.DocumentEntry.Links.Add(link);  
-                    //match.GoogleNote.DocumentEntry.ParentFolders.Add(new AtomLink(_googleNotesFolder.DocumentEntry.SelfUri.ToString()));
-                    // Set the service to be used to parse the returned entry 
-                    match.GoogleNote.DocumentEntry.Service = _documentsRequest.Service;
                     uploader.AsyncOperationCompleted += new AsyncOperationCompletedEventHandler(OnGoogleNoteCreated);
-                    // Start the upload process   
-                    //uploader.InsertAsync(_authenticator, match.GoogleNote.DocumentEntry, new object());
-                    uploader.InsertAsync(_authenticator, match.GoogleNote.DocumentEntry, match);                    
+                    CreateGoogleNote(match.GoogleNote, match, _documentsRequest, uploader, _authenticator);                
                 }
+
+                match.AsyncUpdateCompleted = false;
 
                 //Google.GData.Documents.DocumentEntry entry = _documentsRequest.Service.UploadDocument(NotePropertiesUtils.GetFileName(outlookNoteItem.EntryID, _syncProfile), match.GoogleNote.Title.Replace(":", String.Empty));                               
                 //Document newNote = LoadGoogleNotes(entry.Id);
@@ -1404,6 +1399,22 @@ namespace GoContactSyncMod
             //    Marshal.ReleaseComObject(outlookNoteItem);
             //    outlookNoteItem = null;
             //}
+        }
+
+        public static void CreateGoogleNote(Document googleNote, object UserData, DocumentsRequest documentsRequest, ResumableUploader uploader, ClientLoginAuthenticator authenticator)
+        {
+            // Define the resumable upload link      
+            Uri createUploadUrl = new Uri("https://docs.google.com/feeds/upload/create-session/default/private/full");
+            //Uri createUploadUrl = new Uri(_googleNotesFolder.AtomEntry.EditUri.ToString()); 
+            AtomLink link = new AtomLink(createUploadUrl.AbsoluteUri);
+            link.Rel = ResumableUploader.CreateMediaRelation;
+            googleNote.DocumentEntry.Links.Add(link);
+            //match.GoogleNote.DocumentEntry.ParentFolders.Add(new AtomLink(_googleNotesFolder.DocumentEntry.SelfUri.ToString()));
+            // Set the service to be used to parse the returned entry 
+            googleNote.DocumentEntry.Service = documentsRequest.Service;
+            // Start the upload process   
+            //uploader.InsertAsync(_authenticator, match.GoogleNote.DocumentEntry, new object());
+            uploader.InsertAsync(authenticator, googleNote.DocumentEntry, UserData);
         }
 
         private void UpdateNoteMatchId(NoteMatch match)
@@ -1468,7 +1479,7 @@ namespace GoContactSyncMod
 			return xml;
 		}
 
-        private string GetXml(Document note)
+        private static string GetXml(Document note)
         {
             MemoryStream ms = new MemoryStream();
             note.DocumentEntry.SaveToXml(ms);
@@ -1544,7 +1555,7 @@ namespace GoContactSyncMod
         /// save the google note
         /// </summary>
         /// <param name="googleNote"></param>
-        internal Document SaveGoogleNote(Document googleNote)
+        public static Document SaveGoogleNote(Document parentFolder, Document googleNote, DocumentsRequest documentsRequest)
         {
             //check if this contact was not yet inserted on google.
             if (googleNote.DocumentEntry.Id.Uri == null)
@@ -1552,19 +1563,22 @@ namespace GoContactSyncMod
                 //insert contact.
                 Uri feedUri = null;
 
-                try
-                {//In case of Notes folder creation, the _googleNotesFolder.DocumentEntry.Content.AbsoluteUri throws a NullReferenceException
-                    feedUri = new Uri(_googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+                if (parentFolder != null)
+                {
+                    try
+                    {//In case of Notes folder creation, the _googleNotesFolder.DocumentEntry.Content.AbsoluteUri throws a NullReferenceException
+                        feedUri = new Uri(parentFolder.DocumentEntry.Content.AbsoluteUri);
+                    }
+                    catch (Exception)
+                    { }
                 }
-                catch (Exception)
-                { }
 
                 if (feedUri == null)                
-                    feedUri = new Uri(_documentsRequest.BaseUri);               
+                    feedUri = new Uri(documentsRequest.BaseUri);               
 
                 try
                 {
-                    Document createdEntry = _documentsRequest.Insert(feedUri, googleNote);
+                    Document createdEntry = documentsRequest.Insert(feedUri, googleNote);
                     //ToDo: Workaround also doesn't help: Utilities.SaveGoogleNoteContent(this, createdEntry, googleNote);    
                     return createdEntry;
                 }
@@ -1583,7 +1597,7 @@ namespace GoContactSyncMod
                 try
                 {
                     //note already present in google. just update
-                    Document updated = _documentsRequest.Update(googleNote);
+                    Document updated = documentsRequest.Update(googleNote);
 
                     //ToDo: Workaround also doesn't help: Utilities.SaveGoogleNoteContent(this, updated, googleNote);                   
 
