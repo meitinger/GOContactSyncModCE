@@ -484,14 +484,14 @@ namespace GoContactSyncMod
             slave.Location = master.OfficeLocation;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.ContactEntry.Initials = master.Initials;
-            slave.ContactEntry.Languages.Clear();
+            slave.Languages.Clear();
             if (!string.IsNullOrEmpty(master.Language))
             {
                 foreach (string language in master.Language.Split(';'))
                 {
                     Language googleLanguage = new Language();
                     googleLanguage.Label = language;
-                    slave.ContactEntry.Languages.Add(googleLanguage);
+                    slave.Languages.Add(googleLanguage);
                 }
             }
 
@@ -668,10 +668,10 @@ namespace GoContactSyncMod
             slave.OfficeLocation = master.Location;
             //Categories are synced separately in Syncronizer.OverwriteContactGroups: slave.Categories = master.Categories;
             slave.Initials = master.ContactEntry.Initials;
-            if (master.ContactEntry.Languages != null)
+            if (master.Languages != null)
             {
                 slave.Language = string.Empty;
-                foreach (Language language in master.ContactEntry.Languages)
+                foreach (Language language in master.Languages)
                     slave.Language = language.Label + ";";
                 if (!string.IsNullOrEmpty(slave.Language))
                     slave.Language = slave.Language.TrimEnd(';');

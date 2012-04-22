@@ -122,6 +122,9 @@ namespace GoContactSyncMod.UnitTests
 
             //save Note to google.
             sync.SaveGoogleNote(match);
+            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
             googleNote = null;
 
             sync.SyncOption = SyncOption.GoogleToOutlookOnly;   
@@ -160,8 +163,13 @@ namespace GoContactSyncMod.UnitTests
             //save Notes
             sync.SaveNote(match);
 
+            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
             // delete outlook Note
             outlookNote.Delete();
+
+            Thread.Sleep(10000);
 
             // sync
             sync.MatchNotes();
@@ -202,6 +210,9 @@ namespace GoContactSyncMod.UnitTests
             //save Notes
             sync.SaveNote(match);
 
+            for (int i = 0; !match.AsyncUpdateCompleted && i < 100; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
             Document deletedNote = sync.LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
             Assert.IsNotNull(deletedNote);
             AtomId deletedNoteAtomId = deletedNote.DocumentEntry.Id;
@@ -210,7 +221,7 @@ namespace GoContactSyncMod.UnitTests
             Assert.IsTrue(File.Exists(NotePropertiesUtils.GetFileName(deletedNoteId, sync.SyncProfile)));
 
             // delete google Note
-            sync.DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag); 
+            sync.DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + deletedNote.ResourceId), deletedNote.ETag); 
 
             // sync
             sync.MatchNotes();
@@ -259,6 +270,9 @@ namespace GoContactSyncMod.UnitTests
             //save Note to google.
             sync.SaveNote(match);
 
+            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++ )
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
             //load the same Note from google.
             sync.MatchNotes();
             match = FindMatch(outlookNote);
@@ -303,6 +317,9 @@ namespace GoContactSyncMod.UnitTests
 
             //save Note to google.
             sync.SaveNote(match);
+
+            for (int i = 0; !match.AsyncUpdateCompleted && i < 10; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
             //load the same Note from google.
             sync.MatchNotes();
