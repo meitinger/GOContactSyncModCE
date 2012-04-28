@@ -329,17 +329,32 @@ namespace GoContactSyncMod
 			{
 				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
 				bool passwordIsValid = Password.Text.Length != 0;
-                bool syncProfileIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count);
+                bool syncProfileIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count-1);
                 bool syncContactFolderIsValid = (contactFoldersComboBox.SelectedIndex >= 0 && contactFoldersComboBox.SelectedIndex < contactFoldersComboBox.Items.Count) || !btSyncContacts.Checked;
-                bool syncNotesFolderIsValid = (noteFoldersComboBox.SelectedIndex >= 0 && noteFoldersComboBox.SelectedIndex < noteFoldersComboBox.Items.Count) || !btSyncNotes.Checked;
+                bool syncNoteFolderIsValid = (noteFoldersComboBox.SelectedIndex >= 0 && noteFoldersComboBox.SelectedIndex < noteFoldersComboBox.Items.Count) || !btSyncNotes.Checked;
 
 				setBgColor(UserName, userNameIsValid);
 				setBgColor(Password, passwordIsValid);
-                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncContactFolderIsValid && syncNotesFolderIsValid;
+                setBgColor(cmbSyncProfile, syncProfileIsValid);
+                setBgColor(contactFoldersComboBox, syncContactFolderIsValid);
+                setBgColor(noteFoldersComboBox, syncNoteFolderIsValid);
+
+
+                if (!userNameIsValid)
+                    toolTip.SetToolTip(UserName, "User is of wrong format, should be full Google Mail address, e.g. user@googelmail.com");
+                else
+                    toolTip.SetToolTip(UserName, String.Empty);
+                if (!passwordIsValid)
+                    toolTip.SetToolTip(Password, "Password is empty, please provide your Google Mail password");
+                else
+                    toolTip.SetToolTip(Password, String.Empty);               
+                                             
+
+                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncContactFolderIsValid && syncNoteFolderIsValid;
 			}
 		}
 
-		private void setBgColor(TextBox box, bool isValid)
+		private void setBgColor(Control box, bool isValid)
 		{
 			if (!isValid)
 				box.BackColor = Color.LightPink;
