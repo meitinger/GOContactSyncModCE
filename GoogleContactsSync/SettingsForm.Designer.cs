@@ -96,7 +96,7 @@ namespace GoContactSyncMod
             this.Password.Location = new System.Drawing.Point(100, 44);
             this.Password.Name = "Password";
             this.Password.PasswordChar = '*';
-            this.Password.Size = new System.Drawing.Size(348, 21);
+            this.Password.Size = new System.Drawing.Size(342, 21);
             this.Password.TabIndex = 3;
             this.Password.TextChanged += new System.EventHandler(this.Password_TextChanged);
             // 
@@ -106,7 +106,7 @@ namespace GoContactSyncMod
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.UserName.Location = new System.Drawing.Point(100, 18);
             this.UserName.Name = "UserName";
-            this.UserName.Size = new System.Drawing.Size(348, 21);
+            this.UserName.Size = new System.Drawing.Size(342, 21);
             this.UserName.TabIndex = 1;
             this.UserName.TextChanged += new System.EventHandler(this.UserName_TextChanged);
             // 
@@ -149,9 +149,9 @@ namespace GoContactSyncMod
             this.syncOptionBox.CheckOnClick = true;
             this.syncOptionBox.FormattingEnabled = true;
             this.syncOptionBox.IntegralHeight = false;
-            this.syncOptionBox.Location = new System.Drawing.Point(7, 99);
+            this.syncOptionBox.Location = new System.Drawing.Point(7, 126);
             this.syncOptionBox.Name = "syncOptionBox";
-            this.syncOptionBox.Size = new System.Drawing.Size(442, 86);
+            this.syncOptionBox.Size = new System.Drawing.Size(436, 90);
             this.syncOptionBox.TabIndex = 4;
             this.toolTip.SetToolTip(this.syncOptionBox, resources.GetString("syncOptionBox.ToolTip"));
             this.syncOptionBox.SelectedIndexChanged += new System.EventHandler(this.syncOptionBox_SelectedIndexChanged);
@@ -288,9 +288,9 @@ namespace GoContactSyncMod
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.autoSyncCheckBox);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(6, 306);
+            this.groupBox1.Location = new System.Drawing.Point(6, 337);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(456, 138);
+            this.groupBox1.Size = new System.Drawing.Size(450, 138);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Automization";
@@ -347,7 +347,7 @@ namespace GoContactSyncMod
             this.groupBox2.Controls.Add(this.syncOptionBox);
             this.groupBox2.Location = new System.Drawing.Point(6, 115);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(456, 191);
+            this.groupBox2.Size = new System.Drawing.Size(450, 222);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Sync Options";
@@ -389,9 +389,9 @@ namespace GoContactSyncMod
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.noteFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.noteFoldersComboBox.FormattingEnabled = true;
-            this.noteFoldersComboBox.Location = new System.Drawing.Point(218, 65);
+            this.noteFoldersComboBox.Location = new System.Drawing.Point(6, 92);
             this.noteFoldersComboBox.Name = "noteFoldersComboBox";
-            this.noteFoldersComboBox.Size = new System.Drawing.Size(230, 21);
+            this.noteFoldersComboBox.Size = new System.Drawing.Size(436, 21);
             this.noteFoldersComboBox.TabIndex = 7;
             this.toolTip.SetToolTip(this.noteFoldersComboBox, "Select the Outlook Contacts folder you want to sync");
             this.noteFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.noteFoldersComboBox_SelectedIndexChanged);
@@ -415,9 +415,9 @@ namespace GoContactSyncMod
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(6, 92);
+            this.panel1.Location = new System.Drawing.Point(6, 119);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(439, 1);
+            this.panel1.Size = new System.Drawing.Size(433, 1);
             this.panel1.TabIndex = 3;
             // 
             // btSyncDelete
@@ -444,7 +444,7 @@ namespace GoContactSyncMod
             this.cmbSyncProfile.FormattingEnabled = true;
             this.cmbSyncProfile.Location = new System.Drawing.Point(100, 19);
             this.cmbSyncProfile.Name = "cmbSyncProfile";
-            this.cmbSyncProfile.Size = new System.Drawing.Size(348, 21);
+            this.cmbSyncProfile.Size = new System.Drawing.Size(342, 21);
             this.cmbSyncProfile.TabIndex = 1;
             this.toolTip.SetToolTip(this.cmbSyncProfile, "This is a profile name of your choice.\r\nIt must be unique in each computer\r\nand a" +
                     "ccount you intend to sync with\r\nyour Google Mail account.");
@@ -452,11 +452,13 @@ namespace GoContactSyncMod
             // 
             // contactFoldersComboBox
             // 
+            this.contactFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.contactFoldersComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.contactFoldersComboBox.FormattingEnabled = true;
             this.contactFoldersComboBox.Location = new System.Drawing.Point(6, 65);
             this.contactFoldersComboBox.Name = "contactFoldersComboBox";
-            this.contactFoldersComboBox.Size = new System.Drawing.Size(206, 21);
+            this.contactFoldersComboBox.Size = new System.Drawing.Size(436, 21);
             this.contactFoldersComboBox.TabIndex = 6;
             this.toolTip.SetToolTip(this.contactFoldersComboBox, "Select the Outlook Contacts folder you want to sync");
             this.contactFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.contacFoldersComboBox_SelectedIndexChanged);
@@ -484,9 +486,9 @@ namespace GoContactSyncMod
             this.logGroupBox.Controls.Add(this.syncConsole);
             this.logGroupBox.Controls.Add(this.lastSyncLabel);
             this.logGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logGroupBox.Location = new System.Drawing.Point(473, 0);
+            this.logGroupBox.Location = new System.Drawing.Point(467, 0);
             this.logGroupBox.Name = "logGroupBox";
-            this.logGroupBox.Size = new System.Drawing.Size(404, 450);
+            this.logGroupBox.Size = new System.Drawing.Size(495, 481);
             this.logGroupBox.TabIndex = 2;
             this.logGroupBox.TabStop = false;
             this.logGroupBox.Text = "Sync Details && Log";
@@ -502,7 +504,7 @@ namespace GoContactSyncMod
             this.syncConsole.Name = "syncConsole";
             this.syncConsole.ReadOnly = true;
             this.syncConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.syncConsole.Size = new System.Drawing.Size(392, 411);
+            this.syncConsole.Size = new System.Drawing.Size(483, 442);
             this.syncConsole.TabIndex = 1;
             this.toolTip.SetToolTip(this.syncConsole, "This window shows information\r\n from the last sync.");
             // 
@@ -517,7 +519,7 @@ namespace GoContactSyncMod
             this.groupBox4.Controls.Add(this.Password);
             this.groupBox4.Location = new System.Drawing.Point(6, 20);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(456, 92);
+            this.groupBox4.Size = new System.Drawing.Size(450, 92);
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Google Account";
@@ -538,7 +540,7 @@ namespace GoContactSyncMod
             // 
             this.resetMatchesLinkLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.resetMatchesLinkLabel.AutoSize = true;
-            this.resetMatchesLinkLabel.Location = new System.Drawing.Point(52, 468);
+            this.resetMatchesLinkLabel.Location = new System.Drawing.Point(52, 499);
             this.resetMatchesLinkLabel.Name = "resetMatchesLinkLabel";
             this.resetMatchesLinkLabel.Size = new System.Drawing.Size(89, 13);
             this.resetMatchesLinkLabel.TabIndex = 2;
@@ -554,7 +556,7 @@ namespace GoContactSyncMod
             this.Donate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Donate.BackColor = System.Drawing.Color.Transparent;
             this.Donate.Image = ((System.Drawing.Image)(resources.GetObject("Donate.Image")));
-            this.Donate.Location = new System.Drawing.Point(12, 468);
+            this.Donate.Location = new System.Drawing.Point(12, 499);
             this.Donate.Name = "Donate";
             this.Donate.Size = new System.Drawing.Size(34, 34);
             this.Donate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -573,7 +575,7 @@ namespace GoContactSyncMod
             this.settingsGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
             this.settingsGroupBox.Location = new System.Drawing.Point(0, 0);
             this.settingsGroupBox.Name = "settingsGroupBox";
-            this.settingsGroupBox.Size = new System.Drawing.Size(468, 450);
+            this.settingsGroupBox.Size = new System.Drawing.Size(462, 481);
             this.settingsGroupBox.TabIndex = 0;
             this.settingsGroupBox.TabStop = false;
             this.settingsGroupBox.Text = "Program Settings";
@@ -586,7 +588,7 @@ namespace GoContactSyncMod
             this.actionsTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.actionsTableLayout.Controls.Add(this.hideButton, 0, 0);
             this.actionsTableLayout.Controls.Add(this.syncButton, 0, 0);
-            this.actionsTableLayout.Location = new System.Drawing.Point(680, 468);
+            this.actionsTableLayout.Location = new System.Drawing.Point(765, 499);
             this.actionsTableLayout.Name = "actionsTableLayout";
             this.actionsTableLayout.RowCount = 1;
             this.actionsTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -617,14 +619,14 @@ namespace GoContactSyncMod
             this.MainPanel.Controls.Add(this.settingsGroupBox);
             this.MainPanel.Location = new System.Drawing.Point(12, 12);
             this.MainPanel.Name = "MainPanel";
-            this.MainPanel.Size = new System.Drawing.Size(877, 450);
+            this.MainPanel.Size = new System.Drawing.Size(962, 481);
             this.MainPanel.TabIndex = 0;
             // 
             // MainSplitter
             // 
-            this.MainSplitter.Location = new System.Drawing.Point(468, 0);
+            this.MainSplitter.Location = new System.Drawing.Point(462, 0);
             this.MainSplitter.Name = "MainSplitter";
-            this.MainSplitter.Size = new System.Drawing.Size(5, 450);
+            this.MainSplitter.Size = new System.Drawing.Size(5, 481);
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
@@ -634,7 +636,7 @@ namespace GoContactSyncMod
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.hideButton;
-            this.ClientSize = new System.Drawing.Size(901, 511);
+            this.ClientSize = new System.Drawing.Size(986, 542);
             this.Controls.Add(this.Donate);
             this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.resetMatchesLinkLabel);
