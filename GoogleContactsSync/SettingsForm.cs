@@ -134,19 +134,7 @@ namespace GoContactSyncMod
                 {
                     try
                     {
-                        foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
-                        {
-                            if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem)
-                            {
-                                bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID);
-                                outlookContactFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
-                            }
-                            if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
-                            {
-                                bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderNotes).EntryID);
-                                outlookNoteFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
-                            }
-                        }
+                        GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, folder);
                     }
                     catch (Exception e)
                     {
@@ -191,6 +179,28 @@ namespace GoContactSyncMod
             catch (Exception e)
             {
                 Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+            }
+        }
+
+        private static void GetOutlookMAPIFolders(ArrayList outlookContactFolders, ArrayList outlookNoteFolders, Microsoft.Office.Interop.Outlook.MAPIFolder folder)
+        {
+            foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
+            {
+                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem)
+                {
+                    bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID);
+                    outlookContactFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
+                }
+                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
+                {
+                    bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderNotes).EntryID);
+                    outlookNoteFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
+                }
+
+                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem ||
+                    mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
+                    GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, mapi);
+
             }
         }
 
@@ -303,10 +313,10 @@ namespace GoContactSyncMod
                 regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
                 regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
 
-                if (btSyncContacts.Checked && contactFoldersComboBox.SelectedValue != null)
-                    regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
-                if (btSyncNotes.Checked && noteFoldersComboBox.SelectedValue != null)
-                    regKeyAppRoot.SetValue("SyncNotesFolder", noteFoldersComboBox.SelectedValue.ToString());
+                //if (btSyncContacts.Checked && contactFoldersComboBox.SelectedValue != null)
+                //    regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
+                //if (btSyncNotes.Checked && noteFoldersComboBox.SelectedValue != null)
+                //    regKeyAppRoot.SetValue("SyncNotesFolder", noteFoldersComboBox.SelectedValue.ToString());
 
                 _proxy.SaveSettings(cmbSyncProfile.Text);
             }
