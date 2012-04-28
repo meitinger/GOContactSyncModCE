@@ -253,7 +253,7 @@ namespace GoContactSyncMod
             this.autoSyncCheckBox.AutoSize = true;
             this.autoSyncCheckBox.Location = new System.Drawing.Point(14, 42);
             this.autoSyncCheckBox.Name = "autoSyncCheckBox";
-            this.autoSyncCheckBox.Size = new System.Drawing.Size(75, 17);
+            this.autoSyncCheckBox.Size = new System.Drawing.Size(84, 17);
             this.autoSyncCheckBox.TabIndex = 1;
             this.autoSyncCheckBox.Text = "&Auto Sync";
             this.autoSyncCheckBox.UseVisualStyleBackColor = true;
@@ -300,7 +300,7 @@ namespace GoContactSyncMod
             this.reportSyncResultCheckBox.AutoSize = true;
             this.reportSyncResultCheckBox.Location = new System.Drawing.Point(14, 65);
             this.reportSyncResultCheckBox.Name = "reportSyncResultCheckBox";
-            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(190, 17);
+            this.reportSyncResultCheckBox.Size = new System.Drawing.Size(226, 17);
             this.reportSyncResultCheckBox.TabIndex = 6;
             this.reportSyncResultCheckBox.Text = "Re&port Sync Result in System Tray";
             this.reportSyncResultCheckBox.UseVisualStyleBackColor = true;
@@ -310,7 +310,7 @@ namespace GoContactSyncMod
             this.runAtStartupCheckBox.AutoSize = true;
             this.runAtStartupCheckBox.Location = new System.Drawing.Point(14, 21);
             this.runAtStartupCheckBox.Name = "runAtStartupCheckBox";
-            this.runAtStartupCheckBox.Size = new System.Drawing.Size(134, 17);
+            this.runAtStartupCheckBox.Size = new System.Drawing.Size(160, 17);
             this.runAtStartupCheckBox.TabIndex = 0;
             this.runAtStartupCheckBox.Text = "&Run program at startup";
             this.runAtStartupCheckBox.UseVisualStyleBackColor = true;
@@ -335,10 +335,10 @@ namespace GoContactSyncMod
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.btPromptDelete);
-            this.groupBox2.Controls.Add(this.btSyncContacts);
-            this.groupBox2.Controls.Add(this.noteFoldersComboBox);
             this.groupBox2.Controls.Add(this.btSyncNotes);
+            this.groupBox2.Controls.Add(this.btSyncContacts);
+            this.groupBox2.Controls.Add(this.btPromptDelete);
+            this.groupBox2.Controls.Add(this.noteFoldersComboBox);
             this.groupBox2.Controls.Add(this.panel1);
             this.groupBox2.Controls.Add(this.btSyncDelete);
             this.groupBox2.Controls.Add(this.cmbSyncProfile);
@@ -359,7 +359,7 @@ namespace GoContactSyncMod
             this.btPromptDelete.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btPromptDelete.Location = new System.Drawing.Point(119, 46);
             this.btPromptDelete.Name = "btPromptDelete";
-            this.btPromptDelete.Size = new System.Drawing.Size(101, 17);
+            this.btPromptDelete.Size = new System.Drawing.Size(118, 17);
             this.btPromptDelete.TabIndex = 8;
             this.btPromptDelete.Text = "Prompt De&letion";
             this.toolTip.SetToolTip(this.btPromptDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -374,7 +374,7 @@ namespace GoContactSyncMod
             this.btSyncContacts.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btSyncContacts.Location = new System.Drawing.Point(243, 46);
             this.btSyncContacts.Name = "btSyncContacts";
-            this.btSyncContacts.Size = new System.Drawing.Size(95, 17);
+            this.btSyncContacts.Size = new System.Drawing.Size(108, 17);
             this.btSyncContacts.TabIndex = 6;
             this.btSyncContacts.Text = "Sync &Contacts";
             this.toolTip.SetToolTip(this.btSyncContacts, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -401,7 +401,7 @@ namespace GoContactSyncMod
             this.btSyncNotes.AutoSize = true;
             this.btSyncNotes.Location = new System.Drawing.Point(357, 46);
             this.btSyncNotes.Name = "btSyncNotes";
-            this.btSyncNotes.Size = new System.Drawing.Size(81, 17);
+            this.btSyncNotes.Size = new System.Drawing.Size(90, 17);
             this.btSyncNotes.TabIndex = 5;
             this.btSyncNotes.Text = "Sync &Notes";
             this.toolTip.SetToolTip(this.btSyncNotes, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -427,7 +427,7 @@ namespace GoContactSyncMod
             this.btSyncDelete.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btSyncDelete.Location = new System.Drawing.Point(8, 46);
             this.btSyncDelete.Name = "btSyncDelete";
-            this.btSyncDelete.Size = new System.Drawing.Size(92, 17);
+            this.btSyncDelete.Size = new System.Drawing.Size(105, 17);
             this.btSyncDelete.TabIndex = 2;
             this.btSyncDelete.Text = "Sync &Deletion";
             this.toolTip.SetToolTip(this.btSyncDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
@@ -504,7 +504,7 @@ namespace GoContactSyncMod
             this.syncConsole.Name = "syncConsole";
             this.syncConsole.ReadOnly = true;
             this.syncConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.syncConsole.Size = new System.Drawing.Size(483, 442);
+            this.syncConsole.Size = new System.Drawing.Size(485, 442);
             this.syncConsole.TabIndex = 1;
             this.toolTip.SetToolTip(this.syncConsole, "This window shows information\r\n from the last sync.");
             // 
