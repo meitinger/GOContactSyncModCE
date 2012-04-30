@@ -10,6 +10,7 @@ using Google.Contacts;
 using Google.Documents;
 using Google.GData.Client.ResumableUpload;
 using Google.GData.Documents;
+using System.Collections;
 
 namespace GoContactSyncMod.UnitTests
 {
@@ -221,10 +222,48 @@ namespace GoContactSyncMod.UnitTests
 
             syncContactsFolder = "";
             syncNotesFolder = "";
-            if (regKeyAppRoot.GetValue("SyncContactsFolder") != null)
-                syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
-            if (regKeyAppRoot.GetValue("SyncNotesFolder") != null)
-                syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;           
+
+            //First, check if there is a folder called GCSMTestContacts and GCSMTestNotes available, if yes, use them
+            ArrayList outlookContactFolders = new ArrayList();
+            ArrayList outlookNoteFolders = new ArrayList();
+            Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
+            foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
+            {
+                try
+                {
+                    SettingsForm.GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, folder);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+                }
+            }
+
+            foreach (OutlookFolder folder in outlookContactFolders)
+            {
+                if (folder.FolderName.ToUpper().Contains("GCSMTestContacts".ToUpper()))
+                {
+                    Logger.Log("Uses Test folder: " + folder.DisplayName, EventType.Information);
+                    syncContactsFolder = folder.FolderID;
+                    break;
+                }
+            }
+            foreach (OutlookFolder folder in outlookNoteFolders)
+            {
+                if (folder.FolderName.ToUpper().Contains("GCSMTestNotes".ToUpper()))
+                {
+                    Logger.Log("Uses Test folder: " + folder.DisplayName, EventType.Information);
+                    syncNotesFolder = folder.FolderID;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(syncContactsFolder))
+                if (regKeyAppRoot.GetValue("SyncContactsFolder") != null)
+                    syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
+            if (string.IsNullOrEmpty(syncNotesFolder))
+                if (regKeyAppRoot.GetValue("SyncNotesFolder") != null)
+                    syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;           
         }
 
         private static Microsoft.Win32.RegistryKey LoadSettings(out string gmailUsername, out string gmailPassword, out string syncProfile)

@@ -182,7 +182,7 @@ namespace GoContactSyncMod
             }
         }
 
-        private static void GetOutlookMAPIFolders(ArrayList outlookContactFolders, ArrayList outlookNoteFolders, Microsoft.Office.Interop.Outlook.MAPIFolder folder)
+        public static void GetOutlookMAPIFolders(ArrayList outlookContactFolders, ArrayList outlookNoteFolders, Microsoft.Office.Interop.Outlook.MAPIFolder folder)
         {
             foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
             {
@@ -277,6 +277,11 @@ namespace GoContactSyncMod
                 contactFoldersComboBox.SelectedValue = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
             if (regKeyAppRoot.GetValue("SyncNotesFolder") != null)
                 noteFoldersComboBox.SelectedValue = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
+            if (regKeyAppRoot.GetValue("UseFileAs") != null)
+            {
+                rbUseFileAs.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("UseFileAs"));
+                rbUseFullName.Checked = !rbUseFileAs.Checked;
+            }
 
             autoSyncCheckBox_CheckedChanged(null, null);
             btSyncContacts_CheckedChanged(null, null);
@@ -312,6 +317,7 @@ namespace GoContactSyncMod
                 regKeyAppRoot.SetValue("PromptDeletion", btPromptDelete.Checked);
                 regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
                 regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
+                regKeyAppRoot.SetValue("UseFileAs", rbUseFileAs.Checked);
 
                 //if (btSyncContacts.Checked && contactFoldersComboBox.SelectedValue != null)
                 //    regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
@@ -432,6 +438,7 @@ namespace GoContactSyncMod
                 _sync.SyncOption = _syncOption;
                 _sync.SyncDelete = btSyncDelete.Checked;
                 _sync.PromptDelete = btPromptDelete.Checked && btSyncDelete.Checked;
+                _sync.UseFileAs = rbUseFileAs.Checked;
                 _sync.SyncNotes = btSyncNotes.Checked;
                 _sync.SyncContacts = btSyncContacts.Checked;
 

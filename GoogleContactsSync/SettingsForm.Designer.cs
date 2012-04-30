@@ -55,10 +55,10 @@ namespace GoContactSyncMod
             this.nextSyncLabel = new System.Windows.Forms.Label();
             this.syncTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.btPromptDelete = new System.Windows.Forms.CheckBox();
-            this.btSyncContacts = new System.Windows.Forms.CheckBox();
-            this.noteFoldersComboBox = new System.Windows.Forms.ComboBox();
             this.btSyncNotes = new System.Windows.Forms.CheckBox();
+            this.btSyncContacts = new System.Windows.Forms.CheckBox();
+            this.btPromptDelete = new System.Windows.Forms.CheckBox();
+            this.noteFoldersComboBox = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btSyncDelete = new System.Windows.Forms.CheckBox();
             this.cmbSyncProfile = new System.Windows.Forms.ComboBox();
@@ -77,6 +77,8 @@ namespace GoContactSyncMod
             this.hideButton = new System.Windows.Forms.Button();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
+            this.rbUseFileAs = new System.Windows.Forms.RadioButton();
+            this.rbUseFullName = new System.Windows.Forms.RadioButton();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -352,20 +354,19 @@ namespace GoContactSyncMod
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Sync Options";
             // 
-            // btPromptDelete
+            // btSyncNotes
             // 
-            this.btPromptDelete.AutoSize = true;
-            this.btPromptDelete.Checked = true;
-            this.btPromptDelete.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.btPromptDelete.Location = new System.Drawing.Point(119, 46);
-            this.btPromptDelete.Name = "btPromptDelete";
-            this.btPromptDelete.Size = new System.Drawing.Size(118, 17);
-            this.btPromptDelete.TabIndex = 8;
-            this.btPromptDelete.Text = "Prompt De&letion";
-            this.toolTip.SetToolTip(this.btPromptDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
+            this.btSyncNotes.AutoSize = true;
+            this.btSyncNotes.Location = new System.Drawing.Point(357, 46);
+            this.btSyncNotes.Name = "btSyncNotes";
+            this.btSyncNotes.Size = new System.Drawing.Size(90, 17);
+            this.btSyncNotes.TabIndex = 5;
+            this.btSyncNotes.Text = "Sync &Notes";
+            this.toolTip.SetToolTip(this.btSyncNotes, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
                     "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
                     "ice versa.");
-            this.btPromptDelete.UseVisualStyleBackColor = true;
+            this.btSyncNotes.UseVisualStyleBackColor = true;
+            this.btSyncNotes.CheckedChanged += new System.EventHandler(this.btSyncNotes_CheckedChanged);
             // 
             // btSyncContacts
             // 
@@ -383,6 +384,21 @@ namespace GoContactSyncMod
             this.btSyncContacts.UseVisualStyleBackColor = true;
             this.btSyncContacts.CheckedChanged += new System.EventHandler(this.btSyncContacts_CheckedChanged);
             // 
+            // btPromptDelete
+            // 
+            this.btPromptDelete.AutoSize = true;
+            this.btPromptDelete.Checked = true;
+            this.btPromptDelete.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.btPromptDelete.Location = new System.Drawing.Point(119, 46);
+            this.btPromptDelete.Name = "btPromptDelete";
+            this.btPromptDelete.Size = new System.Drawing.Size(118, 17);
+            this.btPromptDelete.TabIndex = 8;
+            this.btPromptDelete.Text = "Prompt De&letion";
+            this.toolTip.SetToolTip(this.btPromptDelete, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
+                    "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
+                    "ice versa.");
+            this.btPromptDelete.UseVisualStyleBackColor = true;
+            // 
             // noteFoldersComboBox
             // 
             this.noteFoldersComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -395,20 +411,6 @@ namespace GoContactSyncMod
             this.noteFoldersComboBox.TabIndex = 7;
             this.toolTip.SetToolTip(this.noteFoldersComboBox, "Select the Outlook Contacts folder you want to sync");
             this.noteFoldersComboBox.SelectedIndexChanged += new System.EventHandler(this.noteFoldersComboBox_SelectedIndexChanged);
-            // 
-            // btSyncNotes
-            // 
-            this.btSyncNotes.AutoSize = true;
-            this.btSyncNotes.Location = new System.Drawing.Point(357, 46);
-            this.btSyncNotes.Name = "btSyncNotes";
-            this.btSyncNotes.Size = new System.Drawing.Size(90, 17);
-            this.btSyncNotes.TabIndex = 5;
-            this.btSyncNotes.Text = "Sync &Notes";
-            this.toolTip.SetToolTip(this.btSyncNotes, "This specifies whether deletions are\r\nsynchronized. Enabling this option\r\nmeans i" +
-                    "f you delete a contact from\r\nGoogle, then it will be deleted from\r\nOutlook and v" +
-                    "ice versa.");
-            this.btSyncNotes.UseVisualStyleBackColor = true;
-            this.btSyncNotes.CheckedChanged += new System.EventHandler(this.btSyncNotes_CheckedChanged);
             // 
             // panel1
             // 
@@ -630,6 +632,28 @@ namespace GoContactSyncMod
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
+            // rbUseFileAs
+            // 
+            this.rbUseFileAs.AutoSize = true;
+            this.rbUseFileAs.Checked = true;
+            this.rbUseFileAs.Location = new System.Drawing.Point(185, 500);
+            this.rbUseFileAs.Name = "rbUseFileAs";
+            this.rbUseFileAs.Size = new System.Drawing.Size(236, 17);
+            this.rbUseFileAs.TabIndex = 5;
+            this.rbUseFileAs.TabStop = true;
+            this.rbUseFileAs.Text = "Use Outlook\'s File As for Google Title";
+            this.rbUseFileAs.UseVisualStyleBackColor = true;
+            // 
+            // rbUseFullName
+            // 
+            this.rbUseFullName.AutoSize = true;
+            this.rbUseFullName.Location = new System.Drawing.Point(427, 500);
+            this.rbUseFullName.Name = "rbUseFullName";
+            this.rbUseFullName.Size = new System.Drawing.Size(251, 17);
+            this.rbUseFullName.TabIndex = 6;
+            this.rbUseFullName.Text = "Use Outlook\'s FullName for Google Title";
+            this.rbUseFullName.UseVisualStyleBackColor = true;
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.syncButton;
@@ -637,6 +661,8 @@ namespace GoContactSyncMod
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.hideButton;
             this.ClientSize = new System.Drawing.Size(986, 542);
+            this.Controls.Add(this.rbUseFullName);
+            this.Controls.Add(this.rbUseFileAs);
             this.Controls.Add(this.Donate);
             this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.resetMatchesLinkLabel);
@@ -724,6 +750,8 @@ namespace GoContactSyncMod
         private System.Windows.Forms.ComboBox cmbSyncProfile;
         private System.Windows.Forms.ComboBox noteFoldersComboBox;
         private System.Windows.Forms.CheckBox btPromptDelete;
+        private System.Windows.Forms.RadioButton rbUseFileAs;
+        private System.Windows.Forms.RadioButton rbUseFullName;
 
     }
 }

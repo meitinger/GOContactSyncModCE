@@ -413,7 +413,7 @@ namespace GoContactSyncMod
         /// <summary>
         /// Updates Google contact from Outlook (but without groups/categories)
         /// </summary>
-	    public static void UpdateContact(Outlook.ContactItem master, Contact slave)
+	    public static void UpdateContact(Outlook.ContactItem master, Contact slave, bool useFileAs)
 		{
 			//// if no email or number, contact will be updated at each sync
             //if (string.IsNullOrEmpty(master.Email1Address) && string.IsNullOrEmpty(master.PrimaryTelephoneNumber))
@@ -460,13 +460,13 @@ namespace GoContactSyncMod
 
 
 
-            if (!string.IsNullOrEmpty(master.FullName))
+            if (!string.IsNullOrEmpty(master.FullName) && useFileAs) //Title must only be set, if the master has a fullname, otherwise the title stays as set in the beginning
                 name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
             
             slave.Name = name;
             #endregion Name
 
-            #region Birtday
+            #region Birthday
             try
             {
                 if (master.Birthday.Equals(outlookDateNone)) //earlier also || master.Birthday.Year < 1900

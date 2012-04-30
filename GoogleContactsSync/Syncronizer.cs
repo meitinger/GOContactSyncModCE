@@ -278,6 +278,16 @@ namespace GoContactSyncMod
             get { return _syncContacts; }
             set { _syncContacts = value; }
         }
+
+        private bool _useFileAs = true;
+        /// <summary>
+        /// if true, use Outlook's FileAs for Google Title/FullName. If false, use Outlook's Fullname
+        /// </summary>
+        public bool UseFileAs
+        {
+            get { return _useFileAs; }
+            set { _useFileAs = value; }
+        }
        
 
 		public void LoginToGoogle(string username, string password)
@@ -659,30 +669,37 @@ namespace GoContactSyncMod
                     Logger.Log("Loading Google Notes...", EventType.Information);
 
                 _googleNotes = new Collection<Document>();
-                
-                //First get the Notes folder or create it, if not yet existing
-                _googleNotesFolder = null;
-                DocumentQuery query = new DocumentQuery(_documentsRequest.BaseUri);
-                query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
-                query.Title = "Notes";//ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes"
-                Feed<Document> feed = _documentsRequest.Get<Document>(query);
+                DocumentQuery query;
+                Feed<Document> feed;
 
-                if (feed != null)
+                lock (this) //Synchronize the threads
                 {
-                    foreach (Document a in feed.Entries)
+                    //First get the Notes folder or create it, if not yet existing
+                    if (_googleNotesFolder == null)
                     {
-                        _googleNotesFolder = a;
-                        break;
-                    }                    
-                }
+                        query = new DocumentQuery(_documentsRequest.BaseUri);
+                        query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
+                        query.Title = "Notes";//ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes"
+                        feed = _documentsRequest.Get<Document>(query);
 
-                if (_googleNotesFolder == null)
-                {
-                    _googleNotesFolder = new Document();
-                    _googleNotesFolder.Type = Document.DocumentType.Folder;
-                    //_googleNotesFolder.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
-                    _googleNotesFolder.Title = query.Title;
-                    _googleNotesFolder = SaveGoogleNote(null, _googleNotesFolder, _documentsRequest);
+                        if (feed != null)
+                        {
+                            foreach (Document a in feed.Entries)
+                            {
+                                _googleNotesFolder = a;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (_googleNotesFolder == null)
+                    {
+                        _googleNotesFolder = new Document();
+                        _googleNotesFolder.Type = Document.DocumentType.Folder;
+                        //_googleNotesFolder.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
+                        _googleNotesFolder.Title = "Notes"; //ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes";
+                        _googleNotesFolder = SaveGoogleNote(null, _googleNotesFolder, _documentsRequest);
+                    }
                 }
 
                 if (id == null)
@@ -1441,14 +1458,15 @@ namespace GoContactSyncMod
 
             Document newNote = LoadGoogleNotes(entry.Id);
             NoteMatch match = e.UserState as NoteMatch;
-            match.GoogleNote = newNote;
-            match.AsyncUpdateCompleted = true;
-            _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);
+            match.GoogleNote = newNote;            
+            newNote = _documentsRequest.MoveDocumentTo(_googleNotesFolder, newNote);
 
             //Then update the match IDs
             UpdateNoteMatchId(match);
 
             Logger.Log("Created Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
+            //Then release this match as completed (to not log the summary already before each single note result has been synced
+            match.AsyncUpdateCompleted = true;
         }
 
         private void OnGoogleNoteUpdated(object sender, AsyncOperationCompletedEventArgs e)
@@ -1812,7 +1830,7 @@ namespace GoContactSyncMod
         /// </summary>
         public void UpdateContact(Outlook.ContactItem master, Contact slave)
         {
-            ContactSync.UpdateContact(master, slave);
+            ContactSync.UpdateContact(master, slave, _useFileAs);
             OverwriteContactGroups(master, slave);
         }
 
