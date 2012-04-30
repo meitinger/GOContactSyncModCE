@@ -89,6 +89,10 @@ namespace GoContactSyncMod.UnitTests
             if (outlookContact != null)
                 DeleteTestContact(outlookContact);
 
+            outlookContact = sync.OutlookContacts.Find("[FileAs] = 'SaveAs'") as Outlook.ContactItem;
+            if (outlookContact != null)
+                DeleteTestContact(outlookContact);
+
             foreach (Contact googleContact in sync.GoogleContacts)
             {
                 if (googleContact != null &&
