@@ -433,19 +433,19 @@ namespace GoContactSyncMod
             //TODO: convert to merge as opposed to replace
 
             #region Title/FileAs
-        
-            
-            if (!string.IsNullOrEmpty(master.FileAs))
-                slave.Title = master.FileAs;
-            else if (!string.IsNullOrEmpty(master.FullName))
-				slave.Title = master.FullName;
-            else if (!string.IsNullOrEmpty(master.CompanyName))
-				slave.Title = master.CompanyName;
-            else if (!string.IsNullOrEmpty(master.Email1Address))
-                slave.Title = master.Email1Address;
-            else
-                slave.Title = null;
 
+            slave.Title = null;
+            if (useFileAs)
+            {
+                if (!string.IsNullOrEmpty(master.FileAs))
+                    slave.Title = master.FileAs;
+                else if (!string.IsNullOrEmpty(master.FullName))
+                    slave.Title = master.FullName;
+                else if (!string.IsNullOrEmpty(master.CompanyName))
+                    slave.Title = master.CompanyName;
+                else if (!string.IsNullOrEmpty(master.Email1Address))
+                    slave.Title = master.Email1Address;
+            }
 			
             #endregion Title/FileAs
 
@@ -458,8 +458,11 @@ namespace GoContactSyncMod
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
 
-            if (!string.IsNullOrEmpty(master.FullName) && useFileAs) //Title must only be set, if the master has a fullname, otherwise the title stays as set in the beginning
-                name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
+            //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
+            if (useFileAs)
+                name.FullName = master.FileAs; 
+            else
+                name.FullName = OutlookContactInfo.GetTitleFirstLastAndSuffix(master);
             
             slave.Name = name;
             #endregion Name
@@ -851,6 +854,7 @@ namespace GoContactSyncMod
             }
             #endregion relations (spouse, child, manager, assistant)
 
+            slave.WebPage = string.Empty;
             foreach (Website website in master.ContactEntry.Websites)
             {               
                 if (website.Primary || website.Equals(master.ContactEntry.Websites[0]))

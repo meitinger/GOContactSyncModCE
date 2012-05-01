@@ -16,9 +16,10 @@ namespace GoContactSyncMod
 		/// Time tolerance in seconds - used when comparing date modified.
         /// Less than 60 seconds doesn't make sense, as the lastSync is saved without seconds and if it is compared
         /// with the LastUpdate dates of Google and Outlook, in the worst case you compare e.g. 15:59 with 16:00 and 
-        /// after truncating to minutes you compare 15:00 wiht 16:00
+        /// after truncating to minutes you compare 15:00 with 16:00
+        /// Better take 120 seconds, because when resetting matches the time difference can be up to 2 minutes
 		/// </summary>
-		public static int TimeTolerance = 60 ;
+		public static int TimeTolerance = 120 ;
 
         public delegate void NotificationHandler(string message);
         public static event NotificationHandler NotificationReceived;
