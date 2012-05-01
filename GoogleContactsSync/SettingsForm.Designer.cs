@@ -77,8 +77,7 @@ namespace GoContactSyncMod
             this.hideButton = new System.Windows.Forms.Button();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.MainSplitter = new System.Windows.Forms.Splitter();
-            this.rbUseFileAs = new System.Windows.Forms.RadioButton();
-            this.rbUseFullName = new System.Windows.Forms.RadioButton();
+            this.chkUseFileAs = new System.Windows.Forms.CheckBox();
             this.systemTrayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.autoSyncInterval)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -514,6 +513,7 @@ namespace GoContactSyncMod
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.chkUseFileAs);
             this.groupBox4.Controls.Add(this.proxySettingsLinkLabel);
             this.groupBox4.Controls.Add(this.label2);
             this.groupBox4.Controls.Add(this.label3);
@@ -632,27 +632,17 @@ namespace GoContactSyncMod
             this.MainSplitter.TabIndex = 5;
             this.MainSplitter.TabStop = false;
             // 
-            // rbUseFileAs
+            // chkUseFileAs
             // 
-            this.rbUseFileAs.AutoSize = true;
-            this.rbUseFileAs.Checked = true;
-            this.rbUseFileAs.Location = new System.Drawing.Point(185, 500);
-            this.rbUseFileAs.Name = "rbUseFileAs";
-            this.rbUseFileAs.Size = new System.Drawing.Size(236, 17);
-            this.rbUseFileAs.TabIndex = 5;
-            this.rbUseFileAs.TabStop = true;
-            this.rbUseFileAs.Text = "Use Outlook\'s File As for Google Title";
-            this.rbUseFileAs.UseVisualStyleBackColor = true;
-            // 
-            // rbUseFullName
-            // 
-            this.rbUseFullName.AutoSize = true;
-            this.rbUseFullName.Location = new System.Drawing.Point(427, 500);
-            this.rbUseFullName.Name = "rbUseFullName";
-            this.rbUseFullName.Size = new System.Drawing.Size(251, 17);
-            this.rbUseFullName.TabIndex = 6;
-            this.rbUseFullName.Text = "Use Outlook\'s FullName for Google Title";
-            this.rbUseFullName.UseVisualStyleBackColor = true;
+            this.chkUseFileAs.AutoSize = true;
+            this.chkUseFileAs.Checked = true;
+            this.chkUseFileAs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkUseFileAs.Location = new System.Drawing.Point(161, 69);
+            this.chkUseFileAs.Name = "chkUseFileAs";
+            this.chkUseFileAs.Size = new System.Drawing.Size(281, 17);
+            this.chkUseFileAs.TabIndex = 7;
+            this.chkUseFileAs.Text = "Use Outlook Contact\'s FileAs for Google Title";
+            this.chkUseFileAs.UseVisualStyleBackColor = true;
             // 
             // SettingsForm
             // 
@@ -661,8 +651,6 @@ namespace GoContactSyncMod
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.hideButton;
             this.ClientSize = new System.Drawing.Size(986, 542);
-            this.Controls.Add(this.rbUseFullName);
-            this.Controls.Add(this.rbUseFileAs);
             this.Controls.Add(this.Donate);
             this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.resetMatchesLinkLabel);
@@ -750,8 +738,7 @@ namespace GoContactSyncMod
         private System.Windows.Forms.ComboBox cmbSyncProfile;
         private System.Windows.Forms.ComboBox noteFoldersComboBox;
         private System.Windows.Forms.CheckBox btPromptDelete;
-        private System.Windows.Forms.RadioButton rbUseFileAs;
-        private System.Windows.Forms.RadioButton rbUseFullName;
+        private System.Windows.Forms.CheckBox chkUseFileAs;
 
     }
 }
