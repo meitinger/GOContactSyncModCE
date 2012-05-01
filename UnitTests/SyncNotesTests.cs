@@ -50,7 +50,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncContacts = false;
             sync.SyncNotes = true;
             sync.SyncProfile = syncProfile;
-            sync.SyncNotesFolder = syncNotesFolder;           
+            Syncronizer.SyncNotesFolder = syncNotesFolder;           
 
             sync.LoginToGoogle(gmailUsername, gmailPassword);
             sync.LoginToOutlook();
@@ -107,7 +107,7 @@ namespace GoContactSyncMod.UnitTests
         public void TestSync()
         {
             // create new note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             //outlookNote.Subject = name;          
             outlookNote.Body = body;
            
@@ -133,7 +133,7 @@ namespace GoContactSyncMod.UnitTests
             match = FindMatch(match.GoogleNote);
             //NotesMatcher.SyncNote(match, sync);
 
-            Outlook.NoteItem recreatedOutlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            Outlook.NoteItem recreatedOutlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             sync.UpdateNote(match.GoogleNote, recreatedOutlookNote);
 
             // match recreatedOutlookNote with outlookNote
@@ -151,7 +151,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncDelete = true;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             outlookNote.Body = body;            
             outlookNote.Save();
 
@@ -198,7 +198,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncDelete = true;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             outlookNote.Body = body;            
             outlookNote.Save();
 
@@ -258,7 +258,7 @@ namespace GoContactSyncMod.UnitTests
             sync.SyncOption = SyncOption.MergeOutlookWins;
 
             // create new Note to sync
-            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            Outlook.NoteItem outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             outlookNote.Body = body;           
             outlookNote.Save();
 
@@ -305,7 +305,7 @@ namespace GoContactSyncMod.UnitTests
             DeleteTestNotes();    
 
             // create new Note to sync
-            outlookNote = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+            outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
             outlookNote.Body = body;          
             outlookNote.Save();
 

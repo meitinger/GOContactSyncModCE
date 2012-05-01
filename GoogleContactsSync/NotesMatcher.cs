@@ -533,7 +533,7 @@ namespace GoContactSyncMod
                     }
 
                     //create a Outlook note from Google note
-                    outlookNoteItem = Syncronizer.CreateOutlookNoteItem(sync.SyncNotesFolder);
+                    outlookNoteItem = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
 
                     sync.UpdateNote(match.GoogleNote, outlookNoteItem);
                     match.OutlookNote = outlookNoteItem;

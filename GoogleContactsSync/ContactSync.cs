@@ -459,10 +459,17 @@ namespace GoContactSyncMod
             name.NameSuffix = master.Suffix;
 
             //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
-            if (useFileAs)
-                name.FullName = master.FileAs; 
-            else
-                name.FullName = OutlookContactInfo.GetTitleFirstLastAndSuffix(master);
+            if (!string.IsNullOrEmpty(master.FullName)) //Only if master.FullName has a value, i.e. not only a company or email contact
+            {
+                if (useFileAs)
+                    name.FullName = master.FileAs;
+                else
+                {                    
+                    name.FullName = OutlookContactInfo.GetTitleFirstLastAndSuffix(master);
+                    if (!string.IsNullOrEmpty(name.FullName))
+                        name.FullName = name.FullName.Trim().Replace("  ", " ");
+                }
+            }
             
             slave.Name = name;
             #endregion Name

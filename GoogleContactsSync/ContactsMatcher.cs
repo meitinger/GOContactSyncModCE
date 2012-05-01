@@ -637,7 +637,7 @@ namespace GoContactSyncMod
                     }
 
                     //create a Outlook contact from Google contact                                                            
-                    outlookContactItem = Syncronizer.CreateOutlookContactItem(sync.SyncContactsFolder);
+                    outlookContactItem = Syncronizer.CreateOutlookContactItem(Syncronizer.SyncContactsFolder);
 
                     sync.UpdateContact(match.GoogleContact, outlookContactItem);
                     match.OutlookContact = new OutlookContactInfo(outlookContactItem, sync);
@@ -991,7 +991,12 @@ namespace GoContactSyncMod
 
         public static string GetSummary(Outlook.ContactItem outlookContact)
         {
-            string summary = "Name: " + OutlookContactInfo.GetTitleFirstLastAndSuffix(outlookContact).Trim().Replace("  ", " ") + "\r\n";
+            string name = OutlookContactInfo.GetTitleFirstLastAndSuffix(outlookContact);
+
+            string summary = string.Empty;
+
+            if (!string.IsNullOrEmpty(name))
+                summary += "Name: " + name.Trim().Replace("  ", " ") + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.CompanyName))
                 summary += "Company: " + outlookContact.CompanyName + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.Department))
@@ -1028,7 +1033,12 @@ namespace GoContactSyncMod
 
         public static string GetSummary(Contact googleContact)
         {
-            string summary = "Name: " + OutlookContactInfo.GetTitleFirstLastAndSuffix(googleContact).Trim().Replace("  ", " ") + "\r\n";
+            string name = OutlookContactInfo.GetTitleFirstLastAndSuffix(googleContact);
+
+            string summary = string.Empty;
+
+            if (!string.IsNullOrEmpty(name))
+                summary += "Name: " + name.Trim().Replace("  ", " ") + "\r\n";
             for (int i = 0; i < googleContact.Organizations.Count; i++)
             {
                 string company = googleContact.Organizations[i].Name;

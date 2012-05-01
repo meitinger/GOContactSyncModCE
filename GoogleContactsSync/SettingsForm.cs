@@ -19,8 +19,8 @@ namespace GoContactSyncMod
 {
 	internal partial class SettingsForm : Form
 	{
-		internal Syncronizer _sync;
-		private SyncOption _syncOption;
+		internal Syncronizer sync;
+		private SyncOption syncOption;
 		private DateTime lastSync;
 		private bool requestClose = false;
         private bool boolShowBalloonTip = true;
@@ -29,9 +29,9 @@ namespace GoContactSyncMod
 
         private ProxySettingsForm _proxy = new ProxySettingsForm();
 
-        private string _syncContactsFolder = "";
-        private string _syncNotesFolder = "";
-        private string _syncProfile
+        private string syncContactsFolder = "";
+        private string syncNotesFolder = "";
+        private string syncProfile
         {
             get
             {
@@ -226,16 +226,16 @@ namespace GoContactSyncMod
                 cmbSyncProfile.Items.Add(subKeyName);
             }
 
-            if (string.IsNullOrEmpty(_syncProfile))
-                _syncProfile = "Default";
+            if (string.IsNullOrEmpty(syncProfile))
+                syncProfile = "Default";
 
             if (cmbSyncProfile.Items.Count == 1)
-                cmbSyncProfile.Items.Add(_syncProfile);
+                cmbSyncProfile.Items.Add(syncProfile);
             else
                 vReturn = true;
 
             cmbSyncProfile.Items.Add("[Configuration manager...]");
-            cmbSyncProfile.Text = _syncProfile;
+            cmbSyncProfile.Text = syncProfile;
 
             return vReturn;
         }
@@ -247,8 +247,8 @@ namespace GoContactSyncMod
 
             if (regKeyAppRoot.GetValue("SyncOption") != null)
             {
-                _syncOption = (SyncOption)regKeyAppRoot.GetValue("SyncOption");
-                SetSyncOption((int)_syncOption);
+                syncOption = (SyncOption)regKeyAppRoot.GetValue("SyncOption");
+                SetSyncOption((int)syncOption);
             }
 
             if (regKeyAppRoot.GetValue("Username") != null)
@@ -296,9 +296,9 @@ namespace GoContactSyncMod
         {
             if (!string.IsNullOrEmpty(profile))
             {
-                _syncProfile = cmbSyncProfile.Text;
+                syncProfile = cmbSyncProfile.Text;
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + profile);
-                regKeyAppRoot.SetValue("SyncOption", (int)_syncOption);
+                regKeyAppRoot.SetValue("SyncOption", (int)syncOption);
  
                 if (!string.IsNullOrEmpty(UserName.Text))
                 {
@@ -397,49 +397,49 @@ namespace GoContactSyncMod
                 TimerSwitch(false);
 
                 //if the contacts or notes folder has changed ==> Reset matches (to not delete contacts or notes on the one or other side)                
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + _syncProfile);
+                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + syncProfile);
                 string syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
                 string syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
 
                 //only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
-                bool syncContacts = !string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(_syncContactsFolder) && btSyncContacts.Checked;
-                bool syncNotes = !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(_syncNotesFolder) && btSyncNotes.Checked;                                
+                bool syncContacts = !string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(syncContactsFolder) && btSyncContacts.Checked;
+                bool syncNotes = !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(syncNotesFolder) && btSyncNotes.Checked;                                
                 if (syncContacts || syncNotes)
                     ResetMatches(syncContacts, syncNotes);
                 
                 //Then save the Contacts and Notes Folders used at last sync
                 if (btSyncContacts.Checked)
-                    regKeyAppRoot.SetValue("SyncContactsFolder", _syncContactsFolder);
+                    regKeyAppRoot.SetValue("SyncContactsFolder", syncContactsFolder);
                 if (btSyncNotes.Checked)
-                    regKeyAppRoot.SetValue("SyncNotesFolder", _syncNotesFolder);
+                    regKeyAppRoot.SetValue("SyncNotesFolder", syncNotesFolder);
 
                 SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
                 SetFormEnabled(false);
 
-                if (_sync == null)
+                if (sync == null)
                 {
-                    _sync = new Syncronizer();
-                    _sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
-                    _sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
+                    sync = new Syncronizer();
+                    sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
+                    sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
                 }
 
                 Logger.ClearLog();
                 SetSyncConsoleText("");
-                Logger.Log("Sync started (" + _syncProfile + ").", EventType.Information);
+                Logger.Log("Sync started (" + syncProfile + ").", EventType.Information);
                 //SetSyncConsoleText(Logger.GetText());
-                _sync.SyncProfile = _syncProfile;
-                _sync.SyncContactsFolder  = _syncContactsFolder;
-                _sync.SyncNotesFolder = _syncNotesFolder;
+                sync.SyncProfile = syncProfile;
+                Syncronizer.SyncContactsFolder  = syncContactsFolder;
+                Syncronizer.SyncNotesFolder = syncNotesFolder;
 
-                _sync.SyncOption = _syncOption;
-                _sync.SyncDelete = btSyncDelete.Checked;
-                _sync.PromptDelete = btPromptDelete.Checked && btSyncDelete.Checked;
-                _sync.UseFileAs = chkUseFileAs.Checked;
-                _sync.SyncNotes = btSyncNotes.Checked;
-                _sync.SyncContacts = btSyncContacts.Checked;
+                sync.SyncOption = syncOption;
+                sync.SyncDelete = btSyncDelete.Checked;
+                sync.PromptDelete = btPromptDelete.Checked && btSyncDelete.Checked;
+                sync.UseFileAs = chkUseFileAs.Checked;
+                sync.SyncNotes = btSyncNotes.Checked;
+                sync.SyncContacts = btSyncContacts.Checked;
 
-                if (!_sync.SyncContacts && !_sync.SyncNotes)
+                if (!sync.SyncContacts && !sync.SyncNotes)
                 {
                     SetLastSyncText("Sync failed.");
                     notifyIcon.Text = Application.ProductName + "\nSync failed";
@@ -452,15 +452,15 @@ namespace GoContactSyncMod
                 }
 
 
-                _sync.LoginToGoogle(UserName.Text, Password.Text);
-                _sync.LoginToOutlook();
+                sync.LoginToGoogle(UserName.Text, Password.Text);
+                sync.LoginToOutlook();
 
-                _sync.Sync();
+                sync.Sync();
 
                 lastSync = DateTime.Now;
                 SetLastSyncText("Last synced at " + lastSync.ToString());
 
-                string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", _sync.TotalCount, _sync.SyncedCount, _sync.DeletedCount, _sync.SkippedCount, _sync.ErrorCount);
+                string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount);
                 Logger.Log(message, EventType.Information);
                 if (reportSyncResultCheckBox.Checked)
                 {
@@ -469,9 +469,9 @@ namespace GoContactSyncMod
                     notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
                     */
                     ToolTipIcon icon;
-                    if (_sync.ErrorCount > 0)
+                    if (sync.ErrorCount > 0)
                         icon = ToolTipIcon.Error;
-                    else if (_sync.SkippedCount > 0)
+                    else if (sync.SkippedCount > 0)
                         icon = ToolTipIcon.Warning;
                     else
                         icon = ToolTipIcon.Info;
@@ -484,8 +484,8 @@ namespace GoContactSyncMod
 
                 }
                 string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
-                if (_sync.ErrorCount + _sync.SkippedCount > 0)
-                    toolTip += string.Format("\nWarnings: {0}.", _sync.ErrorCount + _sync.SkippedCount);
+                if (sync.ErrorCount + sync.SkippedCount > 0)
+                    toolTip += string.Format("\nWarnings: {0}.", sync.ErrorCount + sync.SkippedCount);
                 if (toolTip.Length >= 64)
                     toolTip = toolTip.Substring(0, 63);
                 notifyIcon.Text = toolTip;
@@ -540,11 +540,11 @@ namespace GoContactSyncMod
                 lastSync = DateTime.Now;
                 TimerSwitch(true);
 				SetFormEnabled(true);
-                if (_sync != null)
+                if (sync != null)
                 {
-                    _sync.LogoffOutlook();
-                    _sync.LogoffGoogle();
-                    _sync = null;
+                    sync.LogoffOutlook();
+                    sync.LogoffGoogle();
+                    sync = null;
                 }
 			}
 		}
@@ -791,8 +791,8 @@ namespace GoContactSyncMod
 		{
 			try
 			{
-				if (_sync != null)
-					_sync.LogoffOutlook();
+				if (sync != null)
+					sync.LogoffOutlook();
 
 				SaveSettings();
 
@@ -821,7 +821,7 @@ namespace GoContactSyncMod
 		}
 		private void SetSyncOption(int index)
 		{
-			_syncOption = (SyncOption)index;
+			syncOption = (SyncOption)index;
 			for (int i = 0; i < syncOptionBox.Items.Count; i++)
 			{
 				if (i == index)
@@ -896,11 +896,11 @@ namespace GoContactSyncMod
                 TimerSwitch(true);
 				SetFormEnabled(true);
                 this.hideButton.Enabled = true;
-                if (_sync != null)
+                if (sync != null)
                 {
-                    _sync.LogoffOutlook();
-                    _sync.LogoffGoogle();
-                    _sync = null;
+                    sync.LogoffOutlook();
+                    sync.LogoffGoogle();
+                    sync = null;
                 }
 			}
 		}
@@ -913,40 +913,40 @@ namespace GoContactSyncMod
             SetFormEnabled(false);
             //this.hideButton.Enabled = false;
 
-            if (_sync == null)
+            if (sync == null)
             {
-                _sync = new Syncronizer();
+                sync = new Syncronizer();
             }
 
             Logger.ClearLog();
             SetSyncConsoleText("");
-            Logger.Log("Reset Matches started  (" + _syncProfile + ").", EventType.Information);
+            Logger.Log("Reset Matches started  (" + syncProfile + ").", EventType.Information);
 
-            _sync.SyncNotes = syncNotes;
-            _sync.SyncContacts = syncContacts;
+            sync.SyncNotes = syncNotes;
+            sync.SyncContacts = syncContacts;
 
-            _sync.SyncContactsFolder = _syncContactsFolder;
-            _sync.SyncNotesFolder = _syncNotesFolder;
-            _sync.SyncProfile = _syncProfile;
+            Syncronizer.SyncContactsFolder = syncContactsFolder;
+            Syncronizer.SyncNotesFolder = syncNotesFolder;
+            sync.SyncProfile = syncProfile;
 
-            _sync.LoginToGoogle(UserName.Text, Password.Text);
-            _sync.LoginToOutlook();
+            sync.LoginToGoogle(UserName.Text, Password.Text);
+            sync.LoginToOutlook();
 
             
 
             //Load matches, but match them by properties, not sync id
 
-            if (_sync.SyncContacts)
+            if (sync.SyncContacts)
             {
-                _sync.LoadContacts();
-                _sync.ResetContactMatches();
+                sync.LoadContacts();
+                sync.ResetContactMatches();
             }
 
 
-            if (_sync.SyncNotes)
+            if (sync.SyncNotes)
             {
-                _sync.LoadNotes();
-                _sync.ResetNoteMatches();
+                sync.LoadNotes();
+                sync.ResetNoteMatches();
             }
 
 
@@ -1125,7 +1125,7 @@ namespace GoContactSyncMod
 
                 if (0 == comboBox.SelectedIndex && _configs != null)
                 {
-                    _syncProfile = _configs.AddProfile();
+                    syncProfile = _configs.AddProfile();
                     ClearSettings();
                 }
                 
@@ -1134,7 +1134,7 @@ namespace GoContactSyncMod
 
                 fillSyncProfileItems();
 
-                comboBox.Text = _syncProfile;
+                comboBox.Text = syncProfile;
                 SaveSettings();
             }
             if (comboBox.SelectedIndex < 0)
@@ -1143,7 +1143,7 @@ namespace GoContactSyncMod
             {
                 //ClearSettings();
                 LoadSettings(comboBox.Text);
-                _syncProfile = comboBox.Text;
+                syncProfile = comboBox.Text;
             }
 
             ValidateSyncButton();
@@ -1154,12 +1154,12 @@ namespace GoContactSyncMod
             string message = "Select the Outlook Contacts folder you want to sync";
             if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
             {
-                _syncContactsFolder = (sender as ComboBox).SelectedValue.ToString();
+                syncContactsFolder = (sender as ComboBox).SelectedValue.ToString();
                 toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
             }
             else
             {
-                _syncContactsFolder = "";
+                syncContactsFolder = "";
                 toolTip.SetToolTip((sender as ComboBox), message);
             }
             ValidateSyncButton();
@@ -1172,12 +1172,12 @@ namespace GoContactSyncMod
             string message = "Select the Outlook Notes folder you want to sync";
             if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
             {
-                _syncNotesFolder = (sender as ComboBox).SelectedValue.ToString();
+                syncNotesFolder = (sender as ComboBox).SelectedValue.ToString();
                 toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
             }
             else
             {
-                _syncNotesFolder = "";
+                syncNotesFolder = "";
                 toolTip.SetToolTip((sender as ComboBox), message);
             }
 
