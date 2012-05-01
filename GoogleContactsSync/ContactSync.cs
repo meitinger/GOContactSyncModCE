@@ -458,8 +458,6 @@ namespace GoContactSyncMod
             name.FamilyName = master.LastName;
             name.NameSuffix = master.Suffix;
 
-
-
             if (!string.IsNullOrEmpty(master.FullName) && useFileAs) //Title must only be set, if the master has a fullname, otherwise the title stays as set in the beginning
                 name.FullName = master.FileAs; //Use the Google's full name to save a unique identifier. When saving the FullName, it always overwrites the Google Title
             
@@ -601,37 +599,13 @@ namespace GoContactSyncMod
         /// <summary>
         /// Updates Outlook contact from Google (but without groups/categories)
         /// </summary>
-		public static void UpdateContact(Contact master, Outlook.ContactItem slave)
+		public static void UpdateContact(Contact master, Outlook.ContactItem slave, bool useFileAs)
 		{
 			//// if no email or number, contact will be updated at each sync
 			//if (master.Emails.Count == 0 && master.Phonenumbers.Count == 0)
             //    return;
 
-            #region Title/FileAs
-            if (!string.IsNullOrEmpty(master.Name.FullName))
-                slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
-            else if (!string.IsNullOrEmpty(master.Title))
-                slave.FileAs = master.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
-            else if (master.Organizations.Count > 0 && !string.IsNullOrEmpty(master.Organizations[0].Name))
-                slave.FileAs = master.Organizations[0].Name;
-            else if (master.Emails.Count > 0 && !string.IsNullOrEmpty(master.Emails[0].Address))
-				slave.FileAs = master.Emails[0].Address;
-			else
-			{
-				if (!String.IsNullOrEmpty(slave.Email1Address))
-				{
-                    string emailAddress = ContactPropertiesUtils.GetOutlookEmailAddress1(slave);
-                    Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Setting E-Mail address of Outlook contact: " + emailAddress, EventType.Warning);
-                    master.Emails.Add(new EMail(emailAddress));
-					slave.FileAs = master.Emails[0].Address;
-				}
-				else
-				{
-					Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Cannot merge with Outlook contact: " + slave.FileAs, EventType.Error);
-					return;
-				}
-            }
-            #endregion Title/FileAs
+            
 
             #region Name
             slave.Title = master.Name.NamePrefix;
@@ -643,6 +617,35 @@ namespace GoContactSyncMod
                 slave.FullName = master.Name.FullName;           
 
             #endregion Name
+
+            #region Title/FileAs
+            if (string.IsNullOrEmpty(slave.FileAs) || useFileAs)
+            {
+                if (!string.IsNullOrEmpty(master.Name.FullName))
+                    slave.FileAs = master.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
+                else if (!string.IsNullOrEmpty(master.Title))
+                    slave.FileAs = master.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"); //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google and \r\n is saved on Outlook side to separate the single parts of the FullName
+                else if (master.Organizations.Count > 0 && !string.IsNullOrEmpty(master.Organizations[0].Name))
+                    slave.FileAs = master.Organizations[0].Name;
+                else if (master.Emails.Count > 0 && !string.IsNullOrEmpty(master.Emails[0].Address))
+                    slave.FileAs = master.Emails[0].Address;
+            }
+            if (string.IsNullOrEmpty(slave.FileAs))
+            {
+                if (!String.IsNullOrEmpty(slave.Email1Address))
+                {
+                    string emailAddress = ContactPropertiesUtils.GetOutlookEmailAddress1(slave);
+                    Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Setting E-Mail address of Outlook contact: " + emailAddress, EventType.Warning);
+                    master.Emails.Add(new EMail(emailAddress));
+                    slave.FileAs = master.Emails[0].Address;
+                }
+                else
+                {
+                    Logger.Log("Google Contact '" + master.Summary + "' has neither name nor E-Mail address. Cannot merge with Outlook contact: " + slave.FileAs, EventType.Error);
+                    return;
+                }
+            }
+            #endregion Title/FileAs
 
             #region birthday
             try

@@ -238,9 +238,11 @@ namespace GoContactSyncMod
                     //2. try to match by primary email
                     //3. try to match by mobile phone number, don't match by home or business bumbers, because several people may share the same home or business number
                     //4. try to math Company, if Google Title is null, i.e. the contact doesn't have a name and title, only a company
+                    string entryTitleFirstLastAndSuffix = OutlookContactInfo.GetTitleFirstLastAndSuffix(entry);
                     if (!string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(entry.Title) && olci.FileAs.Equals(entry.Title.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||  //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
                         !string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(entry.Name.FullName) && olci.FileAs.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
-                        !string.IsNullOrEmpty(olci.FullName) && !string.IsNullOrEmpty(entry.Name.FullName) && olci.FullName.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||                        
+                        !string.IsNullOrEmpty(olci.FullName) && !string.IsNullOrEmpty(entry.Name.FullName) && olci.FullName.Equals(entry.Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.IsNullOrEmpty(olci.TitleFirstLastAndSuffix) && !string.IsNullOrEmpty(entryTitleFirstLastAndSuffix) && olci.TitleFirstLastAndSuffix.Equals(entryTitleFirstLastAndSuffix.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||                        
                         !string.IsNullOrEmpty(olci.Email1Address) && entry.Emails.Count > 0 && olci.Email1Address.Equals(entry.Emails[0].Address, StringComparison.InvariantCultureIgnoreCase) ||
                         //!string.IsNullOrEmpty(olci.Email2Address) && FindEmail(olci.Email2Address, entry.Emails) != null ||
                         //!string.IsNullOrEmpty(olci.Email3Address) && FindEmail(olci.Email3Address, entry.Emails) != null ||
@@ -362,10 +364,12 @@ namespace GoContactSyncMod
                     bool duplicateFound = false;
                     foreach (ContactMatch duplicate in sync.GoogleContactDuplicates)
                     {
+                        string entryTitleFirstLastAndSuffix = OutlookContactInfo.GetTitleFirstLastAndSuffix(duplicate.AllGoogleContactMatches[0]);
                         if (duplicate.AllGoogleContactMatches.Count > 0 &&
                             (!string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(duplicate.AllGoogleContactMatches[0].Title) && olci.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Title.Replace("\r\n", "\n").Replace("\n","\r\n"), StringComparison.InvariantCultureIgnoreCase) ||  //Replace twice to not replace a \r\n by \r\r\n. This is necessary because \r\n are saved as \n only to google
                              !string.IsNullOrEmpty(olci.FileAs) && !string.IsNullOrEmpty(duplicate.AllGoogleContactMatches[0].Name.FullName) && olci.FileAs.Equals(duplicate.AllGoogleContactMatches[0].Name.FullName.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
                              !string.IsNullOrEmpty(olci.FullName) && !string.IsNullOrEmpty(duplicate.AllGoogleContactMatches[0].Name.FullName) && olci.FullName.Equals(duplicate.AllGoogleContactMatches[0].Name.FullName.Replace("\r\n", "\n").Replace("\n","\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
+                             !string.IsNullOrEmpty(olci.TitleFirstLastAndSuffix) && !string.IsNullOrEmpty(entryTitleFirstLastAndSuffix) && olci.TitleFirstLastAndSuffix.Equals(entryTitleFirstLastAndSuffix.Replace("\r\n", "\n").Replace("\n", "\r\n"), StringComparison.InvariantCultureIgnoreCase) ||
                              !string.IsNullOrEmpty(olci.Email1Address) && duplicate.AllGoogleContactMatches[0].Emails.Count > 0 && olci.Email1Address.Equals(duplicate.AllGoogleContactMatches[0].Emails[0].Address, StringComparison.InvariantCultureIgnoreCase) ||
                              //!string.IsNullOrEmpty(olci.Email2Address) && FindEmail(olci.Email2Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
                              //!string.IsNullOrEmpty(olci.Email3Address) && FindEmail(olci.Email3Address, duplicate.AllGoogleContactMatches[0].Emails) != null ||
@@ -374,6 +378,7 @@ namespace GoContactSyncMod
                             ) ||
                             !string.IsNullOrEmpty(olci.FileAs) && olci.FileAs.Equals(duplicate.OutlookContact.FileAs, StringComparison.InvariantCultureIgnoreCase) ||
                             !string.IsNullOrEmpty(olci.FullName) && olci.FullName.Equals(duplicate.OutlookContact.FullName, StringComparison.InvariantCultureIgnoreCase) ||
+                            !string.IsNullOrEmpty(olci.TitleFirstLastAndSuffix) && olci.TitleFirstLastAndSuffix.Equals(duplicate.OutlookContact.TitleFirstLastAndSuffix, StringComparison.InvariantCultureIgnoreCase) ||
                             !string.IsNullOrEmpty(olci.Email1Address) && olci.Email1Address.Equals(duplicate.OutlookContact.Email1Address, StringComparison.InvariantCultureIgnoreCase) ||
                             //                                              olci.Email1Address.Equals(duplicate.OutlookContact.Email2Address, StringComparison.InvariantCultureIgnoreCase) ||
                             //                                              olci.Email1Address.Equals(duplicate.OutlookContact.Email3Address, StringComparison.InvariantCultureIgnoreCase)
@@ -985,7 +990,13 @@ namespace GoContactSyncMod
 
         public static string GetSummary(Outlook.ContactItem outlookContact)
         {
-            string summary = "Name: " + outlookContact.FileAs + "\r\n";
+            string summary = "Name: " + OutlookContactInfo.GetTitleFirstLastAndSuffix(outlookContact).Trim().Replace("  ", " ") + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.CompanyName))
+                summary += "Company: " + outlookContact.CompanyName + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.Department))
+                summary += "Department: " + outlookContact.Department + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.JobTitle))
+                summary += "JobTitle: " + outlookContact.JobTitle + "\r\n";           
             if (!string.IsNullOrEmpty(outlookContact.Email1Address))
                 summary += "Email1: " + outlookContact.Email1Address + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.Email2Address))
@@ -997,11 +1008,11 @@ namespace GoContactSyncMod
             if (!string.IsNullOrEmpty(outlookContact.HomeTelephoneNumber))
                 summary += "HomePhone: " + outlookContact.HomeTelephoneNumber + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.Home2TelephoneNumber))
-                summary += "HomePhone2: " + outlookContact.HomeTelephoneNumber + "\r\n";
+                summary += "HomePhone2: " + outlookContact.Home2TelephoneNumber + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.BusinessTelephoneNumber))
                 summary += "BusinessPhone: " + outlookContact.BusinessTelephoneNumber + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.Business2TelephoneNumber))
-                summary += "BusinessPhone2: " + outlookContact.BusinessTelephoneNumber + "\r\n";
+                summary += "BusinessPhone2: " + outlookContact.Business2TelephoneNumber + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.OtherTelephoneNumber))
                 summary += "OtherPhone: " + outlookContact.OtherTelephoneNumber + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.HomeAddress))
@@ -1016,7 +1027,25 @@ namespace GoContactSyncMod
 
         public static string GetSummary(Contact googleContact)
         {
-            string summary = "Name: " + googleContact.Name.FullName + "\r\n";
+            string summary = "Name: " + OutlookContactInfo.GetTitleFirstLastAndSuffix(googleContact).Trim().Replace("  ", " ") + "\r\n";
+            for (int i = 0; i < googleContact.Organizations.Count; i++)
+            {
+                string company = googleContact.Organizations[i].Name;
+                string department = googleContact.Organizations[i].Department;
+                string jobTitle = googleContact.Organizations[i].JobDescription;
+                if (!string.IsNullOrEmpty(company))
+                {
+                    summary += "Company: " + company + "\r\n";
+                }
+                if (!string.IsNullOrEmpty(department))
+                {
+                    summary += "Department: " + department + "\r\n";
+                }
+                if (!string.IsNullOrEmpty(jobTitle))
+                {
+                    summary += "JobTitle: " + jobTitle + "\r\n";
+                }
+            }
             for (int i = 0; i < googleContact.Emails.Count; i++)
             {
                 string email = googleContact.Emails[i].Address;

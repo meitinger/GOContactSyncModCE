@@ -1839,7 +1839,7 @@ namespace GoContactSyncMod
         /// </summary>
         public void UpdateContact(Contact master, Outlook.ContactItem slave)
         {
-            ContactSync.UpdateContact(master, slave);
+            ContactSync.UpdateContact(master, slave, _useFileAs);
             OverwriteContactGroups(master, slave);
 
             // -- Immediately save the Outlook contact (including groups) so it can be released, and don't do it in the save loop later

@@ -26,6 +26,7 @@ namespace GoContactSyncMod
         public string EntryID { get; set; }
         public string FileAs { get; set; }
         public string FullName { get; set; }
+        public string TitleFirstLastAndSuffix { get; set; } //Additional unique identifier
         public string Email1Address { get; set; }
         public string MobileTelephoneNumber { get; set; }
         public string Categories { get; set; }
@@ -57,6 +58,7 @@ namespace GoContactSyncMod
             this.Categories = outlookContactItem.Categories;
             this.LastModificationTime = outlookContactItem.LastModificationTime;
             this.Company = outlookContactItem.CompanyName;
+            this.TitleFirstLastAndSuffix = GetTitleFirstLastAndSuffix(outlookContactItem);
 
             UserProperties userProperties = outlookContactItem.UserProperties;
             UserProperty prop = userProperties[sync.OutlookPropertyNameId];
@@ -82,6 +84,26 @@ namespace GoContactSyncMod
                 throw new ApplicationException("OutlookContactInfo cannot re-create the ContactItem from Outlook because there is no Outlook entry with this EntryID, suggesting that the existing Outook contact may have been deleted.");
 
             return outlookContactItem;
+        }
+
+        internal static string GetTitleFirstLastAndSuffix(ContactItem outlookContactItem)
+        {
+            return GetTitleFirstLastAndSuffix(outlookContactItem.Title, outlookContactItem.FirstName, outlookContactItem.MiddleName, outlookContactItem.LastName, outlookContactItem.Suffix);
+        }
+
+        internal static string GetTitleFirstLastAndSuffix(Google.Contacts.Contact googleContact)
+        {
+            return GetTitleFirstLastAndSuffix(googleContact.Name.NamePrefix, googleContact.Name.GivenName, googleContact.Name.AdditionalName, googleContact.Name.FamilyName, googleContact.Name.NameSuffix);
+        }
+
+        private static string GetTitleFirstLastAndSuffix(string title, string firstName, string middleName, string lastName, string suffix)
+        {
+            string ret = title + " " + firstName + " " + middleName + " " + lastName + " " + suffix;
+
+            if (string.IsNullOrEmpty(ret.Trim()))
+                ret = null;
+
+            return ret;
         }
     }
 }
