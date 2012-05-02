@@ -646,7 +646,7 @@ namespace GoContactSyncMod
 			{
                 try
                 {
-                    if (SyncProfile.Length == 0)
+                    if (string.IsNullOrEmpty(SyncProfile))
                     {
                         Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
                         return;
@@ -1833,7 +1833,7 @@ namespace GoContactSyncMod
 
             try
             {
-                if (SyncProfile.Length == 0)
+                if (string.IsNullOrEmpty(SyncProfile))
                 {
                     Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
                     return;
@@ -1912,7 +1912,7 @@ namespace GoContactSyncMod
 
             //try
             //{
-                if (SyncProfile.Length == 0)
+                if (string.IsNullOrEmpty(SyncProfile))
                 {
                     Logger.Log("Must set a sync profile. This should be different on each user/computer you sync on.", EventType.Error);
                     return;
