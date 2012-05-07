@@ -398,20 +398,20 @@ namespace GoContactSyncMod
 
                 //if the contacts or notes folder has changed ==> Reset matches (to not delete contacts or notes on the one or other side)                
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + syncProfile);
-                string syncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
-                string syncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
+                string oldSyncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
+                string oldSyncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
 
                 //only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
-                bool syncContacts = !string.IsNullOrEmpty(syncContactsFolder) && !syncContactsFolder.Equals(syncContactsFolder) && btSyncContacts.Checked;
-                bool syncNotes = !string.IsNullOrEmpty(syncNotesFolder) && !syncNotesFolder.Equals(syncNotesFolder) && btSyncNotes.Checked;                                
+                bool syncContacts = !string.IsNullOrEmpty(oldSyncContactsFolder) && !oldSyncContactsFolder.Equals(this.syncContactsFolder) && btSyncContacts.Checked;
+                bool syncNotes = !string.IsNullOrEmpty(oldSyncNotesFolder) && !oldSyncNotesFolder.Equals(this.syncNotesFolder) && btSyncNotes.Checked;                                
                 if (syncContacts || syncNotes)
                     ResetMatches(syncContacts, syncNotes);
                 
                 //Then save the Contacts and Notes Folders used at last sync
                 if (btSyncContacts.Checked)
-                    regKeyAppRoot.SetValue("SyncContactsFolder", syncContactsFolder);
+                    regKeyAppRoot.SetValue("SyncContactsFolder", this.syncContactsFolder);
                 if (btSyncNotes.Checked)
-                    regKeyAppRoot.SetValue("SyncNotesFolder", syncNotesFolder);
+                    regKeyAppRoot.SetValue("SyncNotesFolder", this.syncNotesFolder);
 
                 SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
@@ -429,8 +429,8 @@ namespace GoContactSyncMod
                 Logger.Log("Sync started (" + syncProfile + ").", EventType.Information);
                 //SetSyncConsoleText(Logger.GetText());
                 sync.SyncProfile = syncProfile;
-                Syncronizer.SyncContactsFolder  = syncContactsFolder;
-                Syncronizer.SyncNotesFolder = syncNotesFolder;
+                Syncronizer.SyncContactsFolder  = this.syncContactsFolder;
+                Syncronizer.SyncNotesFolder = this.syncNotesFolder;
 
                 sync.SyncOption = syncOption;
                 sync.SyncDelete = btSyncDelete.Checked;

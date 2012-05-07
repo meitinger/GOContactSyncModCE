@@ -76,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
+        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,7 +142,7 @@
         "Entry"
         {
         "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -154,7 +154,7 @@
         "Entry"
         {
         "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -178,43 +178,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_07FC5961D3A6F370DE91779E308BD7E1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E695CBDD605E1061614DA23AB6EED043"
+        "OwnerKey" = "8:_A2D96859CE406F76F4F0818B2813AE72"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -226,7 +190,43 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A2D96859CE406F76F4F0818B2813AE72"
+        "OwnerKey" = "8:_E695CBDD605E1061614DA23AB6EED043"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_07FC5961D3A6F370DE91779E308BD7E1"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -772,15 +772,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:GO Contact Sync Mod"
-        "ProductCode" = "8:{6FABAF2B-D439-4E75-BFE3-8F79E0FA63B7}"
-        "PackageCode" = "8:{4770B2EB-9163-4556-8CA2-DA3EF44EAF94}"
+        "ProductCode" = "8:{4D1E60B6-4BF3-4891-8D0B-B20E54A68E6D}"
+        "PackageCode" = "8:{6B354C52-1C12-4AF3-B7FA-43A66F81596A}"
         "UpgradeCode" = "8:{170B4620-F5BB-4D2E-97A1-239D79030F20}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:3.5.14"
+        "ProductVersion" = "8:3.5.15"
         "Manufacturer" = "8:WebGear, Create Software, Stru.be, saller.NET"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://googlesyncmod.sourceforge.net/"
