@@ -814,9 +814,10 @@ namespace GoContactSyncMod
 			{
 				if (!string.IsNullOrEmpty(slave.IMAddress))
 					slave.IMAddress += "; ";
-				if (!string.IsNullOrEmpty(im.Protocol))
+				if (!string.IsNullOrEmpty(im.Protocol) && !im.Protocol.Equals("None", StringComparison.InvariantCultureIgnoreCase))
 					slave.IMAddress += im.Protocol + ": " + im.Address;
-				slave.IMAddress += im.Address;
+                else
+				    slave.IMAddress += im.Address;
 			}        
             #endregion IM
 
