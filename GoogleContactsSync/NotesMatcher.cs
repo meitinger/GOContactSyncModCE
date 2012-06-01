@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Google.GData.Client;
-using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Google.Documents;
 using System.Runtime.InteropServices;
@@ -25,34 +23,31 @@ namespace GoContactSyncMod
         /// <summary>
         /// Matches outlook and google note by a) google id b) properties.
         /// </summary>
-        /// <param name="outlookNotes"></param>
-        /// <param name="googleNotes"></param>
+        /// <param name="sync">Syncronizer instance</param>
         /// <returns>Returns a list of match pairs (outlook note + google note) for all note. Those that weren't matche will have it's peer set to null</returns>
         public static List<NoteMatch> MatchNotes(Syncronizer sync)
         {
             Logger.Log("Matching Outlook and Google notes...", EventType.Information);
-            List<NoteMatch> result = new List<NoteMatch>();
+            var result = new List<NoteMatch>();
 
             //string duplicateGoogleMatches = "";
             //string duplicateOutlookNotes = "";
             //sync.GoogleNoteDuplicates = new Collection<NoteMatch>();
             //sync.OutlookNoteDuplicates = new Collection<NoteMatch>();
 
-            List<string> skippedOutlookIds = new List<string>();
-
             //for each outlook note try to get google note id from user properties
             //if no match - try to match by properties
             //if no match - create a new match pair without google note. 
             //foreach (Outlook._NoteItem olc in outlookNotes)
-            Collection<Outlook.NoteItem> outlookNotesWithoutOutlookGoogleId = new Collection<Outlook.NoteItem>();
+            var outlookNotesWithoutOutlookGoogleId = new Collection<Outlook.NoteItem>();
             #region Match first all outlookNotes by sync id
             for (int i = 1; i <= sync.OutlookNotes.Count; i++)
             {
-                Outlook.NoteItem oln = null;
+                Outlook.NoteItem oln;
                 try
                 {
                     oln = sync.OutlookNotes[i] as Outlook.NoteItem;
-                    if (oln == null)
+                    if (oln == null || string.IsNullOrEmpty(oln.Subject))
                     {
                         Logger.Log("Empty Outlook note found. Skipping", EventType.Warning);
                         sync.SkippedCount++;
@@ -87,7 +82,7 @@ namespace GoContactSyncMod
                         {
                             string googleNoteId = string.Copy((string)idProp.Value);
                             Document foundNote = sync.GetGoogleNoteById(googleNoteId);
-                            NoteMatch match = new NoteMatch(oln, null);
+                            var match = new NoteMatch(oln, null);
 
                             //Check first, that this is not a duplicate 
                             //e.g. by copying an existing Outlook note
@@ -174,7 +169,7 @@ namespace GoContactSyncMod
 
                 //no match found by id => match by subject/title
                 //create a default match pair with just outlook note.
-                NoteMatch match = new NoteMatch(oln, null);
+                var match = new NoteMatch(oln, null);
 
                 //foreach google contact try to match and create a match pair if found some match(es)
                 for (int j = sync.GoogleNotes.Count - 1; j >= 0; j--)
@@ -182,7 +177,7 @@ namespace GoContactSyncMod
                     Document entry = sync.GoogleNotes[j];
 
                     string body = NotePropertiesUtils.GetBody(sync, entry);
-                    if (!String.IsNullOrEmpty(body))
+                    if (!string.IsNullOrEmpty(body))
                         body = body.Replace("\r\n", string.Empty).Replace(" ", string.Empty).Replace(" ", string.Empty);
 
                     string outlookBody = null;
@@ -410,7 +405,7 @@ namespace GoContactSyncMod
                 else
                 {
                     Logger.Log(string.Format("No match found for google note ({0}) => {1}", entry.Title, (NotePropertiesUtils.NoteFileExists(entry.Id, sync.SyncProfile) ? "Delete from Google" : "Add to Outlook")), EventType.Information);
-                    NoteMatch match = new NoteMatch(null, entry);
+                    var match = new NoteMatch(null, entry);
                     result.Add(match);
                 }
             }
@@ -459,7 +454,7 @@ namespace GoContactSyncMod
                             else if (sync.DeleteOutlookResolution != DeleteResolution.DeleteOutlookAlways &&
                                      sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
                             {
-                                ConflictResolver r = new ConflictResolver();
+                                var r = new ConflictResolver();
                                 sync.DeleteOutlookResolution = r.ResolveDelete(match.OutlookNote);
                             }
                         switch (sync.DeleteOutlookResolution)
@@ -505,7 +500,7 @@ namespace GoContactSyncMod
                         else if (sync.DeleteGoogleResolution != DeleteResolution.DeleteGoogleAlways &&
                                  sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
                         {
-                            ConflictResolver r = new ConflictResolver();
+                            var r = new ConflictResolver();
                             sync.DeleteGoogleResolution = r.ResolveDelete(match.GoogleNote, sync);
                         }
                         switch (sync.DeleteGoogleResolution)
@@ -583,7 +578,7 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
-                                        ConflictResolver r = new ConflictResolver();
+                                        var r = new ConflictResolver();
                                         sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync, false);
                                     }
                                     switch (sync.ConflictResolution)
@@ -670,7 +665,7 @@ namespace GoContactSyncMod
                                     sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
-                                    ConflictResolver r = new ConflictResolver();
+                                    var r = new ConflictResolver();
                                     sync.ConflictResolution = r.Resolve(outlookNoteItem, match.GoogleNote, sync, true);
                                 }
                                 switch (sync.ConflictResolution)

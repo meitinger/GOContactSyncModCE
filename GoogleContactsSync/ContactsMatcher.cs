@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Google.GData.Client;
-using Google.GData.Contacts;
 using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Google.Contacts;
@@ -27,26 +25,26 @@ namespace GoContactSyncMod
 		/// <summary>
 		/// Matches outlook and google contact by a) google id b) properties.
 		/// </summary>
-		/// <param name="outlookContacts"></param>
-		/// <param name="googleContacts"></param>
+		/// <param name="sync">Syncronizer instance</param>
+        /// <param name="duplicatesFound">Exception returned, if duplicates have been found (null else)</param>
 		/// <returns>Returns a list of match pairs (outlook contact + google contact) for all contact. Those that weren't matche will have it's peer set to null</returns>
 		public static List<ContactMatch> MatchContacts(Syncronizer sync, out DuplicateDataException duplicatesFound)
 		{
             Logger.Log("Matching Outlook and Google contacts...", EventType.Information);
-            List<ContactMatch> result = new List<ContactMatch>();
+            var result = new List<ContactMatch>();
             
-            string duplicateGoogleMatches = "";
-            string duplicateOutlookContacts = "";
+            var duplicateGoogleMatches = string.Empty;
+            var duplicateOutlookContacts = string.Empty;
             sync.GoogleContactDuplicates = new Collection<ContactMatch>();
             sync.OutlookContactDuplicates = new Collection<ContactMatch>();
 
-            List<string> skippedOutlookIds = new List<string>();
+            var skippedOutlookIds = new List<string>();
 
 			//for each outlook contact try to get google contact id from user properties
 			//if no match - try to match by properties
 			//if no match - create a new match pair without google contact. 
 			//foreach (Outlook._ContactItem olc in outlookContacts)
-            Collection<OutlookContactInfo> outlookContactsWithoutOutlookGoogleId = new Collection<OutlookContactInfo>();
+            var outlookContactsWithoutOutlookGoogleId = new Collection<OutlookContactInfo>();
 		    #region Match first all outlookContacts by sync id
             for (int i = 1; i <= sync.OutlookContacts.Count; i++)
 			{
@@ -127,7 +125,7 @@ namespace GoContactSyncMod
                     	NotificationReceived(String.Format("Matching contact {0} of {1} by id: {2} ...", i, sync.OutlookContacts.Count, olc.FileAs));
 
                     // Create our own info object to go into collections/lists, so we can free the Outlook objects and not run out of resources / exceed policy limits.
-                    OutlookContactInfo olci = new OutlookContactInfo(olc, sync);
+                    var olci = new OutlookContactInfo(olc, sync);
 
 				    //try to match this contact to one of google contacts
                     Outlook.UserProperties userProperties = olc.UserProperties;
@@ -138,7 +136,7 @@ namespace GoContactSyncMod
                         {
                             string googleContactId = string.Copy((string)idProp.Value);
                             Contact foundContact = sync.GetGoogleContactById(googleContactId);
-                            ContactMatch match = new ContactMatch(olci, null);
+                            var match = new ContactMatch(olci, null);
 
                             //Check first, that this is not a duplicate 
                             //e.g. by copying an existing Outlook contact
@@ -222,7 +220,7 @@ namespace GoContactSyncMod
 
                 //no match found by id => match by common properties
                 //create a default match pair with just outlook contact.
-                ContactMatch match = new ContactMatch(olci, null);
+                var match = new ContactMatch(olci, null);
 
                 //foreach google contac try to match and create a match pair if found some match(es)
                 for (int j=sync.GoogleContacts.Count-1;j>=0;j--)
@@ -482,7 +480,7 @@ namespace GoContactSyncMod
                 else
                 {
                     Logger.Log(string.Format("No match found for google contact ({0}) => {1}", entry.Title, (!string.IsNullOrEmpty(googleOutlookId)? "Delete from Google" : "Add to Outlook")), EventType.Information);
-					ContactMatch match = new ContactMatch(null, entry);
+					var match = new ContactMatch(null, entry);
 					result.Add(match);
 				}				
 			}
@@ -563,7 +561,7 @@ namespace GoContactSyncMod
                             else if (sync.DeleteOutlookResolution != DeleteResolution.DeleteOutlookAlways &&
                                      sync.DeleteOutlookResolution != DeleteResolution.KeepOutlookAlways)
                             {
-                                ConflictResolver r = new ConflictResolver();
+                                var r = new ConflictResolver();
                                 sync.DeleteOutlookResolution = r.ResolveDelete(match.OutlookContact);
                             }
                             switch (sync.DeleteOutlookResolution)
@@ -608,7 +606,7 @@ namespace GoContactSyncMod
                         else if (sync.DeleteGoogleResolution != DeleteResolution.DeleteGoogleAlways &&
                                  sync.DeleteGoogleResolution != DeleteResolution.KeepGoogleAlways)
                         {
-                            ConflictResolver r = new ConflictResolver();
+                            var r = new ConflictResolver();
                             sync.DeleteGoogleResolution = r.ResolveDelete(match.GoogleContact);
                         }
                         switch (sync.DeleteGoogleResolution)
@@ -687,7 +685,7 @@ namespace GoContactSyncMod
                                         sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                         sync.ConflictResolution != ConflictResolution.SkipAlways)
                                     {
-                                        ConflictResolver r = new ConflictResolver();
+                                        var r = new ConflictResolver();
                                         sync.ConflictResolution = r.Resolve(match, false);
                                     }
                                     switch (sync.ConflictResolution)
@@ -774,7 +772,7 @@ namespace GoContactSyncMod
                                     sync.ConflictResolution != ConflictResolution.OutlookWinsAlways &&
                                     sync.ConflictResolution != ConflictResolution.SkipAlways)
                                 {
-                                    ConflictResolver r = new ConflictResolver();
+                                    var r = new ConflictResolver();
                                     sync.ConflictResolution = r.Resolve(match, true);
                                 }
                                 switch (sync.ConflictResolution)
