@@ -168,13 +168,19 @@ namespace GoContactSyncMod
 			{
                 CreateOutlookInstance();
 			}
-			catch (COMException)
+			catch (Exception e)
 			{
+
+                if (!(e is COMException) && !(e is System.InvalidCastException)) 
+                    throw;
+
 				try
 				{
 					// If outlook was closed/terminated inbetween, we will receive an Exception
 					// System.Runtime.InteropServices.COMException (0x800706BA): The RPC server is unavailable. (Exception from HRESULT: 0x800706BA)
 					// so recreate outlook instance
+                    //And sometimes we we receive an Exception
+                    // System.InvalidCastException 0x8001010E (RPC_E_WRONG_THREAD))
 					Logger.Log("Cannot connect to Outlook, creating new instance....", EventType.Information);
 					/*OutlookApplication = new Outlook.Application();
 					_outlookNamespace = OutlookApplication.GetNamespace("mapi");
