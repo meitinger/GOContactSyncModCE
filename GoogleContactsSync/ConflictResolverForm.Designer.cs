@@ -47,9 +47,11 @@ namespace GoContactSyncMod
             // 
             // messageLabel
             // 
+            this.messageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.messageLabel.Location = new System.Drawing.Point(12, 9);
             this.messageLabel.Name = "messageLabel";
-            this.messageLabel.Size = new System.Drawing.Size(417, 62);
+            this.messageLabel.Size = new System.Drawing.Size(472, 62);
             this.messageLabel.TabIndex = 0;
             this.messageLabel.Text = "message";
             // 
@@ -59,7 +61,7 @@ namespace GoContactSyncMod
             this.keepOutlook.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.keepOutlook.Location = new System.Drawing.Point(12, 320);
             this.keepOutlook.Name = "keepOutlook";
-            this.keepOutlook.Size = new System.Drawing.Size(120, 23);
+            this.keepOutlook.Size = new System.Drawing.Size(148, 23);
             this.keepOutlook.TabIndex = 1;
             this.keepOutlook.Text = "Keep &Outlook Entry";
             this.keepOutlook.UseVisualStyleBackColor = true;
@@ -68,9 +70,9 @@ namespace GoContactSyncMod
             // 
             this.keepGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.keepGoogle.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.keepGoogle.Location = new System.Drawing.Point(138, 320);
+            this.keepGoogle.Location = new System.Drawing.Point(166, 320);
             this.keepGoogle.Name = "keepGoogle";
-            this.keepGoogle.Size = new System.Drawing.Size(125, 23);
+            this.keepGoogle.Size = new System.Drawing.Size(152, 23);
             this.keepGoogle.TabIndex = 2;
             this.keepGoogle.Text = "Keep &Google Entry";
             this.keepGoogle.UseVisualStyleBackColor = true;
@@ -79,7 +81,7 @@ namespace GoContactSyncMod
             // 
             this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancel.Location = new System.Drawing.Point(350, 320);
+            this.cancel.Location = new System.Drawing.Point(405, 320);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(75, 23);
             this.cancel.TabIndex = 3;
@@ -90,7 +92,7 @@ namespace GoContactSyncMod
             // 
             this.skip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.skip.DialogResult = System.Windows.Forms.DialogResult.Ignore;
-            this.skip.Location = new System.Drawing.Point(269, 320);
+            this.skip.Location = new System.Drawing.Point(324, 320);
             this.skip.Name = "skip";
             this.skip.Size = new System.Drawing.Size(75, 23);
             this.skip.TabIndex = 3;
@@ -99,13 +101,15 @@ namespace GoContactSyncMod
             // 
             // OutlookItemTextBox
             // 
-            this.OutlookItemTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.OutlookItemTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.OutlookItemTextBox.Location = new System.Drawing.Point(0, 13);
             this.OutlookItemTextBox.Multiline = true;
             this.OutlookItemTextBox.Name = "OutlookItemTextBox";
             this.OutlookItemTextBox.ReadOnly = true;
             this.OutlookItemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.OutlookItemTextBox.Size = new System.Drawing.Size(206, 204);
+            this.OutlookItemTextBox.Size = new System.Drawing.Size(233, 204);
             this.OutlookItemTextBox.TabIndex = 4;
             // 
             // SplitContainer
@@ -125,8 +129,8 @@ namespace GoContactSyncMod
             // 
             this.SplitContainer.Panel2.Controls.Add(this.GoogleItemTextBox);
             this.SplitContainer.Panel2.Controls.Add(this.GoogleItemLabel);
-            this.SplitContainer.Size = new System.Drawing.Size(410, 217);
-            this.SplitContainer.SplitterDistance = 206;
+            this.SplitContainer.Size = new System.Drawing.Size(465, 217);
+            this.SplitContainer.SplitterDistance = 233;
             this.SplitContainer.TabIndex = 5;
             // 
             // OutlookItemLabel
@@ -134,14 +138,15 @@ namespace GoContactSyncMod
             this.OutlookItemLabel.Dock = System.Windows.Forms.DockStyle.Top;
             this.OutlookItemLabel.Location = new System.Drawing.Point(0, 0);
             this.OutlookItemLabel.Name = "OutlookItemLabel";
-            this.OutlookItemLabel.Size = new System.Drawing.Size(206, 13);
+            this.OutlookItemLabel.Size = new System.Drawing.Size(233, 13);
             this.OutlookItemLabel.TabIndex = 6;
             this.OutlookItemLabel.Text = "Outlook";
             // 
             // GoogleItemTextBox
             // 
-            this.GoogleItemTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GoogleItemTextBox.Location = new System.Drawing.Point(0, 13);
+            this.GoogleItemTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.GoogleItemTextBox.Location = new System.Drawing.Point(28, 13);
             this.GoogleItemTextBox.Multiline = true;
             this.GoogleItemTextBox.Name = "GoogleItemTextBox";
             this.GoogleItemTextBox.ReadOnly = true;
@@ -154,7 +159,7 @@ namespace GoContactSyncMod
             this.GoogleItemLabel.Dock = System.Windows.Forms.DockStyle.Top;
             this.GoogleItemLabel.Location = new System.Drawing.Point(0, 0);
             this.GoogleItemLabel.Name = "GoogleItemLabel";
-            this.GoogleItemLabel.Size = new System.Drawing.Size(200, 13);
+            this.GoogleItemLabel.Size = new System.Drawing.Size(228, 13);
             this.GoogleItemLabel.TabIndex = 7;
             this.GoogleItemLabel.Text = "Google";
             // 
@@ -171,13 +176,13 @@ namespace GoContactSyncMod
             // 
             // GoogleComboBox
             // 
-            this.GoogleComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.GoogleComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.GoogleComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.GoogleComboBox.FormattingEnabled = true;
             this.GoogleComboBox.Location = new System.Drawing.Point(225, 293);
             this.GoogleComboBox.Name = "GoogleComboBox";
-            this.GoogleComboBox.Size = new System.Drawing.Size(200, 21);
+            this.GoogleComboBox.Size = new System.Drawing.Size(255, 21);
             this.GoogleComboBox.Sorted = true;
             this.GoogleComboBox.TabIndex = 7;
             this.GoogleComboBox.Visible = false;
@@ -188,7 +193,7 @@ namespace GoContactSyncMod
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancel;
-            this.ClientSize = new System.Drawing.Size(434, 355);
+            this.ClientSize = new System.Drawing.Size(489, 355);
             this.Controls.Add(this.GoogleComboBox);
             this.Controls.Add(this.AllCheckBox);
             this.Controls.Add(this.SplitContainer);
@@ -204,7 +209,7 @@ namespace GoContactSyncMod
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Confict detected!";
+            this.Text = "Conflict detected!";
             this.SplitContainer.Panel1.ResumeLayout(false);
             this.SplitContainer.Panel1.PerformLayout();
             this.SplitContainer.Panel2.ResumeLayout(false);

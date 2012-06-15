@@ -995,6 +995,10 @@ namespace GoContactSyncMod
 
             if (!string.IsNullOrEmpty(name))
                 summary += "Name: " + name.Trim().Replace("  ", " ") + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.FirstName))
+                summary += "Firstname: " + outlookContact.FirstName + "\r\n";
+            if (!string.IsNullOrEmpty(outlookContact.LastName))
+                summary += "Lastname: " + outlookContact.LastName + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.CompanyName))
                 summary += "Company: " + outlookContact.CompanyName + "\r\n";
             if (!string.IsNullOrEmpty(outlookContact.Department))
@@ -1037,6 +1041,10 @@ namespace GoContactSyncMod
 
             if (!string.IsNullOrEmpty(name))
                 summary += "Name: " + name.Trim().Replace("  ", " ") + "\r\n";
+            if (!string.IsNullOrEmpty(googleContact.Name.GivenName))
+                summary += "Firstname: " + googleContact.Name.GivenName + "\r\n";
+            if (!string.IsNullOrEmpty(googleContact.Name.GivenName))
+                summary += "Lastname: " + googleContact.Name.FamilyName + "\r\n";
             for (int i = 0; i < googleContact.Organizations.Count; i++)
             {
                 string company = googleContact.Organizations[i].Name;
