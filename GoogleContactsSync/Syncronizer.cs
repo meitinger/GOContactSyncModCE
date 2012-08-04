@@ -1001,16 +1001,17 @@ namespace GoContactSyncMod
                     }
                     else
                     {
-                        // peer outlook contact was deleted, delete google contact
-                        try
-                        {
-                            //First reset GoogleOutlookContactId to restore it later from trash
-                            match.GoogleContact = ResetMatch(match.GoogleContact);
-                        }
-                        catch (Exception)
-                        {
-                            Logger.Log("Error resetting match for Google contact: \"" + ContactMatch.GetName(match.GoogleContact) + "\".", EventType.Warning);
-                        }
+                        //commented oud, because it causes precondition failed error, if the ResetMatch is short before the Delete
+                        //// peer outlook contact was deleted, delete google contact
+                        //try
+                        //{
+                        //    //First reset GoogleOutlookContactId to restore it later from trash
+                        //    match.GoogleContact = ResetMatch(match.GoogleContact);
+                        //}
+                        //catch (Exception)
+                        //{
+                        //    Logger.Log("Error resetting match for Google contact: \"" + ContactMatch.GetName(match.GoogleContact) + "\".", EventType.Warning);
+                        //}
 
                         ContactsRequest.Delete(match.GoogleContact);
                         DeletedCount++;
