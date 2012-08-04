@@ -310,16 +310,19 @@ namespace GoContactSyncMod
             ContactsRequest = null;            
         }
 
-		private void LoadOutlookContacts()
-		{
-			Logger.Log("Loading Outlook contacts...", EventType.Information);
-            OutlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts, SyncContactsFolder);			
-		}
+        private void LoadOutlookContacts()
+        {
+            Logger.Log("Loading Outlook contacts...", EventType.Information);
+            OutlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts, SyncContactsFolder);
+            Logger.Log("Outlook Contacts Found: " + OutlookContacts.Count, EventType.Information);
+        }
+
 
         private void LoadOutlookNotes()
         {
             Logger.Log("Loading Outlook Notes...", EventType.Information);
             OutlookNotes = GetOutlookItems(Outlook.OlDefaultFolders.olFolderNotes, SyncNotesFolder);
+            Logger.Log("Outlook Notes Found: " + OutlookNotes.Count, EventType.Information);
         }
 
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder, string syncFolder)
@@ -446,7 +449,9 @@ namespace GoContactSyncMod
                     query.StartIndex += query.NumberToRetrieve;
                     feed = ContactsRequest.Get<Contact>(feed, FeedRequestType.Next);
                     
-                }                              
+                }
+
+                Logger.Log("Google Contacts Found: " + GoogleContacts.Count, EventType.Information);                
 	
 			}
             catch (System.Net.WebException ex)
@@ -506,6 +511,7 @@ namespace GoContactSyncMod
         private void LoadGoogleNotes()
         {
             LoadGoogleNotes(null);
+            Logger.Log("Google Notes Found: " + GoogleNotes.Count, EventType.Information);                
         }
 
         internal Document LoadGoogleNotes(AtomId id)
@@ -613,7 +619,7 @@ namespace GoContactSyncMod
         /// </summary>
         public void MatchContacts()
 		{
-            LoadContacts();
+            LoadContacts();                            
 
 			DuplicateDataException duplicateDataException;
 			Contacts = ContactsMatcher.MatchContacts(this, out duplicateDataException);
@@ -625,6 +631,8 @@ namespace GoContactSyncMod
                 else
                     Logger.Log(duplicateDataException.Message, EventType.Warning);
 			}
+
+            Logger.Log("Matches Found: " + Contacts.Count, EventType.Information);
 		}
 
         /// <summary>
@@ -2095,12 +2103,13 @@ namespace GoContactSyncMod
         }
 
         public ContactMatch ContactByProperty(string name, string email)
-        {
+        {            
             foreach (ContactMatch m in Contacts)
             {
                 if (m.GoogleContact != null &&
                     ((m.GoogleContact.PrimaryEmail != null && m.GoogleContact.PrimaryEmail.Address == email) ||
-                    m.GoogleContact.Title == name))
+                    m.GoogleContact.Title == name ||
+                    m.GoogleContact.Name != null && m.GoogleContact.Name.FullName == name))
                 {
                     return m;
                 }
