@@ -314,7 +314,7 @@ namespace GoContactSyncMod
         {
             Logger.Log("Loading Outlook contacts...", EventType.Information);
             OutlookContacts = GetOutlookItems(Outlook.OlDefaultFolders.olFolderContacts, SyncContactsFolder);
-            Logger.Log("Outlook Contacts Found: " + OutlookContacts.Count, EventType.Information);
+            Logger.Log("Outlook Contacts Found: " + OutlookContacts.Count, EventType.Debug);
         }
 
 
@@ -322,7 +322,7 @@ namespace GoContactSyncMod
         {
             Logger.Log("Loading Outlook Notes...", EventType.Information);
             OutlookNotes = GetOutlookItems(Outlook.OlDefaultFolders.olFolderNotes, SyncNotesFolder);
-            Logger.Log("Outlook Notes Found: " + OutlookNotes.Count, EventType.Information);
+            Logger.Log("Outlook Notes Found: " + OutlookNotes.Count, EventType.Debug);
         }
 
         private Outlook.Items GetOutlookItems(Outlook.OlDefaultFolders outlookDefaultFolder, string syncFolder)
@@ -451,7 +451,7 @@ namespace GoContactSyncMod
                     
                 }
 
-                Logger.Log("Google Contacts Found: " + GoogleContacts.Count, EventType.Information);                
+                Logger.Log("Google Contacts Found: " + GoogleContacts.Count, EventType.Debug);                
 	
 			}
             catch (System.Net.WebException ex)
@@ -511,7 +511,7 @@ namespace GoContactSyncMod
         private void LoadGoogleNotes()
         {
             LoadGoogleNotes(null);
-            Logger.Log("Google Notes Found: " + GoogleNotes.Count, EventType.Information);                
+            Logger.Log("Google Notes Found: " + GoogleNotes.Count, EventType.Debug);                
         }
 
         internal Document LoadGoogleNotes(AtomId id)
@@ -632,7 +632,7 @@ namespace GoContactSyncMod
                     Logger.Log(duplicateDataException.Message, EventType.Warning);
 			}
 
-            Logger.Log("Matches Found: " + Contacts.Count, EventType.Information);
+            Logger.Log("Contact Matches Found: " + Contacts.Count, EventType.Debug);
 		}
 
         /// <summary>
@@ -652,6 +652,7 @@ namespace GoContactSyncMod
                 else
                     Logger.Log(duplicateDataException.Message, EventType.Warning);
             }*/
+            Logger.Log("Note Matches Found: " + Notes.Count, EventType.Debug);
         }
 
 		public void Sync()
