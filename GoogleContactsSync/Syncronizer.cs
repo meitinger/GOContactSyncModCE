@@ -416,13 +416,21 @@ namespace GoContactSyncMod
         //    }
         //}
 
-		private void LoadGoogleContacts()
+        private void LoadGoogleContacts()
+        {
+            LoadGoogleContacts(null);
+            Logger.Log("Google Contacts Found: " + GoogleContacts.Count, EventType.Debug);                
+        }
+
+		private Contact LoadGoogleContacts(AtomId id)
 		{
             string message = "Error Loading Google Contacts. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
+
+            Contact ret = null;
 			try
 			{
-
-				Logger.Log("Loading Google Contacts...", EventType.Information);
+                if (id == null) // Only log, if not specific Google Contacts are searched                    
+				    Logger.Log("Loading Google Contacts...", EventType.Information);
                 
                 GoogleContacts = new Collection<Contact>();
 
@@ -445,13 +453,13 @@ namespace GoContactSyncMod
                     foreach (Contact a in feed.Entries)
                     {
                         GoogleContacts.Add(a);
+                        if (id != null && id.Equals(a.ContactEntry.Id))
+                            ret = a;
                     }
                     query.StartIndex += query.NumberToRetrieve;
                     feed = ContactsRequest.Get<Contact>(feed, FeedRequestType.Next);
                     
-                }
-
-                Logger.Log("Google Contacts Found: " + GoogleContacts.Count, EventType.Debug);                
+                }                
 	
 			}
             catch (System.Net.WebException ex)
@@ -464,6 +472,8 @@ namespace GoContactSyncMod
                 //Logger.Log(message, EventType.Error);
                 throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
             }
+
+            return ret;
 		}
 		private void LoadGoogleGroups()
 		{
@@ -1214,7 +1224,8 @@ namespace GoContactSyncMod
                 outlookContactItem.Save();
 
                 //Now save the Photo
-                SaveGooglePhoto(match, outlookContactItem);
+                SaveGooglePhoto(match, outlookContactItem);                       
+
             }
             finally
             {
@@ -1546,20 +1557,43 @@ namespace GoContactSyncMod
 
                 if (outlookPhoto != null)
                 {
-                    using (MemoryStream stream = new MemoryStream(Utilities.BitmapToBytes(new Bitmap(outlookPhoto))))
+                    //Try up to 5 times to overcome Google issue
+                    for (int retry = 0; retry < 5; retry++)
                     {
-                        // Save image to stream.
-                        //outlookPhoto.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                        try
+                        {
+                           
+                            using (MemoryStream stream = new MemoryStream(Utilities.BitmapToBytes(new Bitmap(outlookPhoto))))
+                            {
+                                // Save image to stream.
+                                //outlookPhoto.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
 
-                        //Don'T crop, because maybe someone wants to keep his photo like it is on Outlook
-                        //outlookPhoto = Utilities.CropImageGoogleFormat(outlookPhoto);
-                        ContactsRequest.SetPhoto(match.GoogleContact, stream);
+                                //Don'T crop, because maybe someone wants to keep his photo like it is on Outlook
+                                //outlookPhoto = Utilities.CropImageGoogleFormat(outlookPhoto);                        
+                                ContactsRequest.SetPhoto(match.GoogleContact, stream);                        
 
-                        //Just save the Outlook Contact to have the same lastUpdate date as Google
-                        ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContactitem, match.GoogleContact);
-                        outlookContactitem.Save();
-                        outlookPhoto.Dispose();
+                                //Just save the Outlook Contact to have the same lastUpdate date as Google
+                                ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContactitem, match.GoogleContact);
+                                outlookContactitem.Save();
+                                outlookPhoto.Dispose();
                         
+                            }
+
+                            break; //Exit because photo save succeeded
+                        }
+                        catch (GDataRequestException ex)
+                        { //If Google found a picture for a new Google account, it sets it automatically and throws an error, if updating it with the Outlook photo. 
+                            //Therefore save it again and try again to save the photo
+                            if (retry == 4)
+                                Logger.Log("Photo of contact " + match.GoogleContact.Title + "couldn't be saved after 5 tries, maybe Google found its own photo and doesn't allow updating it", EventType.Warning);
+                            else
+                            {
+                                System.Threading.Thread.Sleep(1000);
+                                //LoadGoogleContact again to get latest ETag
+                                //match.GoogleContact = LoadGoogleContacts(match.GoogleContact.AtomEntry.Id);
+                                match.GoogleContact = SaveGoogleContact(match.GoogleContact);
+                            }
+                        }
                     }
                 }
             }
