@@ -27,14 +27,14 @@ namespace GoContactSyncMod
             if (isNewMatch)
             {
                 _form.messageLabel.Text =
-                    "This is the first time, this outlook and google contact \"" + name +
+                    "This is the first time these Outlook and Google Contacts \"" + name +
                     "\" are synced. Choose which you would like to keep.";
                 _form.skip.Text = "Keep both";
             }
             else
             {
                 _form.messageLabel.Text =
-                    "Both the outlook contact and the google contact \"" + name +
+                    "Both the Outlook Contact and the Google Contact \"" + name +
                     "\" have been changed. Choose which you would like to keep.";
             }
             
@@ -70,7 +70,7 @@ namespace GoContactSyncMod
             string name = ContactMatch.GetName(outlookContact);
 
             _form.messageLabel.Text =
-                     "There are mutliple Google Contacts (" + googleContacts.Count + ") matching unique properties for Outlook Contact \"" + name +
+                     "There are multiple Google Contacts (" + googleContacts.Count + ") matching unique properties for Outlook Contact \"" + name +
                      "\". Please choose from the combobox below the Google Contact you would like to match with Outlook and if you want to keep the Google or Outlook properties of the selected contact.";
 
 
@@ -96,7 +96,7 @@ namespace GoContactSyncMod
             _form.GoogleComboBox.DataSource = googleContacts;
             _form.GoogleComboBox.Visible = true;
             _form.AllCheckBox.Visible = false;
-            _form.skip.Text = "Keeb both";
+            _form.skip.Text = "Keep both";
             
 
             ConflictResolution res = Resolve();
@@ -110,10 +110,10 @@ namespace GoContactSyncMod
         {
             string name = ContactMatch.GetName(outlookContact);
 
-            _form.Text = "Google contact deleted";
+            _form.Text = "Google Contact deleted";
             _form.messageLabel.Text =
-                "Google contact \"" + name +
-                "\" doesn't exist aynmore. Do you want to delete it also on Outlook side?";            
+                "Google Contact \"" + name +
+                "\" doesn't exist anymore. Do you want to delete it also on Outlook side?";            
 
             _form.OutlookItemTextBox.Text = string.Empty;
             _form.GoogleItemTextBox.Text = string.Empty;
@@ -142,9 +142,9 @@ namespace GoContactSyncMod
         {
             string name = ContactMatch.GetName(googleContact);
 
-            _form.Text = "Outlook contact deleted";
+            _form.Text = "Outlook Contact deleted";
             _form.messageLabel.Text =
-                "Outlook contact \"" + name +
+                "Outlook Contact \"" + name +
                 "\" doesn't exist aynmore. Do you want to delete it also on Google side?";                       
 
             _form.OutlookItemTextBox.Text = string.Empty;
@@ -255,14 +255,14 @@ namespace GoContactSyncMod
             if (isNewMatch)
             {
                 _form.messageLabel.Text =
-                    "This is the first time, this outlook and google note \"" + name +
+                    "This is the first time these Outlook and Google notes \"" + name +
                     "\" are synced. Choose which you would like to keep.";
                 _form.skip.Text = "Keep both";
             }
             else
             {
                 _form.messageLabel.Text =
-                "Both the outlook note and the google note \"" + name +
+                "Both the Outlook Note and the Google Note \"" + name +
                 "\" have been changed. Choose which you would like to keep.";
             }
             
