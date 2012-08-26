@@ -120,6 +120,9 @@
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>356, 17</value>
   </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>356, 17</value>
+  </metadata>
   <data name="syncOptionBox.ToolTip" xml:space="preserve">
     <value>This sets the behavior of the sync.
 Merge Prompt: This will ask you which contact to overwrite if both have been updated.
@@ -162,6 +165,13 @@ Google To Outlook Only:  Only updates Outlook contacts based on google contacts.
   <metadata name="syncTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>254, 17</value>
   </metadata>
+  <data name="btPromptDelete.ToolTip" xml:space="preserve">
+    <value>This specifies whether the user shall be asked 
+before an entry is deleted. Enabling this option 
+means if you delete a contact from Google and the 
+sync starts afterwards, then you will be asked, if the
+according entry shall be deleted from Outlook and vice versa.</value>
+  </data>
   <data name="proxySettingsLinkLabel.ToolTip" xml:space="preserve">
     <value>By default the systems proxy settings are used. Go to Internet Explorer Settings and setup the proxy in the LAN Configuration.
 If alternate configuration is required or default setting does not work, click this link.</value>
