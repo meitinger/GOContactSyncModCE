@@ -269,10 +269,7 @@ namespace GoContactSyncMod
         private static void CopyNoteFiles(string syncProfile)
         {
             if (!string.IsNullOrEmpty(syncProfile))
-            {
-                //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
-                //Create ProfileSync subfolder and copy all files to there
-
+            {               
                 foreach (char c in System.IO.Path.GetInvalidFileNameChars())
                 {
                     syncProfile = syncProfile.Replace(c, '_');
@@ -282,6 +279,8 @@ namespace GoContactSyncMod
                 {
                     Directory.CreateDirectory(Logger.Folder + "\\" + syncProfile);
 
+                    //Only for backward compliance with version before 3.5.9 (before syncProfile can be changed)
+                    //Create ProfileSync subfolder and copy all files to there
                     string[] files = Directory.GetFiles(Logger.Folder, @"Note_*.txt");
 
                     foreach (string file in files)
