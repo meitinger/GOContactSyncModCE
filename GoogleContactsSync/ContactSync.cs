@@ -104,30 +104,26 @@ namespace GoContactSyncMod
 		{
             destination.Emails.Clear();
 
-			if (!string.IsNullOrEmpty(source.Email1Address) && !source.Email1Address.Trim().Equals(string.Empty))
-			{
-                EMail primaryEmail = new EMail(ContactPropertiesUtils.GetOutlookEmailAddress1(source));
-				primaryEmail.Primary = destination.Emails.Count == 0;
-				primaryEmail.Rel = ContactsRelationships.IsWork;
-				destination.Emails.Add(primaryEmail);
-			}
+            string email = ContactPropertiesUtils.GetOutlookEmailAddress1(source);
+            AddEmail(destination, email, ContactsRelationships.IsWork);
 
-            if (!string.IsNullOrEmpty(source.Email2Address) && !source.Email2Address.Trim().Equals(string.Empty))
-			{
-				EMail secondaryEmail = new EMail(ContactPropertiesUtils.GetOutlookEmailAddress2(source));
-				secondaryEmail.Primary = destination.Emails.Count == 0;
-				secondaryEmail.Rel = ContactsRelationships.IsHome;
-				destination.Emails.Add(secondaryEmail);
-			}
-
-            if (!string.IsNullOrEmpty(source.Email3Address) && !source.Email3Address.Trim().Equals(string.Empty))
-			{
-                EMail secondaryEmail = new EMail(ContactPropertiesUtils.GetOutlookEmailAddress3(source));
-				secondaryEmail.Primary = destination.Emails.Count == 0;
-				secondaryEmail.Rel = ContactsRelationships.IsOther;
-				destination.Emails.Add(secondaryEmail);
-			}
+            email = ContactPropertiesUtils.GetOutlookEmailAddress2(source);
+            AddEmail(destination, email, ContactsRelationships.IsHome);
+            
+            email = ContactPropertiesUtils.GetOutlookEmailAddress3(source);
+            AddEmail(destination, email, ContactsRelationships.IsOther);            
 		}
+
+        private static void AddEmail(Contact destination, string email, string relationship)
+        {
+            if (!string.IsNullOrEmpty(email) && !email.Trim().Equals(string.Empty))
+            {
+                EMail primaryEmail = new EMail(email);
+                primaryEmail.Primary = destination.Emails.Count == 0;
+                primaryEmail.Rel = relationship;
+                destination.Emails.Add(primaryEmail);
+            }
+        }
 
 		public static void SetPhoneNumbers(Outlook.ContactItem source, Contact destination)
 		{
