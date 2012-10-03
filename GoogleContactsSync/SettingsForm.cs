@@ -1022,18 +1022,26 @@ namespace GoContactSyncMod
 
 		private void runAtStartupCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-			RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
+            string regKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+            try
+            {
+                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(regKey);
 
-			if (runAtStartupCheckBox.Checked)
-			{
-				// add to registry
-				regKeyAppRoot.SetValue("GoogleContactSync", Application.ExecutablePath);
-			}
-			else
-			{
-				// remove from registry
-				regKeyAppRoot.DeleteValue("GoogleContactSync");
-			}
+                if (runAtStartupCheckBox.Checked)
+                {
+                    // add to registry
+                    regKeyAppRoot.SetValue("GoogleContactSync", Application.ExecutablePath);
+                }
+                else
+                {
+                    // remove from registry
+                    regKeyAppRoot.DeleteValue("GoogleContactSync");
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.Handle(new Exception("Error saving 'Run program at startup' settings into Registry key '" + regKey + "'",ex));
+            }
 		}
 
 		private void UserName_TextChanged(object sender, EventArgs e)
