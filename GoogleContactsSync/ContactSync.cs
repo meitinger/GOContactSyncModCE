@@ -116,7 +116,7 @@ namespace GoContactSyncMod
 
         private static void AddEmail(Contact destination, string email, string relationship)
         {
-            if (!string.IsNullOrEmpty(email) && !email.Trim().Equals(string.Empty))
+            if (email != null && !email.Trim().Equals(string.Empty))
             {
                 EMail primaryEmail = new EMail(email);
                 primaryEmail.Primary = destination.Emails.Count == 0;
@@ -134,44 +134,44 @@ namespace GoContactSyncMod
             {
                 //ToDo: Temporary cleanup algorithm to get rid of duplicate primary phone numbers
                 //Can be removed once the contacts are clean for all users:
-                if (source.PrimaryTelephoneNumber.Equals(source.MobileTelephoneNumber))
-                {
-                    //Reset primary TelephoneNumber because it is duplicate, and maybe even MobilePhone Number if duplicate
-                    source.PrimaryTelephoneNumber = string.Empty;
-                    if (source.MobileTelephoneNumber.Equals(source.HomeTelephoneNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.Home2TelephoneNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.BusinessTelephoneNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.Business2TelephoneNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.HomeFaxNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.BusinessFaxNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.OtherTelephoneNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.PagerNumber) ||
-                        source.MobileTelephoneNumber.Equals(source.CarTelephoneNumber))
-                    {
-                        source.MobileTelephoneNumber = string.Empty;
-                    }
+                //if (source.PrimaryTelephoneNumber.Equals(source.MobileTelephoneNumber))
+                //{
+                //    //Reset primary TelephoneNumber because it is duplicate, and maybe even MobilePhone Number if duplicate
+                //    source.PrimaryTelephoneNumber = string.Empty;
+                //    if (source.MobileTelephoneNumber.Equals(source.HomeTelephoneNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.Home2TelephoneNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.BusinessTelephoneNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.Business2TelephoneNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.HomeFaxNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.BusinessFaxNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.OtherTelephoneNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.PagerNumber) ||
+                //        source.MobileTelephoneNumber.Equals(source.CarTelephoneNumber))
+                //    {
+                //        source.MobileTelephoneNumber = string.Empty;
+                //    }
 
-                }
-                else if (source.PrimaryTelephoneNumber.Equals(source.HomeTelephoneNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.Home2TelephoneNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.BusinessTelephoneNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.Business2TelephoneNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.HomeFaxNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.BusinessFaxNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.OtherTelephoneNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.PagerNumber) ||
-                        source.PrimaryTelephoneNumber.Equals(source.CarTelephoneNumber))
-                {
-                    //Reset primary TelephoneNumber because it is duplicate
-                    source.PrimaryTelephoneNumber = string.Empty;
-                }
-                else
-                {
+                //}
+                //else if (source.PrimaryTelephoneNumber.Equals(source.HomeTelephoneNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.Home2TelephoneNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.BusinessTelephoneNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.Business2TelephoneNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.HomeFaxNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.BusinessFaxNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.OtherTelephoneNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.PagerNumber) ||
+                //        source.PrimaryTelephoneNumber.Equals(source.CarTelephoneNumber))
+                //{
+                //    //Reset primary TelephoneNumber because it is duplicate
+                //    source.PrimaryTelephoneNumber = string.Empty;
+                //}
+                //else
+                //{
                     PhoneNumber phoneNumber = new PhoneNumber(source.PrimaryTelephoneNumber);
                     phoneNumber.Primary = destination.Phonenumbers.Count == 0;
                     phoneNumber.Rel = ContactsRelationships.IsMain;
                     destination.Phonenumbers.Add(phoneNumber);
-                }
+                //}
             }
 
 			if (!string.IsNullOrEmpty(source.MobileTelephoneNumber))
@@ -712,40 +712,40 @@ namespace GoContactSyncMod
 
             //ToDo: Temporary cleanup algorithm to get rid of duplicate primary phone numbers
             //Can be removed once the contacts are clean for all users:
-            if (!String.IsNullOrEmpty(slave.PrimaryTelephoneNumber))
-            {
-                if (slave.PrimaryTelephoneNumber.Equals(slave.MobileTelephoneNumber))
-                {
-                    slave.PrimaryTelephoneNumber = String.Empty;
-                    if (slave.MobileTelephoneNumber.Equals(slave.HomeTelephoneNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.Home2TelephoneNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.BusinessTelephoneNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.Business2TelephoneNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.HomeFaxNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.BusinessFaxNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.OtherTelephoneNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.PagerNumber) ||
-                        slave.MobileTelephoneNumber.Equals(slave.CarTelephoneNumber))
-                    {
-                        slave.MobileTelephoneNumber = String.Empty;
-                    }
+            //if (!String.IsNullOrEmpty(slave.PrimaryTelephoneNumber))
+            //{
+            //    if (slave.PrimaryTelephoneNumber.Equals(slave.MobileTelephoneNumber))
+            //    {
+            //        slave.PrimaryTelephoneNumber = String.Empty;
+            //        if (slave.MobileTelephoneNumber.Equals(slave.HomeTelephoneNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.Home2TelephoneNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.BusinessTelephoneNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.Business2TelephoneNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.HomeFaxNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.BusinessFaxNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.OtherTelephoneNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.PagerNumber) ||
+            //            slave.MobileTelephoneNumber.Equals(slave.CarTelephoneNumber))
+            //        {
+            //            slave.MobileTelephoneNumber = String.Empty;
+            //        }
 
-                }
-                else if (slave.PrimaryTelephoneNumber.Equals(slave.HomeTelephoneNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.Home2TelephoneNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.BusinessTelephoneNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.Business2TelephoneNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.HomeFaxNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.BusinessFaxNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.OtherTelephoneNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.PagerNumber) ||
-                    slave.PrimaryTelephoneNumber.Equals(slave.CarTelephoneNumber))
-                {
-                    //Reset primary TelephoneNumber because it is duplicate
-                    slave.PrimaryTelephoneNumber = string.Empty;
-                }
+            //    }
+            //    else if (slave.PrimaryTelephoneNumber.Equals(slave.HomeTelephoneNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.Home2TelephoneNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.BusinessTelephoneNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.Business2TelephoneNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.HomeFaxNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.BusinessFaxNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.OtherTelephoneNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.PagerNumber) ||
+            //        slave.PrimaryTelephoneNumber.Equals(slave.CarTelephoneNumber))
+            //    {
+            //        //Reset primary TelephoneNumber because it is duplicate
+            //        slave.PrimaryTelephoneNumber = string.Empty;
+            //    }
 
-            }
+            //}
 
             #endregion phones
 
