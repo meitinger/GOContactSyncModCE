@@ -105,13 +105,13 @@ namespace GoContactSyncMod
             destination.Emails.Clear();
 
             string email = ContactPropertiesUtils.GetOutlookEmailAddress1(source);
-            AddEmail(destination, email, ContactsRelationships.IsWork);
+            AddEmail(destination, email, source.Email1DisplayName); //Alternative: ContactsRelationships.IsWork);
 
             email = ContactPropertiesUtils.GetOutlookEmailAddress2(source);
-            AddEmail(destination, email, ContactsRelationships.IsHome);
+            AddEmail(destination, email, source.Email2DisplayName); //Alternative: ContactsRelationships.IsHome);
             
             email = ContactPropertiesUtils.GetOutlookEmailAddress3(source);
-            AddEmail(destination, email, ContactsRelationships.IsOther);            
+            AddEmail(destination, email, source.Email3DisplayName); //Alternative: ContactsRelationships.IsOther);            
 		}
 
         private static void AddEmail(Contact destination, string email, string relationship)
@@ -120,7 +120,8 @@ namespace GoContactSyncMod
             {
                 EMail primaryEmail = new EMail(email);
                 primaryEmail.Primary = destination.Emails.Count == 0;
-                primaryEmail.Rel = relationship;
+                //Alternative instead of Label: primaryEmail.Rel = relationship;
+                primaryEmail.Label = relationship; //together with source.Email1DisplayName will save the display name into label on Google side, but it cannot be synced back, because Outlook always resets the display name, if the email is updated
                 destination.Emails.Add(primaryEmail);
             }
         }
@@ -873,31 +874,51 @@ namespace GoContactSyncMod
 
 		public static void SetEmails(Contact source, Outlook.ContactItem destination)
 		{
-            destination.Email1Address = string.Empty;
-            destination.Email1DisplayName = string.Empty;
 
-            destination.Email2Address = string.Empty;
-            destination.Email2DisplayName = string.Empty;
 
-            destination.Email3Address = string.Empty;
-            destination.Email3DisplayName = string.Empty;
-
-			if (source.Emails.Count > 0)
-			{
-				destination.Email1Address = source.Emails[0].Address;
-				destination.Email1DisplayName = source.Emails[0].Label;
-			}            
-
-			if (source.Emails.Count > 1)
+            if (source.Emails.Count > 0)
             {
-				destination.Email2Address = source.Emails[1].Address;
-                destination.Email2DisplayName = source.Emails[1].Label;
+                //only sync, if Email changed
+                if (destination.Email1Address != source.Emails[0].Address)
+                {
+                    destination.Email1Address = source.Emails[0].Address;
+                    destination.Email1DisplayName = source.Emails[0].Label;
+                }
             }
-            
-			if (source.Emails.Count > 2)
+            else
             {
-				destination.Email3Address = source.Emails[2].Address;
-                destination.Email3DisplayName = source.Emails[2].Label;
+                destination.Email1Address = string.Empty;
+                destination.Email1DisplayName = string.Empty;
+            }
+
+            if (source.Emails.Count > 1)
+            {
+                //only sync, if Email changed
+                if (destination.Email2Address != source.Emails[1].Address)
+                {
+                    destination.Email2Address = source.Emails[1].Address;
+                    destination.Email2DisplayName = source.Emails[1].Label;
+                }
+            }
+            else
+            {
+                destination.Email2Address = string.Empty;
+                destination.Email2DisplayName = string.Empty;
+            }
+
+            if (source.Emails.Count > 2)
+            {
+                //only sync, if Email changed
+                if (destination.Email3Address != source.Emails[2].Address)
+                {
+                    destination.Email3Address = source.Emails[2].Address;
+                    destination.Email3DisplayName = source.Emails[2].Label;
+                }
+            }
+            else
+            {
+                destination.Email3Address = string.Empty;
+                destination.Email3DisplayName = string.Empty;
             }
             
 		}
