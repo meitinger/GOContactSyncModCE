@@ -882,8 +882,11 @@ namespace GoContactSyncMod
                 if (destination.Email1Address != source.Emails[0].Address)
                 {
                     destination.Email1Address = source.Emails[0].Address;
-                    destination.Email1DisplayName = source.Emails[0].Label;
+                    destination.Email1DisplayName = source.Emails[0].Label; //ToDo: Unfortunatelly this doesn't work, because Outlook automatically sets it to default value when the email is changed
                 }
+
+                if (destination.Email1DisplayName != source.Emails[0].Label)
+                    Logger.Log("The Display name of Email1 is different in Google (" + source.Emails[0].Label + ") and Outlook (" + destination.Email1DisplayName + ") for contact '" + source.Title + "' but cannot be updated, because Outlook automatically sets it to default value when the email is changed", EventType.Warning);
             }
             else
             {
@@ -897,8 +900,11 @@ namespace GoContactSyncMod
                 if (destination.Email2Address != source.Emails[1].Address)
                 {
                     destination.Email2Address = source.Emails[1].Address;
-                    destination.Email2DisplayName = source.Emails[1].Label;
+                    destination.Email2DisplayName = source.Emails[1].Label;//ToDo: Unfortunatelly this doesn't work, because Outlook automatically sets it when the email is changed
                 }
+
+                if (destination.Email2DisplayName != source.Emails[1].Label)
+                    Logger.Log("The Display name of Email3 is different in Google (" + source.Emails[1].Label + ") and Outlook (" + destination.Email2DisplayName + ") for contact '"+source.Title+"' but cannot be updated, because Outlook automatically sets it to default value when the email is changed", EventType.Warning);
             }
             else
             {
@@ -912,8 +918,11 @@ namespace GoContactSyncMod
                 if (destination.Email3Address != source.Emails[2].Address)
                 {
                     destination.Email3Address = source.Emails[2].Address;
-                    destination.Email3DisplayName = source.Emails[2].Label;
+                    destination.Email3DisplayName = source.Emails[2].Label;//ToDo: Unfortunatelly this doesn't work, because Outlook automatically sets it when the email is changed
                 }
+
+                if (destination.Email3DisplayName != source.Emails[2].Label)
+                    Logger.Log("The Display name of Email3 is different in Google (" + source.Emails[2].Label + ") and Outlook (" + destination.Email3DisplayName + ") for contact '" + source.Title + "' but cannot be updated, because Outlook automatically sets it to default value when the email is changed", EventType.Warning);
             }
             else
             {
