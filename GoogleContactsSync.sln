@@ -8,6 +8,10 @@ EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "GoogleContactsSyncSetup", "GoogleContactsSyncSetup\GoogleContactsSyncSetup.vdproj", "{936DBD8D-A805-47BA-9BB5-4B4013AB0F0B}"
 EndProject
 Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
