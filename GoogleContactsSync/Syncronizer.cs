@@ -275,7 +275,6 @@ namespace GoContactSyncMod
             {
                 _outlookNamespace.GetFolderFromID(SyncContactsFolder);
             }
-
         }
 
 		public void LogoffOutlook()

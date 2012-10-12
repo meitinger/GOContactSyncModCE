@@ -27,7 +27,6 @@ namespace GoContactSyncMod
             //prevent more than one instance of the program
             bool ok;
             System.Threading.Mutex m = new System.Threading.Mutex(true, "acbbbc09-f76c-4874-aaff-4f3353a5a5a6", out ok);
-
             if (!ok)
             {
                 //Message.Create((IntPtr)HWND_BROADCAST, WM_SHOWME, IntPtr.Zero, IntPtr.Zero);                
