@@ -530,10 +530,14 @@ namespace GoContactSyncMod
             Document ret = null;
             try
             {
-                if (id == null) // Only log, if not specific Google Notes are searched
+                if (id == null)
+                {
+                    // Only log, if not specific Google Notes are searched
                     Logger.Log("Loading Google Notes...", EventType.Information);
+                    GoogleNotes = new Collection<Document>();
+                }
 
-                GoogleNotes = new Collection<Document>();
+                
                 DocumentQuery query;
                 Feed<Document> feed;
 
@@ -584,9 +588,13 @@ namespace GoContactSyncMod
                 {
                     foreach (Document a in feed.Entries)
                     {
-                        GoogleNotes.Add(a);
-                        if (id != null && id.Equals(a.DocumentEntry.Id))
+                        if (id == null)
+                            GoogleNotes.Add(a);
+                        else if (id.Equals(a.DocumentEntry.Id))
+                        {
                             ret = a;
+                            return ret;
+                        }
                     }
                     query.StartIndex += query.NumberToRetrieve;
                     feed = DocumentsRequest.Get<Document>(feed, FeedRequestType.Next);
@@ -1320,45 +1328,41 @@ namespace GoContactSyncMod
         private void OnGoogleNoteCreated(object sender, AsyncOperationCompletedEventArgs e)
         {
 
-            //Move now to Notes subfolder
-            DocumentEntry entry = e.Entry as DocumentEntry;
+            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, "create", e.Error, e.Cancelled);
+        }
 
-            if (e.Error != null)
-                throw new Exception("Google Note couldn't be created: " + entry == null?null:entry.Title.Text, e.Error);
+        private void OnGoogleNoteUpdated(object sender, AsyncOperationCompletedEventArgs e)
+        {
+            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, "update", e.Error, e.Cancelled);
+        }
+        private void MoveGoogleNote(DocumentEntry entry, NoteMatch match, string title, Exception ex, bool cancelled)
+        {
+            if (ex != null)
+            {
+                ErrorHandler.Handle(new Exception("Google Note couldn't be " + title + "d: " + entry == null ? null : entry.Title.Text, ex));
+                return;
+            }
 
-            if (e.Cancelled || e.Entry == null)
-                throw new Exception("Google Note creation was cancelled: " + entry == null ? null : entry.Title.Text);
+            if (cancelled || entry == null)
+            {
+                ErrorHandler.Handle(new Exception("Google Note " + title + " was cancelled: " + entry == null ? null : entry.Title.Text));
+                return;
+            }
 
+            //Move now to Notes subfolder            
             Document newNote = LoadGoogleNotes(entry.Id);
-            NoteMatch match = e.UserState as NoteMatch;
-            match.GoogleNote = newNote;            
+            match.GoogleNote = newNote;
             newNote = DocumentsRequest.MoveDocumentTo(googleNotesFolder, newNote);
 
             //Then update the match IDs
             UpdateNoteMatchId(match);
 
-            Logger.Log("Created Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
+            Logger.Log(title + "d Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
             //Then release this match as completed (to not log the summary already before each single note result has been synced
             match.AsyncUpdateCompleted = true;
         }
 
-        private void OnGoogleNoteUpdated(object sender, AsyncOperationCompletedEventArgs e)
-        {
-            DocumentEntry entry = e.Entry as DocumentEntry;
-            NoteMatch match = e.UserState as NoteMatch;
-            match.AsyncUpdateCompleted = true;
-
-            if (e.Error != null)
-                throw new Exception("Google Note couldn't be updated: " + entry == null ? null : entry.Title.Text, e.Error);
-
-            if (e.Cancelled || e.Entry == null)
-                throw new Exception("Google Note update was cancelled: " + entry == null ? null : entry.Title.Text);
-
-            //Then update the match IDs
-            UpdateNoteMatchId(match);
-
-            Logger.Log("Updated Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
-        }
+        
 
 		private string GetXml(Contact contact)
 		{
