@@ -1290,7 +1290,7 @@ namespace GoContactSyncMod
             //}
         }
 
-        public static void CreateGoogleNote(Document googleNote, object UserData, DocumentsRequest documentsRequest, ResumableUploader uploader, ClientLoginAuthenticator authenticator)
+        public static void CreateGoogleNote(/*Document parentFolder, */Document googleNote, object UserData, DocumentsRequest documentsRequest, ResumableUploader uploader, ClientLoginAuthenticator authenticator)
         {
             // Define the resumable upload link      
             Uri createUploadUrl = new Uri("https://docs.google.com/feeds/upload/create-session/default/private/full");
@@ -1298,7 +1298,8 @@ namespace GoContactSyncMod
             AtomLink link = new AtomLink(createUploadUrl.AbsoluteUri);
             link.Rel = ResumableUploader.CreateMediaRelation;
             googleNote.DocumentEntry.Links.Add(link);
-            //match.GoogleNote.DocumentEntry.ParentFolders.Add(new AtomLink(GoogleNotesFolder.DocumentEntry.SelfUri.ToString()));
+            //if (parentFolder != null)
+            //    googleNote.DocumentEntry.ParentFolders.Add(new AtomLink(parentFolder.DocumentEntry.SelfUri.ToString()));
             // Set the service to be used to parse the returned entry 
             googleNote.DocumentEntry.Service = documentsRequest.Service;
             // Start the upload process   
@@ -1584,7 +1585,7 @@ namespace GoContactSyncMod
                         { //If Google found a picture for a new Google account, it sets it automatically and throws an error, if updating it with the Outlook photo. 
                             //Therefore save it again and try again to save the photo
                             if (retry == 4)
-                                Logger.Log("Photo of contact " + match.GoogleContact.Title + "couldn't be saved after 5 tries, maybe Google found its own photo and doesn't allow updating it", EventType.Warning);
+                                ErrorHandler.Handle(new Exception("Photo of contact " + match.GoogleContact.Title + "couldn't be saved after 5 tries, maybe Google found its own photo and doesn't allow updating it", ex));
                             else
                             {
                                 System.Threading.Thread.Sleep(1000);
