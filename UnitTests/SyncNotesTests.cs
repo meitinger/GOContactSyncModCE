@@ -26,8 +26,8 @@ namespace GoContactSyncMod.UnitTests
         //Constants for test Note
         const string name = "AN_OUTLOOK_TEST_NOTE";
         const string body = "This is just a test note to test GoContactSyncMod";
+        const string groupName = "A TEST GROUP";
 
-       
         [TestFixtureSetUp]
         public void Init() 
         {            
@@ -88,6 +88,9 @@ namespace GoContactSyncMod.UnitTests
                     DeleteTestNote(googleNote);
                 }
             }
+
+            //Delete empty Google note folders
+            sync.CleanUpGoogleCategories();
         }
 
         void Logger_LogUpdated(string message)
@@ -250,6 +253,147 @@ namespace GoContactSyncMod.UnitTests
             DeleteTestNotes(match);
                       
         }
+
+        [Test]
+        public void TestSyncGroups()
+        {
+            Outlook.NoteItem outlookNote;
+            NoteMatch match;
+
+            CreateOutlookNoteAndSyncToGoogle(out outlookNote, out match);
+
+            // delete outlook note
+            outlookNote.Delete();
+            outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
+            sync.UpdateNote(match.GoogleNote, outlookNote);
+            match = new NoteMatch(outlookNote, match.GoogleNote);
+            outlookNote.Save();
+
+            sync.SyncOption = SyncOption.MergeGoogleWins;
+
+            //sync and save contact to outlook
+            sync.UpdateNote(match.GoogleNote, outlookNote);
+            sync.SaveNote(match);
+
+            //load the same contact from outlook
+            sync.MatchNotes();
+            match = FindMatch(outlookNote);
+
+            Assert.AreEqual(groupName, outlookNote.Categories);
+
+            DeleteTestNotes(match);
+
+            //Delete empty Google note folders
+            sync.CleanUpGoogleCategories();
+        }
+
+        [Test]
+        public void TestSyncDeletedGroup()
+        {
+            Outlook.NoteItem outlookNote;
+            NoteMatch match;
+            
+            CreateOutlookNoteAndSyncToGoogle(out outlookNote, out match);
+
+            // remove category from Outlook Note
+            outlookNote.Categories = null;
+
+            sync.UpdateNote(match.OutlookNote, match.GoogleNote);
+
+            //save Note to Google
+            sync.SaveNote(match);
+
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 100; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds                      
+
+            //load the same note from google.
+            sync.MatchNotes();
+            match = FindMatch(outlookNote);
+
+            // google contact should now have no group anymore                     
+            Assert.AreEqual(1, match.GoogleNote.ParentFolders.Count);   //Only Notes Folder remains
+            Assert.AreEqual(match.GoogleNote.ParentFolders[0], sync.googleNotesFolder.Self);
+
+            sync.SyncOption = SyncOption.GoogleToOutlookOnly;
+
+            outlookNote.Categories = groupName;
+
+            sync.UpdateNote(match.GoogleNote, match.OutlookNote);
+
+            sync.SaveNote(match);
+
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 100; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
+            //Sync Groups first
+            sync.MatchNotes();
+
+            //sync and save contact to outlook.
+            match = FindMatch(outlookNote);
+            sync.UpdateNote(match.GoogleNote, outlookNote);
+            sync.SaveNote(match);
+
+            // google and outlook should now have no category            
+            Assert.AreEqual(1, match.GoogleNote.ParentFolders.Count);   //Only Notes Folder remains
+            Assert.AreEqual(match.GoogleNote.ParentFolders[0], sync.googleNotesFolder.Self);
+            Assert.AreEqual(null, outlookNote.Categories);
+           
+
+            DeleteTestNotes(match);
+
+            //Delete empty Google note folders
+            sync.CleanUpGoogleCategories();
+        }
+
+        private void CreateOutlookNoteAndSyncToGoogle(out Outlook.NoteItem outlookNote, out NoteMatch match)
+        {
+            //ToDo: Check for eache SyncOption and SyncDelete combination
+            sync.SyncOption = SyncOption.MergeOutlookWins;
+            sync.SyncDelete = true;
+
+            // create new contact to sync
+            // create new note to sync
+            outlookNote = Syncronizer.CreateOutlookNoteItem(Syncronizer.SyncNotesFolder);
+            outlookNote.Body = body;
+            outlookNote.Categories = groupName;
+            outlookNote.Save();
+
+            //Outlook note should now have a group
+            Assert.AreEqual(groupName, outlookNote.Categories);
+
+            Document googleNote = new Document();
+            googleNote.Type = Document.DocumentType.Document;
+            sync.UpdateNote(outlookNote, googleNote);
+            match = new NoteMatch(outlookNote, googleNote);
+
+            //save Notes
+            sync.SaveNote(match);
+
+            for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 100; i++)
+                Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds                      
+
+            //load the same note from google.
+            sync.MatchNotes();
+            match = FindMatch(outlookNote);
+
+            // google contact should now have the same group            
+            Assert.IsNotNull(match.GoogleNote.ParentFolders);
+            //Assert.Greater(match.GoogleNote.ParentFolders.Count, 0); 
+            Assert.AreEqual(2, match.GoogleNote.ParentFolders.Count);   //2 because Notes folder and the category folder 
+
+            Document categoryFolder = null;
+            foreach (string uri in match.GoogleNote.ParentFolders)
+            {
+                Document folder = sync.GetGoogleFolder(null, null, uri);
+                if (folder.Title == groupName)
+                {
+                    categoryFolder = folder;
+                    break;
+                }
+            }
+            Assert.IsNotNull(categoryFolder);
+        }
+        
 
        
         [Test]

@@ -65,7 +65,7 @@ namespace GoContactSyncMod
         public Collection<Contact> GoogleContacts { get; private set; }
         public Collection<Document> GoogleNotes { get; private set; }
         public Collection<Group> GoogleGroups { get; set; }
-        private Document googleNotesFolder;
+        internal Document googleNotesFolder;
         public string OutlookPropertyPrefix { get; private set; }
 		public string OutlookPropertyNameId
 		{
@@ -537,40 +537,10 @@ namespace GoContactSyncMod
                     GoogleNotes = new Collection<Document>();
                 }
 
-                
+                if (googleNotesFolder == null)
+                    googleNotesFolder = GetOrCreateGoogleFolder(null, "Notes");//ToDo: Make the folder name Notes configurable in SettingsForm, for now hardcode to "Notes");
+
                 DocumentQuery query;
-                Feed<Document> feed;
-
-                lock (this) //Synchronize the threads
-                {
-                    //First get the Notes folder or create it, if not yet existing
-                    if (googleNotesFolder == null)
-                    {
-                        query = new DocumentQuery(DocumentsRequest.BaseUri);
-                        query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
-                        query.Title = "Notes";//ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes"
-                        feed = DocumentsRequest.Get<Document>(query);
-
-                        if (feed != null)
-                        {
-                            foreach (Document a in feed.Entries)
-                            {
-                                googleNotesFolder = a;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (googleNotesFolder == null)
-                    {
-                        googleNotesFolder = new Document();
-                        googleNotesFolder.Type = Document.DocumentType.Folder;
-                        //GoogleNotesFolder.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
-                        googleNotesFolder.Title = "Notes"; //ToDo: Make the folder configurable in SettingsForm, for now hardcode to "Notes";
-                        googleNotesFolder = SaveGoogleNote(null, googleNotesFolder, DocumentsRequest);
-                    }
-                }
-
                 if (id == null)
                     query = new DocumentQuery(googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
                 else //if newly created
@@ -581,8 +551,7 @@ namespace GoContactSyncMod
 
                 //query.ShowDeleted = false;
                 //query.OrderBy = "lastmodified";
-
-                feed = DocumentsRequest.Get<Document>(query);
+                Feed<Document> feed = DocumentsRequest.Get<Document>(query);
 
                 while (feed != null)
                 {
@@ -613,6 +582,131 @@ namespace GoContactSyncMod
                 throw new GDataRequestException(message, new System.Net.WebException("Error accessing feed", ex));
             }
 
+            return ret;
+        }
+
+        /// <summary>
+        /// Cleanup empty GoogleNotesFolders (for Outlook categories)
+        /// </summary>
+        internal void CleanUpGoogleCategories()
+        {
+
+            DocumentQuery query;
+            Feed<Document> feed;
+            List<Document> categoryFolders = GetGoogleGroups();
+
+            if (categoryFolders != null)
+            {
+                foreach (Document categoryFolder in categoryFolders)
+                {
+                    query = new DocumentQuery(categoryFolder.DocumentEntry.Content.AbsoluteUri);
+                    query.NumberToRetrieve = 256;
+                    query.StartIndex = 0;
+
+                    //query.ShowDeleted = false;
+                    //query.OrderBy = "lastmodified";
+                    feed = DocumentsRequest.Get<Document>(query);
+
+                    bool isEmpty = true;
+                    while (feed != null)
+                    {
+                        foreach (Document a in feed.Entries)
+                        {
+                            isEmpty = false;
+                            break;
+                        }
+                        if (!isEmpty)
+                            break;
+                        query.StartIndex += query.NumberToRetrieve;
+                        feed = DocumentsRequest.Get<Document>(feed, FeedRequestType.Next);
+                    }
+
+                    if (isEmpty)
+                    {
+                        DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" +categoryFolder.ResourceId), categoryFolder.ETag);
+                        Logger.Log("Deleted empty Google category folder: " + categoryFolder.Title, EventType.Information);
+                    }
+
+                }
+            }
+        }
+
+        internal List<Document> GetGoogleGroups()
+        {
+            List<Document> categoryFolders;
+
+            DocumentQuery query = new DocumentQuery(googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
+            query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
+            query.NumberToRetrieve = 256;
+            query.StartIndex = 0;
+
+            //query.ShowDeleted = false;
+            //query.OrderBy = "lastmodified";
+            Feed<Document> feed = DocumentsRequest.Get<Document>(query);
+            categoryFolders = new List<Document>();
+
+            while (feed != null)
+            {
+                foreach (Document a in feed.Entries)
+                {
+                    categoryFolders.Add(a);
+                }
+                query.StartIndex += query.NumberToRetrieve;
+                feed = DocumentsRequest.Get<Document>(feed, FeedRequestType.Next);
+
+            }
+
+            return categoryFolders;
+        }
+
+        private Document GetOrCreateGoogleFolder(Document parentFolder, string title)
+        {
+            Document ret=null;                       
+
+            lock (this) //Synchronize the threads
+            {
+                ret = GetGoogleFolder(parentFolder, title, null);
+                
+                if (ret == null)
+                {
+                    ret = new Document();
+                    ret.Type = Document.DocumentType.Folder;
+                    //ret.Categories.Add(new AtomCategory("http://schemas.google.com/docs/2007#folder"));
+                    ret.Title = title;
+                    ret = SaveGoogleNote(parentFolder, ret, DocumentsRequest);
+                }
+            }
+
+            return ret;
+        }
+
+        internal Document GetGoogleFolder(Document parentFolder, string title, string uri)
+        {
+            Document ret = null;           
+
+            //First get the Notes folder or create it, if not yet existing            
+            DocumentQuery query = new DocumentQuery(DocumentsRequest.BaseUri);
+            //Doesn't work, therefore used IsInFolder below: DocumentQuery query = new DocumentQuery((parentFolder == null) ? DocumentsRequest.BaseUri : parentFolder.DocumentEntryContent.AbsoluteUri);
+            query.Categories.Add(new QueryCategory(new AtomCategory("folder")));
+            if (!string.IsNullOrEmpty(title))
+                query.Title = title;
+            
+            Feed<Document> feed = DocumentsRequest.Get<Document>(query);
+
+            if (feed != null)
+            {
+                foreach (Document a in feed.Entries)
+                {
+                    if ((string.IsNullOrEmpty(uri) || a.Self == uri) && 
+                        (parentFolder == null || IsInFolder(parentFolder, a)))
+                    {
+                        ret = a;
+                        break;
+                    }
+                }
+                query.StartIndex += query.NumberToRetrieve;
+                feed = DocumentsRequest.Get<Document>(feed, FeedRequestType.Next);
+            }
             return ret;
         }
         /// <summary>
@@ -875,6 +969,9 @@ namespace GoContactSyncMod
                         foreach (NoteMatch match in Notes)
                             for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 10; i++)
                                 System.Threading.Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
+
+                        //Delete empty Google note folders
+                        CleanUpGoogleCategories();
                     }
                 }
                 finally
@@ -1151,7 +1248,7 @@ namespace GoContactSyncMod
                     {
                         // peer outlook note was deleted, delete google note
                         DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag);
-                        //DocumentsRequest.Service.Delete(match.GoogleNote.DocumentEntry, true); //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore I use the URI Delete above for now
+                        //DocumentsRequest.Service.Delete(match.GoogleNote.DocumentEntry); //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore I use the URI Delete above for now
                         //DocumentsRequest.Delete(match.GoogleNote);
 
                         ////ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
@@ -1326,40 +1423,84 @@ namespace GoContactSyncMod
         }
 
         private void OnGoogleNoteCreated(object sender, AsyncOperationCompletedEventArgs e)
-        {
-
-            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, "create", e.Error, e.Cancelled);
+        {           
+            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, true, e.Error, e.Cancelled);
         }
 
         private void OnGoogleNoteUpdated(object sender, AsyncOperationCompletedEventArgs e)
         {
-            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, "update", e.Error, e.Cancelled);
+            MoveGoogleNote(e.Entry as DocumentEntry, e.UserState as NoteMatch, false, e.Error, e.Cancelled);
         }
-        private void MoveGoogleNote(DocumentEntry entry, NoteMatch match, string title, Exception ex, bool cancelled)
+        private void MoveGoogleNote(DocumentEntry entry, NoteMatch match, bool create, Exception ex, bool cancelled)
         {
             if (ex != null)
             {
-                ErrorHandler.Handle(new Exception("Google Note couldn't be " + title + "d: " + entry == null ? null : entry.Title.Text, ex));
+                ErrorHandler.Handle(new Exception("Google Note couldn't be " + (create?"created":"updated") + " :" + entry == null ? null : entry.Title.Text, ex));
                 return;
             }
 
             if (cancelled || entry == null)
             {
-                ErrorHandler.Handle(new Exception("Google Note " + title + " was cancelled: " + entry == null ? null : entry.Title.Text));
+                ErrorHandler.Handle(new Exception("Google Note " + (create ? "creation" : "update") + " was cancelled: " + entry == null ? null : entry.Title.Text));
                 return;
             }
 
-            //Move now to Notes subfolder            
+           //Get updated Google Note
             Document newNote = LoadGoogleNotes(entry.Id);
             match.GoogleNote = newNote;
-            newNote = DocumentsRequest.MoveDocumentTo(googleNotesFolder, newNote);
+
+            //Doesn't work because My Drive is not listed as parent folder: Remove all parent folders except for the Notes subfolder
+            //if (create)
+            //{
+            //    foreach (string parentFolder in newNote.ParentFolders)
+            //        if (parentFolder != googleNotesFolder.Self)
+            //            DocumentsRequest.Delete(new Uri(googleNotesFolder.DocumentEntry.Content.AbsoluteUri + "/" + newNote.ResourceId),newNote.ETag);
+            //}
+
+            //Move now to Notes subfolder (if not already there)
+            if (!IsInFolder(googleNotesFolder, newNote))
+                newNote = DocumentsRequest.MoveDocumentTo(googleNotesFolder, newNote);
+
+            //Move now to all categories subfolder (if not already there)
+            foreach (string category in Utilities.GetOutlookGroups(match.OutlookNote.Categories))
+            {                
+                Document categoryFolder = GetOrCreateGoogleFolder(googleNotesFolder, category);    
+            
+                if (!IsInFolder(categoryFolder, newNote))
+                    newNote = DocumentsRequest.MoveDocumentTo(categoryFolder, newNote);
+            }
+
+            //ToDo: Currently, the ResumableUploader removes all folders from documents that are updated, therefore the Notes folder as well as all categories folders are reset when a note is updated to Google from Outlook ==> No need to cleanup the categories. But as soon, as this feature is changed (fixed), we have to delete the file from all categories, that it is not assigned anymore:
+            //foreach (subfolder in googleNotesFolder)
+            //foreach (document in subfolder)
+            //if document == newNote
+            //DocumentsRequest.Delete(newNote); //Just delete it from this category
 
             //Then update the match IDs
             UpdateNoteMatchId(match);
 
-            Logger.Log(title + "d Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
+            Logger.Log((create?"Created":"Updated") + " Google note from Outlook: \"" + match.OutlookNote.Subject + "\".", EventType.Information);
             //Then release this match as completed (to not log the summary already before each single note result has been synced
             match.AsyncUpdateCompleted = true;
+        }
+
+        /// <summary>
+        /// returns true, if the passed document is already in passed parentFolder
+        /// </summary>
+        /// <param name="parentFolder">the parent folder</param>
+        /// <param name="childDocument">the document to be checked</param>
+        /// <returns></returns>
+        private bool IsInFolder(Document parentFolder, Document childDocument)
+        {
+            foreach (string parent in childDocument.ParentFolders)
+            {
+                if (parent == parentFolder.Self)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         
@@ -1475,6 +1616,7 @@ namespace GoContactSyncMod
                 {
                     Document createdEntry = documentsRequest.Insert(feedUri, googleNote);
                     //ToDo: Workaround also doesn't help: Utilities.SaveGoogleNoteContent(this, createdEntry, googleNote);    
+                    Logger.Log("Created new Google folder: " + createdEntry.Title, EventType.Information);
                     return createdEntry;
                 }
                 catch (Exception ex)
@@ -1792,6 +1934,19 @@ namespace GoContactSyncMod
             }
 
             slave.Body = body;
+
+            slave.Categories = string.Empty;
+            List<string> newCats = new List<string>();
+            foreach (string category in master.ParentFolders)
+            {
+                Document categoryFolder = GetGoogleFolder(googleNotesFolder, null, category);                
+
+                if (categoryFolder != null)
+                    newCats.Add(categoryFolder.Title);
+                
+            }
+
+            slave.Categories = string.Join(", ", newCats.ToArray());
 
             NotePropertiesUtils.CreateNoteFile(master.Id, body, SyncProfile);
 
