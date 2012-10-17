@@ -9,6 +9,7 @@ namespace GoContactSyncMod
     {
         public enum OutlookMainVersion
         {
+            Outlook2002,
             Outlook2003,
             Outlook2007,
             Outlook2010,
@@ -18,11 +19,11 @@ namespace GoContactSyncMod
 
         public static OutlookMainVersion GetOutlookVersion()
         {
-            Microsoft.Office.Interop.Outlook.Application appVersion = Syncronizer.OutlookApplication;
-            if (appVersion == null)
-                return OutlookMainVersion.OutlookNoInstance;
+            Microsoft.Office.Interop.Outlook.Application appVersion = new Microsoft.Office.Interop.Outlook.Application();
             switch (appVersion.Version.ToString().Substring(0,2))
             {
+                case "10":
+                    return OutlookMainVersion.Outlook2002;
                 case "11":
                     return OutlookMainVersion.Outlook2003;
                 case "12":
@@ -30,8 +31,15 @@ namespace GoContactSyncMod
                 case "14":
                     return OutlookMainVersion.Outlook2010;
                 default:
-                    return OutlookMainVersion.OutlookUnknownVersion;
+                    {
+                        if (appVersion != null)
+                        {
+                            Marshal.ReleaseComObject(appVersion);
+                        }
+                        return OutlookMainVersion.OutlookUnknownVersion;
+                    }
             }
+     
         }
 
         #region API-Deklarationen
