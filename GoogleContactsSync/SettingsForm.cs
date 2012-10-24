@@ -13,6 +13,7 @@ using System.IO;
 using System.Runtime.Remoting;
 using System.Runtime.InteropServices;
 using System.Collections;
+using System.Globalization;
 
 
 namespace GoContactSyncMod
@@ -1198,6 +1199,12 @@ namespace GoContactSyncMod
         {
             btPromptDelete.Visible = btSyncDelete.Checked;
             btPromptDelete.Checked = btSyncDelete.Checked;
+        }
+
+        private void pictureBoxExit_Click(object sender, EventArgs e)
+        {
+            requestClose = true;
+            Close();
         }        
 
 	}

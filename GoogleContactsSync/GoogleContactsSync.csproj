@@ -170,6 +170,11 @@
     <Compile Include="NotePropertiesUtils.cs" />
     <Compile Include="NotesMatcher.cs" />
     <Compile Include="OutlookContactInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ProxySettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -206,6 +211,10 @@
       <SubType>Designer</SubType>
       <DependentUpon>DeleteDuplicatesForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="ProxySettings.resx">
       <DependentUpon>ProxySettings.cs</DependentUpon>
     </EmbeddedResource>
@@ -225,6 +234,7 @@
     <Content Include="contacts-sync.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="images\icons\system-log-out.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -243,6 +253,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
