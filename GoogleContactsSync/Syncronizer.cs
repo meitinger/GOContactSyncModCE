@@ -1464,12 +1464,7 @@ namespace GoContactSyncMod
             //            DocumentsRequest.Delete(new Uri(googleNotesFolder.DocumentEntry.Content.AbsoluteUri + "/" + newNote.ResourceId),newNote.ETag);
             //}
 
-            //ToDo: Currently, the ResumableUploader removes all folders from documents that are updated, therefore the Notes folder as well as all categories folders are reset when a note is updated to Google from Outlook ==> No need to cleanup the categories. But as soon, as this feature is changed (fixed), we have to delete the file from all categories, that it is not assigned anymore:
-            //foreach (subfolder in googleNotesFolder)
-            //foreach (document in subfolder)
-            //if document == newNote
-            //DocumentsRequest.Delete(newNote); //Just delete it from this category
-
+            //first delete the note from all categories, the still valid categories are assigned again later           
             foreach (string parentFolder in newNote.ParentFolders)
                 if (parentFolder != googleNotesFolder.Self) //Except for Notes root folder
                 {
