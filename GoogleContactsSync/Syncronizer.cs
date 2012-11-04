@@ -519,18 +519,18 @@ namespace GoContactSyncMod
 
         private void LoadGoogleNotes()
         {
-            LoadGoogleNotes(null);
+            LoadGoogleNotes(null, null);
             Logger.Log("Google Notes Found: " + GoogleNotes.Count, EventType.Debug);                
         }
 
-        internal Document LoadGoogleNotes(AtomId id)
+        internal Document LoadGoogleNotes(string folderUri, AtomId id)
         {
             string message = "Error Loading Google Notes. Cannot connect to Google.\r\nPlease ensure you are connected to the internet. If you are behind a proxy, change your proxy configuration!";
 
             Document ret = null;
             try
             {
-                if (id == null)
+                if (folderUri == null && id == null)
                 {
                     // Only log, if not specific Google Notes are searched
                     Logger.Log("Loading Google Notes...", EventType.Information);
@@ -540,11 +540,16 @@ namespace GoContactSyncMod
                 if (googleNotesFolder == null)
                     googleNotesFolder = GetOrCreateGoogleFolder(null, "Notes");//ToDo: Make the folder name Notes configurable in SettingsForm, for now hardcode to "Notes");
 
-                DocumentQuery query;
-                if (id == null)
-                    query = new DocumentQuery(googleNotesFolder.DocumentEntry.Content.AbsoluteUri);
-                else //if newly created
-                    query = new DocumentQuery(DocumentsRequest.BaseUri);
+               
+                if (folderUri == null)
+                {
+                    if (id == null)
+                        folderUri = googleNotesFolder.DocumentEntry.Content.AbsoluteUri;
+                    else //if newly created
+                        folderUri = DocumentsRequest.BaseUri;
+                }
+
+                DocumentQuery query = new DocumentQuery(folderUri);
                 query.Categories.Add(new QueryCategory(new AtomCategory("document")));
                 query.NumberToRetrieve = 256;
                 query.StartIndex = 0;                
@@ -1248,7 +1253,7 @@ namespace GoContactSyncMod
                     {
                         // peer outlook note was deleted, delete google note
                         DocumentsRequest.Delete(new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri + "/" + match.GoogleNote.ResourceId), match.GoogleNote.ETag);
-                        //DocumentsRequest.Service.Delete(match.GoogleNote.DocumentEntry); //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore I use the URI Delete above for now
+                        //DocumentsRequest.Service.Delete(match.GoogleNote.DocumentEntry); //ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore I use the URI Delete above for now: "https://docs.google.com/feeds/default/private/full"
                         //DocumentsRequest.Delete(match.GoogleNote);
 
                         ////ToDo: Currently, the Delete only removes the Notes label from the document but keeps the document in the root folder, therefore the following workaround
@@ -1448,7 +1453,7 @@ namespace GoContactSyncMod
             }
 
            //Get updated Google Note
-            Document newNote = LoadGoogleNotes(entry.Id);
+            Document newNote = LoadGoogleNotes(null, entry.Id);
             match.GoogleNote = newNote;
 
             //Doesn't work because My Drive is not listed as parent folder: Remove all parent folders except for the Notes subfolder
@@ -1458,6 +1463,20 @@ namespace GoContactSyncMod
             //        if (parentFolder != googleNotesFolder.Self)
             //            DocumentsRequest.Delete(new Uri(googleNotesFolder.DocumentEntry.Content.AbsoluteUri + "/" + newNote.ResourceId),newNote.ETag);
             //}
+
+            //ToDo: Currently, the ResumableUploader removes all folders from documents that are updated, therefore the Notes folder as well as all categories folders are reset when a note is updated to Google from Outlook ==> No need to cleanup the categories. But as soon, as this feature is changed (fixed), we have to delete the file from all categories, that it is not assigned anymore:
+            //foreach (subfolder in googleNotesFolder)
+            //foreach (document in subfolder)
+            //if document == newNote
+            //DocumentsRequest.Delete(newNote); //Just delete it from this category
+
+            foreach (string parentFolder in newNote.ParentFolders)
+                if (parentFolder != googleNotesFolder.Self) //Except for Notes root folder
+                {
+                    Document deletedNote = LoadGoogleNotes(parentFolder + "/contents", newNote.DocumentEntry.Id);
+                    //DocumentsRequest.Delete(new Uri(parentFolder + "/contents/" + newNote.ResourceId), newNote.ETag);
+                    DocumentsRequest.Delete(deletedNote); //Just delete it from this category
+                }
 
             //Move now to Notes subfolder (if not already there)
             if (!IsInFolder(googleNotesFolder, newNote))
@@ -1470,13 +1489,7 @@ namespace GoContactSyncMod
             
                 if (!IsInFolder(categoryFolder, newNote))
                     newNote = DocumentsRequest.MoveDocumentTo(categoryFolder, newNote);
-            }
-
-            //ToDo: Currently, the ResumableUploader removes all folders from documents that are updated, therefore the Notes folder as well as all categories folders are reset when a note is updated to Google from Outlook ==> No need to cleanup the categories. But as soon, as this feature is changed (fixed), we have to delete the file from all categories, that it is not assigned anymore:
-            //foreach (subfolder in googleNotesFolder)
-            //foreach (document in subfolder)
-            //if document == newNote
-            //DocumentsRequest.Delete(newNote); //Just delete it from this category
+            }           
 
             //Then update the match IDs
             UpdateNoteMatchId(match);

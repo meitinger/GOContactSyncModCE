@@ -81,11 +81,18 @@ namespace GoContactSyncMod.UnitTests
 
             foreach (Document googleNote in sync.GoogleNotes)
             {
-                string noteBody = NotePropertiesUtils.GetBody(sync, googleNote);
-                if (googleNote != null &&
-                    noteBody != null && noteBody == body)
+                try
                 {
-                    DeleteTestNote(googleNote);
+                    string noteBody = NotePropertiesUtils.GetBody(sync, googleNote);
+                    if (googleNote != null &&
+                        noteBody != null && noteBody == body)
+                    {
+                        DeleteTestNote(googleNote);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    throw new System.Exception("Error deleting Google note '" + (googleNote==null?null:googleNote.Title),ex);
                 }
             }
 
@@ -216,7 +223,7 @@ namespace GoContactSyncMod.UnitTests
             for (int i = 0; match.AsyncUpdateCompleted.HasValue && !match.AsyncUpdateCompleted.Value && i < 100; i++)
                 Thread.Sleep(1000);//DoNothing, until the Async Update is complete, but only wait maximum 10 seconds
 
-            Document deletedNote = sync.LoadGoogleNotes(match.GoogleNote.DocumentEntry.Id);
+            Document deletedNote = sync.LoadGoogleNotes(null, match.GoogleNote.DocumentEntry.Id);
             Assert.IsNotNull(deletedNote);
             AtomId deletedNoteAtomId = deletedNote.DocumentEntry.Id;
             string deletedNoteId = deletedNote.Id;
@@ -244,7 +251,7 @@ namespace GoContactSyncMod.UnitTests
             // check if outlook Note still exists
             Assert.IsNull(match);
 
-            deletedNote = sync.LoadGoogleNotes(deletedNoteAtomId);
+            deletedNote = sync.LoadGoogleNotes(null, deletedNoteAtomId);
             Assert.IsNull(deletedNote);
 
             Assert.IsFalse(File.Exists(NotePropertiesUtils.GetFileName(deletedNoteId, sync.SyncProfile)));
