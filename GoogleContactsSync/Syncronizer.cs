@@ -1280,6 +1280,8 @@ namespace GoContactSyncMod
         {
             ContactPropertiesUtils.SetOutlookGoogleContactId(this, outlookContact, googleContact);
             outlookContact.Save();
+            //Because Outlook automatically sets the EmailDisplayName to default value when the email is changed, update the emails again, to also sync the DisplayName
+            ContactSync.SetEmails(googleContact, outlookContact);
             ContactPropertiesUtils.SetGoogleOutlookContactId(SyncProfile, googleContact, outlookContact);
 
             Contact updatedEntry = SaveGoogleContact(googleContact);

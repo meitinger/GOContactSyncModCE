@@ -873,8 +873,7 @@ namespace GoContactSyncMod
 		}
 
 		public static void SetEmails(Contact source, Outlook.ContactItem destination)
-		{
-
+		{           
 
             if (source.Emails.Count > 0)
             {
@@ -886,7 +885,7 @@ namespace GoContactSyncMod
 
                 if (!string.IsNullOrEmpty(source.Emails[0].Label) && destination.Email1DisplayName != source.Emails[0].Label)
                 {//Don't set it to null, because some Handys leave it empty and then Outlook automatically sets (overwrites it)
-                    destination.Email1DisplayName = source.Emails[0].Label;
+                    destination.Email1DisplayName = source.Emails[0].Label; //Unfortunatelly this doesn't work when the email is changes also, because Outlook automatically sets it to default value when the email is changed ==> Call this function again after the first save of Outlook
                 }
             }
             else
@@ -905,7 +904,7 @@ namespace GoContactSyncMod
 
                 if (!string.IsNullOrEmpty(source.Emails[1].Label) && destination.Email2DisplayName != source.Emails[1].Label)
                 {//Don't set it to null, because some Handys leave it empty and then Outlook automatically sets (overwrites it)
-                    destination.Email2DisplayName = source.Emails[1].Label;
+                    destination.Email2DisplayName = source.Emails[1].Label; //Unfortunatelly this doesn't work when the email is changes also, because Outlook automatically sets it to default value when the email is changed ==> Call this function again after the first save of Outlook
                 }
             }
             else
@@ -924,7 +923,7 @@ namespace GoContactSyncMod
 
                 if (!string.IsNullOrEmpty(source.Emails[2].Label) && destination.Email3DisplayName != source.Emails[2].Label)
                 {//Don't set it to null, because some Handys leave it empty and then Outlook automatically sets (overwrites it)
-                    destination.Email3DisplayName = source.Emails[2].Label;
+                    destination.Email3DisplayName = source.Emails[2].Label; //Unfortunatelly this doesn't work when the email is changes also, because Outlook automatically sets it to default value when the email is changed ==> Call this function again after the first save of Outlook
                 }
             }
             else
