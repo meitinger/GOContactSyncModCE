@@ -808,7 +808,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:GO Contact Sync Mod"
         "ProductCode" = "8:{B69F6822-4EDD-4042-9E52-F97B526BB3A7}"
-        "PackageCode" = "8:{BFD4E41C-A123-4697-8280-0C4C8D649395}"
+        "PackageCode" = "8:{7E897AD9-2744-4891-9D6D-344347CAF964}"
         "UpgradeCode" = "8:{170B4620-F5BB-4D2E-97A1-239D79030F20}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -831,7 +831,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\necho %var%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\"\r\ndel \"$(ProjectDir)version.txt\""
+        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nset realvar=%realvar: =%\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\"\r\ndel \"$(ProjectDir)version.txt\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
