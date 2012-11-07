@@ -831,7 +831,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\necho %var%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\""
+        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\necho %var%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\"\r\ndel \"$(ProjectDir)version.txt\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
