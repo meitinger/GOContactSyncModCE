@@ -21,20 +21,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_05BAD94F3734480CC79EDAC48F8758D7"
+        "OwnerKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_05BAD94F3734480CC79EDAC48F8758D7"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_06C9B16F19D14FD3B3FA194D0586E047"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_07FC5961D3A6F370DE91779E308BD7E1"
-        "OwnerKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_07FC5961D3A6F370DE91779E308BD7E1"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -51,50 +51,68 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_449A09D626FD4A6C9AEE1F387A23D13C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
+        "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "OwnerKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
         "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
-        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -123,50 +141,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
+        "MsmKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
         "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
-        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EEF5B1E061E94324A394BC6D6E07F65D"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -196,37 +196,37 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D7DDBBCA636A87CDD2ADC2B73352977A"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6EC35BE8EF1AAED05EABD0848EEEB700"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CB86503BDB83C3FBEE399D4CB0262D44"
+        "OwnerKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E4E9E9D12EE20858632E2D09D30DCA43"
+        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_91E364B39302FB8247F82D5FA41F951E"
+        "OwnerKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_07FC5961D3A6F370DE91779E308BD7E1"
+        "OwnerKey" = "8:_05BAD94F3734480CC79EDAC48F8758D7"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -237,11 +237,11 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\GOContactSyncSetup_v3.2.msi"
+        "OutputFilename" = "8:Debug\\GOContactSyncSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:2"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -269,11 +269,11 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\GOContactSyncSetup_v3.3.1.msi"
+        "OutputFilename" = "8:Release\\GOContactSyncSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:2"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -339,6 +339,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_05BAD94F3734480CC79EDAC48F8758D7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_05BAD94F3734480CC79EDAC48F8758D7"
+                    {
+                    "Name" = "8:Newtonsoft.Json.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Newtonsoft.Json.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_06C9B16F19D14FD3B3FA194D0586E047"
             {
             "AssemblyRegister" = "3:1"
@@ -368,37 +399,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_07FC5961D3A6F370DE91779E308BD7E1"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_07FC5961D3A6F370DE91779E308BD7E1"
-                    {
-                    "Name" = "8:Newtonsoft.Json.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Newtonsoft.Json.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17C96A08C0C04AB99C55461B72206B9C"
@@ -441,6 +441,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Google.GData.Client, Version=2.1.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_2FA683C1BDDC7FD34C25FB227B0C19AB"
+                    {
+                    "Name" = "8:Google.GData.Client.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Google.GData.Client.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_449A09D626FD4A6C9AEE1F387A23D13C"
             {
             "SourcePath" = "8:..\\GoogleContactsSync\\contacts-sync.ico"
@@ -461,51 +492,20 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6EC35BE8EF1AAED05EABD0848EEEB700"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6BE8A02E944E2F4AF9AB98B1F814A03E"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Google.GData.Contacts, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7e065189dd4b982f, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Google.GData.Extensions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_6EC35BE8EF1AAED05EABD0848EEEB700"
+                    "_6BE8A02E944E2F4AF9AB98B1F814A03E"
                     {
-                    "Name" = "8:Google.GData.Contacts.dll"
+                    "Name" = "8:Google.GData.Extensions.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:Google.GData.Contacts.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_91E364B39302FB8247F82D5FA41F951E"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Google.GData.Client, Version=2.1.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_91E364B39302FB8247F82D5FA41F951E"
-                    {
-                    "Name" = "8:Google.GData.Client.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Google.GData.Client.dll"
+            "SourcePath" = "8:Google.GData.Extensions.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
@@ -605,82 +605,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CB86503BDB83C3FBEE399D4CB0262D44"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Google.GData.AccessControl, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b4b8eb9a7afc8328, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_CB86503BDB83C3FBEE399D4CB0262D44"
-                    {
-                    "Name" = "8:Google.GData.AccessControl.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Google.GData.AccessControl.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D7DDBBCA636A87CDD2ADC2B73352977A"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D207DDBE6A0785533DFD9389969E0611"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Google.GData.Documents, Version=2.1.0.0, Culture=neutral, PublicKeyToken=e4daaad656f19bb9, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D7DDBBCA636A87CDD2ADC2B73352977A"
+                    "_D207DDBE6A0785533DFD9389969E0611"
                     {
                     "Name" = "8:Google.GData.Documents.dll"
                     "Attributes" = "3:512"
                     }
                 }
             "SourcePath" = "8:Google.GData.Documents.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E4E9E9D12EE20858632E2D09D30DCA43"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Google.GData.Extensions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_E4E9E9D12EE20858632E2D09D30DCA43"
-                    {
-                    "Name" = "8:Google.GData.Extensions.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Google.GData.Extensions.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
@@ -716,6 +654,68 @@
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F1EB01DACFA6BACC7EF0DF34649161D7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Google.GData.Contacts, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7e065189dd4b982f, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_F1EB01DACFA6BACC7EF0DF34649161D7"
+                    {
+                    "Name" = "8:Google.GData.Contacts.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Google.GData.Contacts.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F46037E9F2A69AFB0AC132E48148E0D9"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Google.GData.AccessControl, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b4b8eb9a7afc8328, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_F46037E9F2A69AFB0AC132E48148E0D9"
+                    {
+                    "Name" = "8:Google.GData.AccessControl.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Google.GData.AccessControl.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5F08081D58314698A5EF7B2D88DBA295"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
         }
@@ -808,7 +808,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:GO Contact Sync Mod"
         "ProductCode" = "8:{B69F6822-4EDD-4042-9E52-F97B526BB3A7}"
-        "PackageCode" = "8:{9FC6FA77-A6CE-4EB7-A33F-12A6D2FA67E6}"
+        "PackageCode" = "8:{BFD4E41C-A123-4697-8280-0C4C8D649395}"
         "UpgradeCode" = "8:{170B4620-F5BB-4D2E-97A1-239D79030F20}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -831,7 +831,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\""
+        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\necho %var%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
@@ -969,7 +969,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_798D502AD8A84A668FE47568EA35FD15"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Progress"
+                    "DisplayName" = "8:Status"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminProgressDlg.wid"
@@ -1014,7 +1014,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_6446AF9ADE87475A86215903A9A029F2"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Welcome"
+                    "DisplayName" = "8:Willkommen"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminWelcomeDlg.wid"
@@ -1063,7 +1063,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_7B6D831D957541DFBD9CB979ACA9DA14"
                     {
                     "Sequence" = "3:300"
-                    "DisplayName" = "8:Confirm Installation"
+                    "DisplayName" = "8:Installation bestätigen"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminConfirmDlg.wid"
@@ -1086,7 +1086,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_8CF1DBE8409F4314B79DA786912F31BF"
                     {
                     "Sequence" = "3:220"
-                    "DisplayName" = "8:Installation Folder"
+                    "DisplayName" = "8:Installationsordner"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminFolderDlg.wid"
@@ -1109,7 +1109,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_DA74DE1924F44B7DBDA74B9BC54FBB22"
                     {
                     "Sequence" = "3:210"
-                    "DisplayName" = "8:License Agreement"
+                    "DisplayName" = "8:Lizenzvertrag"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminLicenseDlg.wid"
@@ -1166,7 +1166,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_C735890B3EDF492481BA4710353C03E6"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Finished"
+                    "DisplayName" = "8:Fertig"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdAdminFinishedDlg.wid"
@@ -1198,7 +1198,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_57BF2CE534C546019D28C01BDF7C1D53"
                     {
                     "Sequence" = "3:110"
-                    "DisplayName" = "8:License Agreement"
+                    "DisplayName" = "8:Lizenzvertrag"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
@@ -1246,7 +1246,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_AFB55B0E17484458BA2BD5FA0765BF76"
                     {
                     "Sequence" = "3:200"
-                    "DisplayName" = "8:Installation Folder"
+                    "DisplayName" = "8:Installationsordner"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdFolderDlg.wid"
@@ -1282,7 +1282,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_BB2923AE8C5D4CC78A3214E91705C560"
                     {
                     "Sequence" = "3:300"
-                    "DisplayName" = "8:Confirm Installation"
+                    "DisplayName" = "8:Installation bestätigen"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdConfirmDlg.wid"
@@ -1305,7 +1305,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_D0404B3EBC644059A923737BA3961EB4"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Welcome"
+                    "DisplayName" = "8:Willkommen"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdWelcomeDlg.wid"
@@ -1369,7 +1369,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_22B328A76C81473E864FBE671002BF41"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Finished"
+                    "DisplayName" = "8:Fertig"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdFinishedDlg.wid"
@@ -1414,7 +1414,7 @@
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_BE954D72A8574059B73649E3C8A961AE"
                     {
                     "Sequence" = "3:100"
-                    "DisplayName" = "8:Progress"
+                    "DisplayName" = "8:Status"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
                     "SourcePath" = "8:<VsdDialogDir>\\VsdProgressDlg.wid"
