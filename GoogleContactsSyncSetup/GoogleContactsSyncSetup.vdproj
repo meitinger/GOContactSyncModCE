@@ -58,13 +58,7 @@
         "Entry"
         {
         "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
-        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
-        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -76,7 +70,13 @@
         "Entry"
         {
         "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
-        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2FA683C1BDDC7FD34C25FB227B0C19AB"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +94,7 @@
         "Entry"
         {
         "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
-        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -106,7 +106,7 @@
         "Entry"
         {
         "MsmKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
-        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "OwnerKey" = "8:_8A4A20DC9841455BB5FD97B9DF38A24E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -178,43 +178,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A2D96859CE406F76F4F0818B2813AE72"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9B5DC5D715B4971C5D9D7ED2D1D2EDD3"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_06C9B16F19D14FD3B3FA194D0586E047"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "OwnerKey" = "8:_05BAD94F3734480CC79EDAC48F8758D7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -226,7 +190,43 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_05BAD94F3734480CC79EDAC48F8758D7"
+        "OwnerKey" = "8:_6BE8A02E944E2F4AF9AB98B1F814A03E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F46037E9F2A69AFB0AC132E48148E0D9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F1EB01DACFA6BACC7EF0DF34649161D7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D207DDBE6A0785533DFD9389969E0611"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_06C9B16F19D14FD3B3FA194D0586E047"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9B5DC5D715B4971C5D9D7ED2D1D2EDD3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A2D96859CE406F76F4F0818B2813AE72"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -237,7 +237,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\GOContactSyncSetup.msi"
+        "OutputFilename" = "8:Debug\\GCSMSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -269,7 +269,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\GOContactSyncSetup.msi"
+        "OutputFilename" = "8:Release\\GCSMSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -346,11 +346,6 @@
             "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_05BAD94F3734480CC79EDAC48F8758D7"
-                    {
-                    "Name" = "8:Newtonsoft.Json.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Newtonsoft.Json.dll"
             "TargetName" = "8:"
@@ -448,11 +443,6 @@
             "AssemblyAsmDisplayName" = "8:Google.GData.Client, Version=2.1.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_2FA683C1BDDC7FD34C25FB227B0C19AB"
-                    {
-                    "Name" = "8:Google.GData.Client.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.GData.Client.dll"
             "TargetName" = "8:"
@@ -499,11 +489,6 @@
             "AssemblyAsmDisplayName" = "8:Google.GData.Extensions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_6BE8A02E944E2F4AF9AB98B1F814A03E"
-                    {
-                    "Name" = "8:Google.GData.Extensions.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.GData.Extensions.dll"
             "TargetName" = "8:"
@@ -612,11 +597,6 @@
             "AssemblyAsmDisplayName" = "8:Google.GData.Documents, Version=2.1.0.0, Culture=neutral, PublicKeyToken=e4daaad656f19bb9, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D207DDBE6A0785533DFD9389969E0611"
-                    {
-                    "Name" = "8:Google.GData.Documents.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.GData.Documents.dll"
             "TargetName" = "8:"
@@ -663,11 +643,6 @@
             "AssemblyAsmDisplayName" = "8:Google.GData.Contacts, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7e065189dd4b982f, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_F1EB01DACFA6BACC7EF0DF34649161D7"
-                    {
-                    "Name" = "8:Google.GData.Contacts.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.GData.Contacts.dll"
             "TargetName" = "8:"
@@ -694,11 +669,6 @@
             "AssemblyAsmDisplayName" = "8:Google.GData.AccessControl, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b4b8eb9a7afc8328, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_F46037E9F2A69AFB0AC132E48148E0D9"
-                    {
-                    "Name" = "8:Google.GData.AccessControl.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.GData.AccessControl.dll"
             "TargetName" = "8:"
@@ -831,7 +801,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nset realvar=%realvar: =%\r\nrename \"$(ProjectDir)$(Configuration)\\GOContactSyncSetup.msi\" \"GOContactSyncSetup_%realvar%.msi\"\r\ndel \"$(ProjectDir)version.txt\""
+        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\nfindstr /V PostBuildEvent \"$(ProjectDir)GoogleContactsSyncSetup.vdproj\" | findstr ProductVersion > \"$(ProjectDir)version.txt\"\r\nset /p var=<\"$(ProjectDir)version.txt\"\r\nset var=%var:\"=%\r\nset var=%var: =%\r\nset var=%var:.=_%\r\nfor /f \"tokens=1,2 delims=:\" %%i in (\"%var%\") do @echo %%j >\"$(ProjectDir)version.txt\"\r\nset /p realvar=<\"$(ProjectDir)version.txt\"\r\nset realvar=%realvar: =%\r\nrename \"$(ProjectDir)$(Configuration)\\GCSMSetup.msi\" \"GCSMSetup_%realvar%.msi\"\r\ndel \"$(ProjectDir)version.txt\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
