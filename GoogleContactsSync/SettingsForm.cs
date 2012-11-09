@@ -1203,8 +1203,11 @@ namespace GoContactSyncMod
 
         private void pictureBoxExit_Click(object sender, EventArgs e)
         {
-            requestClose = true;
-            Close();
+            if (DialogResult.Yes == MessageBox.Show("Do you really want to exit " + Application.ProductName + "? This will also stop the service performing automatic synchronizaton in the background. If you only want to hide the settings form, use the 'Hide' Button instead.", "Exit " + Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            {
+                requestClose = true;
+                Close();
+            }
         }        
 
 	}
