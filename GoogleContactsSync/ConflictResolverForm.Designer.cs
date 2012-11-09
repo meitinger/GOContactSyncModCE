@@ -79,7 +79,7 @@ namespace GoContactSyncMod
             // 
             // cancel
             // 
-            this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancel.Location = new System.Drawing.Point(405, 320);
             this.cancel.Name = "cancel";
@@ -101,9 +101,7 @@ namespace GoContactSyncMod
             // 
             // OutlookItemTextBox
             // 
-            this.OutlookItemTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.OutlookItemTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OutlookItemTextBox.Location = new System.Drawing.Point(0, 13);
             this.OutlookItemTextBox.Multiline = true;
             this.OutlookItemTextBox.Name = "OutlookItemTextBox";
@@ -144,14 +142,13 @@ namespace GoContactSyncMod
             // 
             // GoogleItemTextBox
             // 
-            this.GoogleItemTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.GoogleItemTextBox.Location = new System.Drawing.Point(28, 13);
+            this.GoogleItemTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GoogleItemTextBox.Location = new System.Drawing.Point(0, 13);
             this.GoogleItemTextBox.Multiline = true;
             this.GoogleItemTextBox.Name = "GoogleItemTextBox";
             this.GoogleItemTextBox.ReadOnly = true;
             this.GoogleItemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.GoogleItemTextBox.Size = new System.Drawing.Size(200, 204);
+            this.GoogleItemTextBox.Size = new System.Drawing.Size(228, 204);
             this.GoogleItemTextBox.TabIndex = 5;
             // 
             // GoogleItemLabel
