@@ -471,18 +471,32 @@ namespace GoContactSyncMod
                     Logger.Log("Skipped GoogleContact because Outlook contact couldn't be matched beacause of previous problem (see log): " + entry.Title, EventType.Warning);
                 }
                 else if (entry.Emails.Count == 0 && !mobileExists && string.IsNullOrEmpty(entry.Title) && (entry.Organizations.Count == 0 || string.IsNullOrEmpty(entry.Organizations[0].Name)))
-				{       
+                {
                     // no telephone and email
-                    sync.SkippedCount++;
-                    sync.SkippedCountNotMatches++;
-                    Logger.Log("Skipped GoogleContact because no unique property found (Email1 or mobile or name or company):" + entry.Title, EventType.Warning);
+                    
+                    //ToDo: For now I use the ResolveDelete function, because it is almost the same, maybe we introduce a separate function for this ans also include DeleteGoogleAlways checkbox
+                    var r = new ConflictResolver();
+                    DeleteResolution res = r.ResolveDelete(entry);
+                    if (res == DeleteResolution.DeleteGoogle || res == DeleteResolution.DeleteGoogleAlways)
+                    {
+                        ContactPropertiesUtils.SetGoogleOutlookContactId(sync.SyncProfile, entry, "-1"); //just set a dummy Id to delete this entry later on
+                        sync.SaveContact(new ContactMatch(null, entry));
+                    }
+                    else
+                    {
+                        sync.SkippedCount++;
+                        sync.SkippedCountNotMatches++;
+
+                        Logger.Log("Skipped GoogleContact because no unique property found (Email1 or mobile or name or company):" + ContactMatch.GetSummary(entry), EventType.Warning);
+                    }
+
                 }
                 else
                 {
-                    Logger.Log(string.Format("No match found for google contact ({0}) => {1}", entry.Title, (!string.IsNullOrEmpty(googleOutlookId)? "Delete from Google" : "Add to Outlook")), EventType.Information);
-					var match = new ContactMatch(null, entry);
-					result.Add(match);
-				}				
+                    Logger.Log(string.Format("No match found for google contact ({0}) => {1}", entry.Title, (!string.IsNullOrEmpty(googleOutlookId) ? "Delete from Google" : "Add to Outlook")), EventType.Information);
+                    var match = new ContactMatch(null, entry);
+                    result.Add(match);
+                }				
 			}
 			return result;
 		}
