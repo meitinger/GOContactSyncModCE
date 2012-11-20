@@ -105,23 +105,26 @@ namespace GoContactSyncMod
             destination.Emails.Clear();
 
             string email = ContactPropertiesUtils.GetOutlookEmailAddress1(source);
-            AddEmail(destination, email, source.Email1DisplayName); //Alternative: ContactsRelationships.IsWork);
+            AddEmail(destination, email, source.Email1DisplayName, ContactsRelationships.IsWork);
 
             email = ContactPropertiesUtils.GetOutlookEmailAddress2(source);
-            AddEmail(destination, email, source.Email2DisplayName); //Alternative: ContactsRelationships.IsHome);
+            AddEmail(destination, email, source.Email2DisplayName, ContactsRelationships.IsHome);
             
             email = ContactPropertiesUtils.GetOutlookEmailAddress3(source);
-            AddEmail(destination, email, source.Email3DisplayName); //Alternative: ContactsRelationships.IsOther);            
+            AddEmail(destination, email, source.Email3DisplayName, ContactsRelationships.IsOther);            
 		}
 
-        private static void AddEmail(Contact destination, string email, string relationship)
+        private static void AddEmail(Contact destination, string email, string label, string relationship)
         {
             if (email != null && !email.Trim().Equals(string.Empty))
             {
                 EMail primaryEmail = new EMail(email);
                 primaryEmail.Primary = destination.Emails.Count == 0;
-                //Alternative instead of Label: primaryEmail.Rel = relationship;
-                primaryEmail.Label = relationship; //together with source.Email1DisplayName will save the display name into label on Google side, but it cannot be synced back, because Outlook always resets the display name, if the email is updated
+                //Either label or relationship must be filled, if both filled, Google throws an error, prefer DisplayName, if empty, use relationship
+                if (string.IsNullOrEmpty(label))
+                    primaryEmail.Rel = relationship;
+                else
+                    primaryEmail.Label = label;
                 destination.Emails.Add(primaryEmail);
             }
         }
