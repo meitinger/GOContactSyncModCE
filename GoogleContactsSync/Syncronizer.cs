@@ -155,7 +155,7 @@ namespace GoContactSyncMod
 			if (userId.Length > maxUserIdLength)
 				userId = userId.GetHashCode().ToString("X"); //if a user id would overflow UserProperty name, then use that user id hash code as id.
             //Remove characters not allowed for Outlook user property names: []_#
-            userId.Replace("#", "").Replace("[", "").Replace("]", "").Replace("_", "");
+            userId = userId.Replace("#", "").Replace("[", "").Replace("]", "").Replace("_", "");
 
 			OutlookPropertyPrefix = string.Format(Syncronizer.OutlookUserPropertyTemplate, userId);
 		}
