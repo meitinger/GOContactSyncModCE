@@ -1,22 +1,14 @@
+using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace GoContactSyncMod
 {
     static class Program
     {
-		private static SettingsForm instance;
-
-        public const int HWND_BROADCAST = 0xffff;
-        public static readonly int WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
-        [DllImport("user32")]
-        public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
-        [DllImport("user32")]
-        public static extern int RegisterWindowMessage(string message);
-
+        private const string MUTEXGUID = "ACBBBC09-F76C-4874-AAFF-4F3353A5A5A6";
+        private static Mutex mutex;
 
         /// <summary>
         /// The main entry point for the application.
@@ -25,27 +17,39 @@ namespace GoContactSyncMod
         static void Main()
         {
             //prevent more than one instance of the program
-            bool ok;
-            System.Threading.Mutex m = new System.Threading.Mutex(true, "acbbbc09-f76c-4874-aaff-4f3353a5a5a6", out ok);
-            if (!ok)
-            {
-                //Message.Create((IntPtr)HWND_BROADCAST, WM_SHOWME, IntPtr.Zero, IntPtr.Zero);                
-                PostMessage((IntPtr)HWND_BROADCAST, WM_SHOWME, IntPtr.Zero, IntPtr.Zero);                
-                //MessageBox.Show("Another instance of Go Contact Sync Mod is already running.","GO Contact Sync Mod",MessageBoxButtons.OK);
+            if (IsRunning())
+            {   //Instance already exists, so show only Main-Window  
+                WinAPIMethods.PostMessage((IntPtr)WinAPIMethods.HWND_BROADCAST, WinAPIMethods.WM_GCSM_SHOWME, IntPtr.Zero, IntPtr.Zero);
                 return;
             }
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-			instance = new SettingsForm();
-            Application.Run(instance);
-            GC.KeepAlive(m);
+            else
+            {
+                RegisterEventHandlers();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(SettingsForm.Instance);
+            }
+            GC.KeepAlive(mutex);
         }
 
-		internal static SettingsForm Instance
-		{
-			get { return instance; }
-		}
+        private static void RegisterEventHandlers()
+        {
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+        }
+
+        public static bool IsRunning()
+        {
+            bool ok;
+            mutex = new Mutex(true, MUTEXGUID, out ok);
+            if (mutex.WaitOne(TimeSpan.Zero, true))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         /// <summary>
         /// Fallback. If there is some try/catch missing we will handle it here, just before the application quits unhandled

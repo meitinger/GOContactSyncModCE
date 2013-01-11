@@ -20,7 +20,31 @@ namespace GoContactSyncMod
 {
 	internal partial class SettingsForm : Form
 	{
-		internal Syncronizer sync;
+        //Singleton-Object
+        #region Singleton Definition
+
+        private static volatile SettingsForm instance;
+        private static object syncRoot = new Object();
+
+        public static SettingsForm Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (instance == null)
+                            instance = new SettingsForm();
+                    }
+                }
+
+                return instance;
+            }
+        }
+        #endregion
+
+        internal Syncronizer sync;
 		private SyncOption syncOption;
 		private DateTime lastSync;
 		private bool requestClose = false;
@@ -49,12 +73,12 @@ namespace GoContactSyncMod
         }
 
         //register window for lock/unlock messages of workstation
-        private bool registered = false;
+        //private bool registered = false;
 
 		delegate void TextHandler(string text);
 		delegate void SwitchHandler(bool value);
 
-		public SettingsForm()
+		private SettingsForm()
 		{
 			InitializeComponent();
             Text = Text + " - " + Application.ProductVersion;
@@ -76,23 +100,32 @@ namespace GoContactSyncMod
 			ValidateSyncButton();
 
             // requires Windows XP or higher
-            bool XpOrHigher = Environment.OSVersion.Platform == PlatformID.Win32NT &&
+            /*bool XpOrHigher = Environment.OSVersion.Platform == PlatformID.Win32NT &&
                                 (Environment.OSVersion.Version.Major > 5 ||
                                     (Environment.OSVersion.Version.Major == 5 &&
                                      Environment.OSVersion.Version.Minor >= 1));
 
             if (XpOrHigher)
-                registered = WTSRegisterSessionNotification(Handle, 0);
+                registered = WinAPIMethods.WTSRegisterSessionNotification(Handle, 0);
+            */
+            //Register Session Lock Event
+            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
+            //Register Power Mode Event
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeSwitch);
 		}
 
         ~SettingsForm()
         {
-            if(registered)
+            /*if(registered)
             {
-                WTSUnRegisterSessionNotification(Handle);
+                WinAPIMethods.WTSUnRegisterSessionNotification(Handle);
                 registered = false;
-            }
+            }*/
             Logger.Close();
+
+            //Unregister Events
+            SystemEvents.SessionSwitch -= new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
+            SystemEvents.PowerModeChanged -= new PowerModeChangedEventHandler(SystemEvents_PowerModeSwitch);
         }
 
 		private void PopulateSyncOptionBox()
@@ -448,7 +481,7 @@ namespace GoContactSyncMod
                     string messageText = "Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!";
                     Logger.Log(messageText, EventType.Error);
                     ShowForm();
-                    Program.Instance.ShowBalloonToolTip("Error", messageText, ToolTipIcon.Error, 5000);
+                    ShowBalloonToolTip("Error", messageText, ToolTipIcon.Error, 5000);
                     return;
                 }
 
@@ -502,7 +535,7 @@ namespace GoContactSyncMod
                 {
                     string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ex.InnerException.Message + "\r\n" + ex.ResponseString;
                     Logger.Log(message, EventType.Warning);
-                    Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+                    ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
                 }
                 else
                 {
@@ -517,7 +550,7 @@ namespace GoContactSyncMod
                 string message = "The credentials (Google Account username and/or password) are invalid, please correct them in the settings form before you sync again";
                 Logger.Log(message, EventType.Error);
                 ShowForm();
-                Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+                ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
 
             }
             catch (Exception ex)
@@ -529,7 +562,7 @@ namespace GoContactSyncMod
                 {
                     string message = "Outlook exception, please assure that Outlook is running and not closed when syncing";
                     Logger.Log(message + ": " + ex.Message, EventType.Warning);
-                    Program.Instance.ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
+                    ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
                 }
                 else
                 {
@@ -669,112 +702,64 @@ namespace GoContactSyncMod
 			}
 		}
 
-        //to detect if the user locks or unlocks the workstation
-        [DllImport("wtsapi32.dll")]
-        private static extern bool WTSRegisterSessionNotification(IntPtr hWnd, int dwFlags);
-
-        [DllImport("wtsapi32.dll")]
-        private static extern bool WTSUnRegisterSessionNotification(IntPtr hWnd);
-
-		// Fix for WinXP and older systems, that do not continue with shutdown until all programs have closed
-		// FormClosing would hold system shutdown, when it sets the cancel to true
-		private const int WM_QUERYENDSESSION = 0x11;
-
-        //Code to find out if workstation is locked
-        private const int WM_WTSSESSION_CHANGE = 0x02B1;
-        private const int WTS_SESSION_LOCK = 0x7;
-        private const int WTS_SESSION_UNLOCK = 0x8;
-
-        //Code to find if workstation is resumed
-        const int WM_POWERBROADCAST = 0x0218;
-        const int PBT_APMQUERYSUSPEND = 0x0000;
-        const int PBT_APMQUERYSTANDBY = 0x0001;
-        const int PBT_APMQUERYSUSPENDFAILED = 0x0002;
-        const int PBT_APMQUERYSTANDBYFAILED = 0x0003;
-        const int PBT_APMSUSPEND = 0x0004;
-        const int PBT_APMSTANDBY = 0x0005;
-        const int PBT_APMRESUMECRITICAL = 0x0006;
-        const int PBT_APMRESUMESUSPEND = 0x0007;
-        const int PBT_APMRESUMESTANDBY = 0x0008;       
-        const int PBT_APMRESUMEAUTOMATIC = 0x0012;        
-
-        
-        /*
-        protected void OnSessionLock()
-        {
-            Logger.Log("Locked at " + DateTime.Now + Environment.NewLine, EventType.Information);
-        }
-
-        protected void OnSessionUnlock()
-        {
-            Logger.Log("Unlocked at " + DateTime.Now + Environment.NewLine, EventType.Information);
-        }
-        */
-
         protected override void WndProc(ref System.Windows.Forms.Message m)
 		{
             //Logger.Log(m.Msg, EventType.Information);
             switch(m.Msg) 
             {
-                
-                case WM_QUERYENDSESSION:
+                //System shutdown
+                case WinAPIMethods.WM_QUERYENDSESSION:
                     requestClose = true;
                     break;
-                case WM_WTSSESSION_CHANGE:
+                /*case WinAPIMethods.WM_WTSSESSION_CHANGE:
                     {
-                        if (m.WParam.ToInt32() == WTS_SESSION_LOCK)
+                        int value = m.WParam.ToInt32();
+                        //User Session locked
+                        if (value == WinAPIMethods.WTS_SESSION_LOCK)
                         {
-                            //Logger.Log("\nBenutzer aktiv -> ToolTip", EventType.Information);
+                            Console.WriteLine("Session Lock",EventType.Information);
                             //OnSessionLock();
                             boolShowBalloonTip = false; // Do something when locked
                         }
-                        else if (m.WParam.ToInt32() == WTS_SESSION_UNLOCK)
+                        //User Session unlocked
+                        else if (value == WinAPIMethods.WTS_SESSION_UNLOCK)
                         {
-                            //Logger.Log("\nBenutzer inaktiv -> kein ToolTip", EventType.Information);
+                            Console.WriteLine("Session Unlock", EventType.Information);
                             //OnSessionUnlock();
                             boolShowBalloonTip = true; // Do something when unlocked
                             TimerSwitch(true);
                         }
                      break;
-                    }                
-                case WM_POWERBROADCAST:
+                    }
+                
+                
+                case WinAPIMethods.WM_POWERBROADCAST:
                     {
-                        if (m.WParam.ToInt32() == PBT_APMRESUMEAUTOMATIC ||
-                            m.WParam.ToInt32() == PBT_APMRESUMECRITICAL ||
-                            m.WParam.ToInt32() == PBT_APMRESUMESTANDBY ||
-                            m.WParam.ToInt32() == PBT_APMRESUMESUSPEND ||
-                            m.WParam.ToInt32() == PBT_APMQUERYSTANDBYFAILED ||
-                            m.WParam.ToInt32() == PBT_APMQUERYSTANDBYFAILED)
+                        if (m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMEAUTOMATIC ||
+                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMECRITICAL ||
+                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMESTANDBY ||
+                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMESUSPEND ||
+                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBYFAILED ||
+                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBYFAILED)
                         {                            
                             TimerSwitch(true);
                         }
-                        else if (m.WParam.ToInt32() == PBT_APMSUSPEND ||
-                                 m.WParam.ToInt32() == PBT_APMSTANDBY ||
-                                 m.WParam.ToInt32() == PBT_APMQUERYSTANDBY ||
-                                 m.WParam.ToInt32() == PBT_APMQUERYSUSPEND)
+                        else if (m.WParam.ToInt32() == WinAPIMethods.PBT_APMSUSPEND ||
+                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMSTANDBY ||
+                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBY ||
+                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSUSPEND)
                         {
                             TimerSwitch(false);
                         }
                             
 
                         break;
-                    }
+                    }*/
                 default:
                     break;
             }
-            /*
-			if (m.Msg == WM_QUERYENDSESSION)
-				requestClose = true;
-            if (m.Msg == SESSIONCHANGEMESSAGE)
-            {
-                if (m.WParam.ToInt32() == SESSIONLOCKPARAM)
-                    OnSessionLock(); // Do something when locked
-                else if (m.WParam.ToInt32() == SESSIONUNLOCKPARAM)
-                    OnSessionUnlock(); // Do something when unlocked
-            }*/
-			// If this is WM_QUERYENDSESSION, the form must exit and not just hide
-
-            if (m.Msg == Program.WM_SHOWME)
+            //Show Window from Tray
+            if (m.Msg == WinAPIMethods.WM_GCSM_SHOWME)
                 ShowForm();
 			base.WndProc(ref m);
 		} 
@@ -1208,7 +1193,32 @@ namespace GoContactSyncMod
                 requestClose = true;
                 Close();
             }
-        }        
+        }
+
+        private void SystemEvents_PowerModeSwitch(Object sender, PowerModeChangedEventArgs e)
+        {
+            if (e.Mode == PowerModes.Suspend)
+            {
+                TimerSwitch(false);
+            }
+            else if (e.Mode == PowerModes.Resume)
+            {
+                TimerSwitch(true);
+            }
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                boolShowBalloonTip = false;
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                boolShowBalloonTip = true;
+                TimerSwitch(true);
+            }
+        }
 
 	}
 }

@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Google.GData.Contacts;
 using Google.GData.Client;
-using Google.GData.Extensions;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Drawing;
 using System.IO;
 using System.Collections.ObjectModel;
-using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Google.Contacts;

@@ -8,7 +8,7 @@
     <ProjectGuid>{E43CE572-6694-461D-A4DC-2DB768A7665A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebGear.GoogleContactsSync</RootNamespace>
+    <RootNamespace>GoContactSyncMod</RootNamespace>
     <AssemblyName>GOContactSync</AssemblyName>
     <ApplicationIcon>contacts-sync.ico</ApplicationIcon>
     <TargetZone>LocalIntranet</TargetZone>
@@ -190,6 +190,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VersionInformation.cs" />
+    <Compile Include="WinAPIMethods.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>

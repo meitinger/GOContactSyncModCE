@@ -42,32 +42,6 @@ namespace GoContactSyncMod
      
         }
 
-        #region API-Deklarationen
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct OSVERSIONINFOEX
-        {
-            public int dwOSVersionInfoSize;
-            public int dwMajorVersion;
-            public int dwMinorVersion;
-            public int dwBuildNumber;
-            public int dwPlatformId;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-            public string szCSDVersion;
-            public Int16 wServicePackMajor;
-            public Int16 wServicePackMinor;
-            public Int16 wSuiteMask;
-            public Byte wProductType;
-            public Byte wReserved;
-        }
-
-        [DllImport("kernel32")]
-        static extern bool GetVersionEx(ref OSVERSIONINFOEX osvi);
-
-        private const int VER_NT_WORKSTATION = 0x0000001;
-
-        #endregion
-
         /// <summary>
         /// windows-main-version types
         /// </summary>
@@ -80,6 +54,8 @@ namespace GoContactSyncMod
             WindowsServer2008,
             Windows7,
             WindowsServer2008R2,
+            Windows8,
+            WindowsServer2012,
             Unknown
         }
 
@@ -88,9 +64,9 @@ namespace GoContactSyncMod
         /// </summary>
         public static WindowsMainVersion GetWindowsMainVersion()
         {
-            OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
+            WinAPIMethods.OSVERSIONINFOEX osVersionInfo = new WinAPIMethods.OSVERSIONINFOEX();
             osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(osVersionInfo);
-            if (GetVersionEx(ref osVersionInfo))
+            if (WinAPIMethods.GetVersionEx(ref osVersionInfo))
             {
                 switch (osVersionInfo.dwMajorVersion)
                 {
@@ -101,7 +77,7 @@ namespace GoContactSyncMod
                         }
                         else if (Environment.OSVersion.Version.Minor == 2)
                         {
-                            if (osVersionInfo.wProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfo.wProductType == WinAPIMethods.VER_NT_WORKSTATION)
                             {
                                 return WindowsMainVersion.WindowsXP64;
                             }
@@ -118,7 +94,7 @@ namespace GoContactSyncMod
                     case 6:
                         if (Environment.OSVersion.Version.Minor == 0)
                         {
-                            if (osVersionInfo.wProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfo.wProductType == WinAPIMethods.VER_NT_WORKSTATION)
                             {
                                 return WindowsMainVersion.Vista;
                             }
@@ -129,7 +105,7 @@ namespace GoContactSyncMod
                         }
                         else if (Environment.OSVersion.Version.Minor == 1)
                         {
-                            if (osVersionInfo.wProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfo.wProductType == WinAPIMethods.VER_NT_WORKSTATION)
                             {
                                 return WindowsMainVersion.Windows7;
                             }
@@ -138,8 +114,18 @@ namespace GoContactSyncMod
                                 return WindowsMainVersion.WindowsServer2008R2;
                             }
                         }
+                        else if (Environment.OSVersion.Version.Minor == 2)
+                        {
+                            if (osVersionInfo.wProductType == WinAPIMethods.VER_NT_WORKSTATION)
+                            {
+                                return WindowsMainVersion.Windows8;
+                            }
+                            else
+                            {
+                                return WindowsMainVersion.WindowsServer2012;
+                            }
+                        }
                         return WindowsMainVersion.Unknown;
-
                     default:
                         return WindowsMainVersion.Unknown;
                 }
