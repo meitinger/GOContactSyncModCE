@@ -47,9 +47,10 @@ namespace GoContactSyncMod
             {
                 // this can fail if form was disposed or not created yet, so catch the exception - balloon is not that important to risk followup error
             }
-            string message = "Sorry, an unexpected error occured.\nPlease support us fixing this problem.\n\n1. Ensure that you use the latest release of GCSM. You can download the latest version here:\nhttps://sourceforge.net/projects/googlesyncmod/files/latest/download.\n\n2.If the problem still exists, go to\nhttps://sourceforge.net/projects/googlesyncmod/ and use the Tracker!\nHint: You can copy this message by pressing CTRL-C in the dialog box.\nPlease check first if error has already been reported.\nProgram Version: {0}\n\nError Details:\n{1}\n\nOS Version: {2}\nOutlook Version: {3}";
+            string message = "Sorry, an unexpected error occured.\nPlease support us fixing this problem.\n\n1. Ensure that you use the latest release of GCSM. You can download the latest version here:\nhttps://sourceforge.net/projects/googlesyncmod/files/latest/download.\n\n2.If the problem still exists, go to\nhttps://sourceforge.net/projects/googlesyncmod/ and use the Tracker!\nHint: This error message is automatically copied to the clipboard.\nPlease check first if error has already been reported.\nProgram Version: {0}\n\nError Details:\n{1}\n\nOS Version: {2}\nOutlook Version: {3}";
             message = string.Format(message, AssemblyVersion, ex.ToString(), OSInfo, OutlookInfo);
             Logger.Log(message, EventType.Debug);
+            Clipboard.SetText(message);
             MessageBox.Show(message, "GO Contact Sync Mod");
         }
 
