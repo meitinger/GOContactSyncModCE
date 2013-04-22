@@ -85,9 +85,7 @@ namespace GoContactSyncMod
 			Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
             ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
             NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);
-			PopulateSyncOptionBox();
-
-            fillSyncFolderItems();
+			PopulateSyncOptionBox();            
 
             if (fillSyncProfileItems()) 
                 LoadSettings(cmbSyncProfile.Text);
@@ -153,66 +151,80 @@ namespace GoContactSyncMod
 		}
         private void fillSyncFolderItems()
         {
-            this.contactFoldersComboBox.Visible = true;
-            this.noteFoldersComboBox.Visible = true;
-            this.cmbSyncProfile.Visible = true;
-            ArrayList outlookContactFolders = new ArrayList();
-            ArrayList outlookNoteFolders = new ArrayList();
-            try
-            {
-                this.contactFoldersComboBox.BeginUpdate();
-                this.contactFoldersComboBox.Items.Clear();
+            if (this.contactFoldersComboBox.Items.Count == 0 || this.noteFoldersComboBox.Items.Count == 0)
+            {                
+                Logger.Log("Loading Outlook folders...", EventType.Information);
 
-                Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
-                foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
+                this.contactFoldersComboBox.Visible = true;
+                this.noteFoldersComboBox.Visible = true;
+                this.cmbSyncProfile.Visible = true;
+                ArrayList outlookContactFolders = new ArrayList();
+                ArrayList outlookNoteFolders = new ArrayList();
+                try
                 {
-                    try
+                    Cursor = Cursors.WaitCursor;
+                    SuspendLayout();
+
+                    this.contactFoldersComboBox.BeginUpdate();
+                    this.contactFoldersComboBox.Items.Clear();
+
+                    Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
+                    foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
                     {
-                        GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, folder);
+                        try
+                        {
+                            GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, folder);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
-                    }
+                    outlookContactFolders.Sort();
+                    outlookNoteFolders.Sort();
+
+                    this.contactFoldersComboBox.DataSource = outlookContactFolders;
+                    this.contactFoldersComboBox.DisplayMember = "DisplayName";
+                    this.contactFoldersComboBox.ValueMember = "FolderID";
+
+                    this.noteFoldersComboBox.DataSource = outlookNoteFolders;
+                    this.noteFoldersComboBox.DisplayMember = "DisplayName";
+                    this.noteFoldersComboBox.ValueMember = "FolderID";
+
+                    this.contactFoldersComboBox.EndUpdate();
+                    this.noteFoldersComboBox.EndUpdate();
+
+                    this.contactFoldersComboBox.SelectedValue = "";
+                    this.noteFoldersComboBox.SelectedValue = "";
+
+                    //Select Default Folder per Default
+                    foreach (OutlookFolder folder in contactFoldersComboBox.Items)
+                        if (folder.IsDefaultFolder)
+                        {
+                            this.contactFoldersComboBox.SelectedValue = folder.FolderID;
+                            break;
+                        }
+
+                    //Select Default Folder per Default
+                    foreach (OutlookFolder folder in noteFoldersComboBox.Items)
+                        if (folder.IsDefaultFolder)
+                        {
+                            this.noteFoldersComboBox.SelectedItem = folder;
+                            break;
+                        }
+
+                    Logger.Log("Loaded Outlook folders.", EventType.Information);
+
                 }
-                outlookContactFolders.Sort();
-                outlookNoteFolders.Sort();
-
-                this.contactFoldersComboBox.DataSource = outlookContactFolders;
-                this.contactFoldersComboBox.DisplayMember = "DisplayName";
-                this.contactFoldersComboBox.ValueMember = "FolderID";
-
-                this.noteFoldersComboBox.DataSource = outlookNoteFolders;
-                this.noteFoldersComboBox.DisplayMember = "DisplayName";
-                this.noteFoldersComboBox.ValueMember = "FolderID";
-
-                this.contactFoldersComboBox.EndUpdate();
-                this.noteFoldersComboBox.EndUpdate();
-
-                this.contactFoldersComboBox.SelectedValue = "";
-                this.noteFoldersComboBox.SelectedValue = "";
-
-                //Select Default Folder per Default
-                foreach (OutlookFolder folder in contactFoldersComboBox.Items)
-                    if (folder.IsDefaultFolder)
-                    {
-                        this.contactFoldersComboBox.SelectedValue = folder.FolderID;
-                        break;
-                    }
-
-                //Select Default Folder per Default
-                foreach (OutlookFolder folder in noteFoldersComboBox.Items)
-                    if (folder.IsDefaultFolder)
-                    {
-                        this.noteFoldersComboBox.SelectedItem = folder;
-                        break;
-                    }
-
-
-            }
-            catch (Exception e)
-            {
-                Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+                catch (Exception e)
+                {
+                    Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                    ResumeLayout();
+                }
             }
         }
 
@@ -428,7 +440,7 @@ namespace GoContactSyncMod
 		{
             try
             {
-                TimerSwitch(false);
+                TimerSwitch(false);                
 
                 //if the contacts or notes folder has changed ==> Reset matches (to not delete contacts or notes on the one or other side)                
                 RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + syncProfile);
@@ -449,6 +461,9 @@ namespace GoContactSyncMod
 
                 SetLastSyncText("Syncing...");
                 notifyIcon.Text = Application.ProductName + "\nSyncing...";
+
+                fillSyncFolderItems();
+
                 SetFormEnabled(false);
 
                 if (sync == null)
@@ -693,9 +708,9 @@ namespace GoContactSyncMod
 			}
 			else
 			{
-                //If PC resumes or unlocks or is started, give him 90 seconds to recover everything before the sync starts
-                if (lastSync <= DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
-                    lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+                //If PC resumes or unlocks or is started, give him 5 minutes to recover everything before the sync starts
+                if (lastSync <= DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
+                    lastSync = DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
 				autoSyncInterval.Enabled = autoSyncCheckBox.Checked && value;
 				syncTimer.Enabled = autoSyncCheckBox.Checked && value;
 				nextSyncLabel.Visible = autoSyncCheckBox.Checked &&  value;          				
@@ -834,7 +849,7 @@ namespace GoContactSyncMod
 
 		private void autoSyncCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-            lastSync = DateTime.Now.AddSeconds(90) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
+            lastSync = DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
             TimerSwitch(true);
 		}
 
@@ -894,8 +909,12 @@ namespace GoContactSyncMod
         private void ResetMatches(bool syncContacts, bool syncNotes)
         {
             TimerSwitch(false);
+
             SetLastSyncText("Resetting matches...");
             notifyIcon.Text = Application.ProductName + "\nResetting matches...";
+
+            fillSyncFolderItems();
+
             SetFormEnabled(false);
             //this.hideButton.Enabled = false;
 
@@ -953,6 +972,7 @@ namespace GoContactSyncMod
             else
             {
                 Show();
+                fillSyncFolderItems();
                 Activate();
                 WindowState = FormWindowState.Normal;
             }
@@ -991,8 +1011,8 @@ namespace GoContactSyncMod
 		{
 			if (string.IsNullOrEmpty(UserName.Text) ||
 				string.IsNullOrEmpty(Password.Text) ||
-                string.IsNullOrEmpty(cmbSyncProfile.Text) ||
-                string.IsNullOrEmpty(contactFoldersComboBox.Text) )
+                string.IsNullOrEmpty(cmbSyncProfile.Text) /*||
+                string.IsNullOrEmpty(contactFoldersComboBox.Text)*/ )
 			{
 				// this is the first load, show form
 				ShowForm();
