@@ -11,10 +11,8 @@
     <RootNamespace>GoContactSyncMod</RootNamespace>
     <AssemblyName>GoogleContactsSync</AssemblyName>
     <ApplicationIcon>contacts-sync.ico</ApplicationIcon>
-    <GenerateManifests>false</GenerateManifests>
-    <SignManifests>false</SignManifests>
-    <SignAssembly>false</SignAssembly>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -113,7 +111,6 @@
       <SubType>Designer</SubType>
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <BaseApplicationManifest Include="Properties\app.manifest" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
