@@ -345,7 +345,7 @@ namespace GoContactSyncMod
                 SyncProfile = WindowsIdentity.GetCurrent().User.Value,
                 SyncOption = context.Mode,
                 SyncDelete = true,
-                PromptDelete = context.Interactive,
+                PromptDelete = false,
                 UseFileAs = true,
                 SyncNotes = false,
                 SyncContacts = true,
