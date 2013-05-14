@@ -796,7 +796,7 @@ namespace GoContactSyncMod
                     if (SyncNotes)
                         MatchNotes();
 
-#if debug
+#if DEBUG
                     this.DebugContacts();
 #endif
 
@@ -1439,13 +1439,13 @@ namespace GoContactSyncMod
         {
             if (ex != null)
             {
-                ErrorHandler.Handle(new Exception("Google Note couldn't be " + (create?"created":"updated") + " :" + entry == null ? null : entry.Title.Text, ex));
+                Logger.Log("Google Note couldn't be " + (create?"created":"updated") + " :" + entry == null ? null : entry.Title.Text, EventType.Warning);
                 return;
             }
 
             if (cancelled || entry == null)
             {
-                ErrorHandler.Handle(new Exception("Google Note " + (create ? "creation" : "update") + " was cancelled: " + entry == null ? null : entry.Title.Text));
+                Logger.Log("Google Note " + (create ? "creation" : "update") + " was cancelled: " + entry == null ? null : entry.Title.Text, EventType.Warning);
                 return;
             }
 
@@ -1734,11 +1734,11 @@ namespace GoContactSyncMod
 
                             break; //Exit because photo save succeeded
                         }
-                        catch (GDataRequestException ex)
+                        catch (GDataRequestException)
                         { //If Google found a picture for a new Google account, it sets it automatically and throws an error, if updating it with the Outlook photo. 
                             //Therefore save it again and try again to save the photo
                             if (retry == 4)
-                                ErrorHandler.Handle(new Exception("Photo of contact " + match.GoogleContact.Title + "couldn't be saved after 5 tries, maybe Google found its own photo and doesn't allow updating it", ex));
+                                Logger.Log("Photo of contact " + match.GoogleContact.Title + "couldn't be saved after 5 tries, maybe Google found its own photo and doesn't allow updating it", EventType.Warning);
                             else
                             {
                                 System.Threading.Thread.Sleep(1000);
@@ -2510,7 +2510,7 @@ namespace GoContactSyncMod
         }
 	}
 
-	internal enum SyncOption
+	public enum SyncOption
 	{
 		MergePrompt,
 		MergeOutlookWins,

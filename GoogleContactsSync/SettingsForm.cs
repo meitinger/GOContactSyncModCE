@@ -1,1244 +1,611 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.Win32;
-using System.Threading;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Remoting;
-using System.Runtime.InteropServices;
-using System.Collections;
-using System.Globalization;
-
+using GoContactSyncMod.Properties;
 
 namespace GoContactSyncMod
 {
-	internal partial class SettingsForm : Form
-	{
-        //Singleton-Object
-        #region Singleton Definition
+    internal partial class SettingsForm : Form
+    {
+        private const int BALLOON_TIMEOUT = 5000;
+        private static readonly IntPtr HWND_BROADCAST = new IntPtr(0xffff);
+        private static readonly int WM_GCSM_SHOWME = RegisterWindowMessage("WM_GCSM_SHOWME");
+        private static readonly Icon[] WorkIcons = new Icon[] { 
+            Resources.Work_01, 
+            Resources.Work_02, 
+            Resources.Work_03,
+            Resources.Work_04,
+            Resources.Work_05,
+            Resources.Work_06,
+            Resources.Work_07, 
+            Resources.Work_08,
+            Resources.Work_09, 
+            Resources.Work_10, 
+            Resources.Work_11, 
+            Resources.Work_12 
+        };
 
-        private static volatile SettingsForm instance;
-        private static object syncRoot = new Object();
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
 
-        public static SettingsForm Instance
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern int RegisterWindowMessage(string message);
+
+        [Flags]
+        private enum WorkerTasks
         {
-            get
+            None = 0,
+            ResetMatches = 1,
+            Synchronize = 2,
+        }
+
+        private class SyncContext
+        {
+            public WorkerTasks Tasks;
+            public string UserName;
+            public byte[] Password;
+            public SyncOption Mode;
+            public bool Interactive;
+            public ToolTipIcon StatusIcon;
+            public string StatusText;
+        }
+
+        public static void ShowRemote()
+        {
+            // send a broadcast message to show the settings form in another instance
+            PostMessage(HWND_BROADCAST, WM_GCSM_SHOWME, IntPtr.Zero, IntPtr.Zero);
+        }
+
+        private static byte[] EncodePassword(string plain)
+        {
+            // encrypt the plain password
+            return string.IsNullOrEmpty(plain) ? null : ProtectedData.Protect(Encoding.Unicode.GetBytes(plain), null, DataProtectionScope.CurrentUser);
+        }
+
+        private static string DecodePassword(byte[] encrypted)
+        {
+            // decrypt the given password
+            try { return (encrypted == null || encrypted.Length == 0) ? string.Empty : Encoding.Unicode.GetString(ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser)); }
+            catch (CryptographicException) { return string.Empty; }
+        }
+
+        private readonly string StatusFormat;
+
+        public SettingsForm()
+        {
+            // create all components, listeners and bindings
+            InitializeComponent();
+            Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
+            CreateBindings();
+
+            // set the proper title texts
+            Text = string.Format(Text, Application.ProductVersion);
+            Notifications.BalloonTipTitle = Text;
+            StatusFormat = Notifications.Text;
+
+            // do the stuff that is usually done by event handlers
+            UpdateNotificationStatus(Text, null, ToolTipIcon.None, false);
+            UpdateWorkerStatus();
+            UpdateSaveStatus();
+
+            // try to upgrade the settings if there's no user name
+            if (string.IsNullOrEmpty(Settings.Default.UserName))
             {
-                if (instance == null)
+                Settings.Default.Upgrade();
+            }
+        }
+
+        private void CreateBindings()
+        {
+            // bind the user name unmodified
+            UserName.DataBindings.Add(new Binding("Text", Settings.Default, "UserName", false, DataSourceUpdateMode.OnPropertyChanged, string.Empty));
+
+            // bind the password to the encrypted password
+            var passwordBinding = new Binding("Text", Settings.Default, "Password", true, DataSourceUpdateMode.OnPropertyChanged);
+            passwordBinding.Parse += (sender, e) => e.Value = EncodePassword((string)e.Value);
+            passwordBinding.Format += (sender, e) => e.Value = DecodePassword((byte[])e.Value);
+            Password.DataBindings.Add(passwordBinding);
+
+            // bind the visibility of the sign-up link to the lack of a user name
+            var signupBinding = new Binding("Visible", Settings.Default, "UserName", true, DataSourceUpdateMode.Never);
+            signupBinding.Format += (sender, e) => e.Value = string.IsNullOrEmpty((string)e.Value);
+            GoogleContactsSignup.DataBindings.Add(signupBinding);
+
+            // bind all radio buttons
+            CreateOptionBinding(TwoWaySync, SyncOption.MergeOutlookWins);
+            CreateOptionBinding(GoogleToOutlook, SyncOption.GoogleToOutlookOnly);
+            CreateOptionBinding(OutlookToGoogle, SyncOption.OutlookToGoogleOnly);
+
+            // bind the interval control
+            var syncIntervalBinding = new Binding("Value", Settings.Default, "SyncInterval", true, DataSourceUpdateMode.OnPropertyChanged);
+            syncIntervalBinding.Parse += (sender, e) => e.Value = TimeSpan.FromMinutes((int)((decimal)e.Value));
+            syncIntervalBinding.Format += (sender, e) => e.Value = (decimal)(int)((TimeSpan)e.Value).TotalMinutes;
+            SyncInterval.DataBindings.Add(syncIntervalBinding);
+        }
+
+        private void CreateOptionBinding(RadioButton button, SyncOption mode)
+        {
+            // store the mode in the tag
+            button.Tag = mode;
+
+            // one-way sync the state from the data source with the check state
+            var modeBinding = new Binding("Checked", Settings.Default, "SyncMode", true, DataSourceUpdateMode.Never);
+            modeBinding.Format += (sender, e) => e.Value = (SyncOption)((Binding)sender).Control.Tag == (SyncOption)e.Value;
+            button.DataBindings.Add(modeBinding);
+
+            // update the data source when the check box is clicked (and don't autocheck it)
+            button.AutoCheck = false;
+            button.Click += (sender, e) => Settings.Default.SyncMode = (SyncOption)((RadioButton)sender).Tag;
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            // display the current form if we're asked to
+            if (m.Msg == WM_GCSM_SHOWME)
+            {
+                Show();
+                Activate();
+            }
+            base.WndProc(ref m);
+        }
+
+        private void UpdateNotificationStatus(string text, string balloonText, ToolTipIcon balloonIcon, bool showBalloon)
+        {
+            // if the text is too long make it shorter
+            while (text.Length >= 64)
+            {
+                var newLine = text.LastIndexOf(Environment.NewLine);
+                if (newLine == -1)
+                    newLine = text.LastIndexOf('\n');
+                if (newLine == -1)
                 {
-                    lock (syncRoot)
-                    {
-                        if (instance == null)
-                            instance = new SettingsForm();
-                    }
+                    text = text.Substring(0, 60) + "...";
+                    break;
                 }
-
-                return instance;
+                text = text.Substring(0, newLine);
             }
-        }
-        #endregion
 
-        internal Syncronizer sync;
-		private SyncOption syncOption;
-		private DateTime lastSync;
-		private bool requestClose = false;
-        private bool boolShowBalloonTip = true;
+            // assign the values
+            Notifications.Text = text;
+            Notifications.BalloonTipText = balloonText;
+            Notifications.BalloonTipIcon = balloonIcon;
 
-        public const string AppRootKey = @"Software\Webgear\GOContactSync";
-
-        private ProxySettingsForm _proxy = new ProxySettingsForm();
-
-        private string syncContactsFolder = "";
-        private string syncNotesFolder = "";
-        private string syncProfile
-        {
-            get
-            {
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
-                return (regKeyAppRoot.GetValue("SyncProfile") != null) ?
-                       (string)regKeyAppRoot.GetValue("SyncProfile") : null;
-            }
-            set
-            {
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
-                if (!string.IsNullOrEmpty(value))
-                    regKeyAppRoot.SetValue("SyncProfile", value);
-            }
+            // show the balloon if requested
+            if (showBalloon)
+                Notifications.ShowBalloonTip(BALLOON_TIMEOUT);
         }
 
-        //register window for lock/unlock messages of workstation
-        //private bool registered = false;
-
-		delegate void TextHandler(string text);
-		delegate void SwitchHandler(bool value);
-
-		private SettingsForm()
-		{
-			InitializeComponent();
-            Text = Text + " - " + Application.ProductVersion;
-			Logger.LogUpdated += new Logger.LogUpdatedHandler(Logger_LogUpdated);
-            ContactsMatcher.NotificationReceived += new ContactsMatcher.NotificationHandler(OnNotificationReceived);
-            NotesMatcher.NotificationReceived += new NotesMatcher.NotificationHandler(OnNotificationReceived);
-			PopulateSyncOptionBox();            
-
-            if (fillSyncProfileItems()) 
-                LoadSettings(cmbSyncProfile.Text);
-            else 
-                LoadSettings(null);
-
-            TimerSwitch(true);
-			lastSyncLabel.Text = "Not synced";
-
-			ValidateSyncButton();
-
-            // requires Windows XP or higher
-            /*bool XpOrHigher = Environment.OSVersion.Platform == PlatformID.Win32NT &&
-                                (Environment.OSVersion.Version.Major > 5 ||
-                                    (Environment.OSVersion.Version.Major == 5 &&
-                                     Environment.OSVersion.Version.Minor >= 1));
-
-            if (XpOrHigher)
-                registered = WinAPIMethods.WTSRegisterSessionNotification(Handle, 0);
-            */
-            //Register Session Lock Event
-            SystemEvents.SessionSwitch += new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
-            //Register Power Mode Event
-            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeSwitch);
-		}
-
-        ~SettingsForm()
+        private void Sync(bool onlyResetMatches, bool interactive)
         {
-            /*if(registered)
+            // don't do nothin' if we're already syncing
+            if (Worker.IsBusy)
             {
-                WinAPIMethods.WTSUnRegisterSessionNotification(Handle);
-                registered = false;
-            }*/
-            Logger.Close();
+                if (interactive)
+                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_SyncPending, ToolTipIcon.Info);
+                return;
+            }
 
-            //Unregister Events
-            SystemEvents.SessionSwitch -= new SessionSwitchEventHandler(SystemEvents_SessionSwitch);
-            SystemEvents.PowerModeChanged -= new PowerModeChangedEventHandler(SystemEvents_PowerModeSwitch);
+            // ensure the settings aren't dirty
+            if (Settings.Default.IsDirty)
+            {
+                if (interactive)
+                {
+                    // activate the form and the most appropriate button and show a message to the user
+                    Activate();
+                    if (Save.Enabled)
+                        Save.Focus();
+                    else
+                        Cancel.Focus();
+                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_UnsavedSettings, ToolTipIcon.Info);
+                }
+                return;
+            }
+
+            // only continue if a user name was provided
+            if (string.IsNullOrEmpty(Settings.Default.UserName))
+            {
+                if (interactive)
+                {
+                    // show and activate the form, focus the user name input and show a message to the user
+                    Show();
+                    Activate();
+                    UserName.Focus();
+                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_SettingsIncomplete, ToolTipIcon.Info);
+                }
+                return;
+            }
+
+            // start the worker and update the UI
+            Worker.RunWorkerAsync(new SyncContext()
+            {
+                // always reset the matches if this is the first sync
+                Tasks = onlyResetMatches ? WorkerTasks.ResetMatches : Settings.Default.LastSync == DateTime.MinValue ? (WorkerTasks.ResetMatches | WorkerTasks.Synchronize) : WorkerTasks.Synchronize,
+                UserName = Settings.Default.UserName,
+                Password = Settings.Default.Password,
+                Mode = Settings.Default.SyncMode,
+                Interactive = interactive,
+            });
+            UpdateWorkerStatus();
         }
 
-		private void PopulateSyncOptionBox()
-		{
-			string str;
-			for (int i = 0; i < 20; i++)
-			{
-				str = ((SyncOption)i).ToString();
-				if (str == i.ToString())
-					break;
-
-				// format (to add space before capital)
-				MatchCollection matches = Regex.Matches(str, "[A-Z]");
-				for (int k = 0; k < matches.Count; k++)
-				{
-					str = str.Replace(str[matches[k].Index].ToString(), " " + str[matches[k].Index]);
-					matches = Regex.Matches(str, "[A-Z]");
-				}
-				str = str.Replace("  ", " ");
-				// fix start
-				str = str.Substring(1);
-
-				syncOptionBox.Items.Add(str);
-			}
-		}
-        private void fillSyncFolderItems()
+        private void UpdateSaveStatus()
         {
-            if (this.contactFoldersComboBox.Items.Count == 0 || this.noteFoldersComboBox.Items.Count == 0)
-            {                
-                Logger.Log("Loading Outlook folders...", EventType.Information);
+            // set the enabled state of the save button
+            Save.Enabled = !string.IsNullOrEmpty(Settings.Default.UserName) && Settings.Default.IsDirty;
+        }
 
-                this.contactFoldersComboBox.Visible = true;
-                this.noteFoldersComboBox.Visible = true;
-                this.cmbSyncProfile.Visible = true;
-                ArrayList outlookContactFolders = new ArrayList();
-                ArrayList outlookNoteFolders = new ArrayList();
+        private void UpdateWorkerStatus()
+        {
+            // disable (or enable) any action items if the worker is busy (or not)
+            ResetMatches.Enabled = !Worker.IsBusy;
+            SyncMenuItem.Enabled = !Worker.IsBusy;
+            ExitMenuItem.Enabled = !Worker.IsBusy;
+            WorkTimer.Enabled = Worker.IsBusy;
+
+            // reset the notification icon if the worker has finished
+            if (!Worker.IsBusy)
+            {
+                WorkTimer.Tag = 0;
+                Notifications.Icon = Resources.Idle;
+            }
+        }
+
+        private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // if the user closed the form, reset its content and hide it but don't close the app itself (same goes if we're still syncing)
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Settings.Default.Reload();
+                Hide();
+            }
+            else if (Worker.IsBusy)
+                e.Cancel = true;
+        }
+
+        private void SettingsForm_Shown(object sender, EventArgs e)
+        {
+            // hide the window if the user name was already entered
+            if (!string.IsNullOrEmpty(Settings.Default.UserName))
+                Hide();
+        }
+
+        private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // handle relevant settings and update the save status
+            var settings = (Settings)sender;
+            switch (e.PropertyName)
+            {
+                case "UserName":
+                    // if the user name was changed (and the settings are dirty) then reset the last sync time
+                    if (settings.IsDirty)
+                        settings.LastSync = DateTime.MinValue;
+                    break;
+                case "IsDirty":
+                    break;
+                default:
+                    return;
+            }
+            UpdateSaveStatus();
+        }
+
+        private void SyncTimer_Tick(object sender, EventArgs e)
+        {
+            // resync if the necessary amount of time has elapsed
+            if (DateTime.Now - Settings.Default.LastSync > Settings.Default.SyncInterval)
+                Sync(false, false);
+        }
+
+        private void ResetMatches_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // intiate reset matches
+            Sync(true, true);
+        }
+
+        private void GoogleContactsSignup_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // show the Google contacts page (if the user already signed up, this will remind him or her of that fact :)
+            Process.Start("https://www.google.com/contacts/");
+        }
+
+        private void Help_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // show the GO Contact Sync Mod page (yeah, it's a rename nightmare)
+            Process.Start("http://googlesyncmod.sourceforge.net/");
+        }
+
+        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // set the status message
+            var context = (SyncContext)e.UserState;
+            UpdateNotificationStatus(string.Format(StatusFormat, context.StatusText, e.ProgressPercentage), context.StatusText, context.StatusIcon, context.Interactive);
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var worker = (BackgroundWorker)sender;
+            var context = (SyncContext)e.Argument;
+            int progress = 0;
+
+            // log the start
+            Logger.Log("Worker started.", EventType.Debug);
+
+            // initialize the syncer
+            context.StatusIcon = ToolTipIcon.Info;
+            context.StatusText = Resources.SettingsForm_InitializeSync;
+            worker.ReportProgress(progress, context);
+            var sync = new Syncronizer()
+            {
+                SyncProfile = WindowsIdentity.GetCurrent().User.Value,
+                SyncOption = context.Mode,
+                SyncDelete = true,
+                PromptDelete = context.Interactive,
+                UseFileAs = true,
+                SyncNotes = false,
+                SyncContacts = true,
+            };
+            sync.ErrorEncountered += (title, ex, type) =>
+            {
+                // log the error and report it through the worker
+                Logger.Log(ex.Message, type);
+                switch (type)
+                {
+                    case EventType.Information: context.StatusIcon = ToolTipIcon.Info; break;
+                    case EventType.Error: context.StatusIcon = ToolTipIcon.Error; break;
+                    case EventType.Warning: context.StatusIcon = ToolTipIcon.Warning; break;
+                    default: context.StatusIcon = ToolTipIcon.None; break;
+                }
+                context.StatusText = ex.Message;
+                worker.ReportProgress(progress, context);
+            };
+            progress += 5;
+
+            // log into Google
+            context.StatusIcon = ToolTipIcon.Info;
+            context.StatusText = Resources.SettingsForm_GoogleLogon;
+            worker.ReportProgress(progress, context);
+            sync.LoginToGoogle(context.UserName, DecodePassword(context.Password));
+            progress += 10;
+            try
+            {
+                // access Outlook
+                context.StatusIcon = ToolTipIcon.Info;
+                context.StatusText = Resources.SettingsForm_OutlookLogon;
+                worker.ReportProgress(progress, context);
+                sync.LoginToOutlook();
+                progress += 10;
                 try
                 {
-                    Cursor = Cursors.WaitCursor;
-                    SuspendLayout();
-
-                    this.contactFoldersComboBox.BeginUpdate();
-                    this.contactFoldersComboBox.Items.Clear();
-
-                    Microsoft.Office.Interop.Outlook.Folders folders = Syncronizer.OutlookNameSpace.Folders;
-                    foreach (Microsoft.Office.Interop.Outlook.Folder folder in folders)
+                    // reset matches
+                    context.StatusIcon = ToolTipIcon.Info;
+                    context.StatusText = Resources.SettingsForm_ResetMatches;
+                    if ((context.Tasks & WorkerTasks.ResetMatches) != 0)
                     {
-                        try
-                        {
-                            GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, folder);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
-                        }
+                        worker.ReportProgress(progress, context);
+                        sync.LoadContacts();
+                        sync.ResetContactMatches();
                     }
-                    outlookContactFolders.Sort();
-                    outlookNoteFolders.Sort();
+                    progress += 25;
 
-                    this.contactFoldersComboBox.DataSource = outlookContactFolders;
-                    this.contactFoldersComboBox.DisplayMember = "DisplayName";
-                    this.contactFoldersComboBox.ValueMember = "FolderID";
-
-                    this.noteFoldersComboBox.DataSource = outlookNoteFolders;
-                    this.noteFoldersComboBox.DisplayMember = "DisplayName";
-                    this.noteFoldersComboBox.ValueMember = "FolderID";
-
-                    this.contactFoldersComboBox.EndUpdate();
-                    this.noteFoldersComboBox.EndUpdate();
-
-                    this.contactFoldersComboBox.SelectedValue = "";
-                    this.noteFoldersComboBox.SelectedValue = "";
-
-                    //Select Default Folder per Default
-                    foreach (OutlookFolder folder in contactFoldersComboBox.Items)
-                        if (folder.IsDefaultFolder)
-                        {
-                            this.contactFoldersComboBox.SelectedValue = folder.FolderID;
-                            break;
-                        }
-
-                    //Select Default Folder per Default
-                    foreach (OutlookFolder folder in noteFoldersComboBox.Items)
-                        if (folder.IsDefaultFolder)
-                        {
-                            this.noteFoldersComboBox.SelectedItem = folder;
-                            break;
-                        }
-
-                    Logger.Log("Loaded Outlook folders.", EventType.Information);
-
-                }
-                catch (Exception e)
-                {
-                    Logger.Log("Error getting available Outlook folders: " + e.Message, EventType.Warning);
+                    // sync
+                    context.StatusIcon = ToolTipIcon.Info;
+                    context.StatusText = Resources.SettingsForm_SyncContacts;
+                    if ((context.Tasks & WorkerTasks.Synchronize) != 0)
+                    {
+                        worker.ReportProgress(progress, context);
+                        sync.Sync();
+                    }
+                    progress += 25;
                 }
                 finally
                 {
-                    Cursor = Cursors.Default;
-                    ResumeLayout();
-                }
-            }
-        }
-
-        public static void GetOutlookMAPIFolders(ArrayList outlookContactFolders, ArrayList outlookNoteFolders, Microsoft.Office.Interop.Outlook.MAPIFolder folder)
-        {
-            foreach (Microsoft.Office.Interop.Outlook.MAPIFolder mapi in folder.Folders)
-            {
-                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem)
-                {
-                    bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID);
-                    outlookContactFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
-                }
-                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
-                {
-                    bool isDefaultFolder = mapi.EntryID.Equals(Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderNotes).EntryID);
-                    outlookNoteFolders.Add(new OutlookFolder(folder.Name + " - " + mapi.Name, mapi.EntryID, isDefaultFolder));
-                }
-
-                if (mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olContactItem ||
-                    mapi.DefaultItemType == Microsoft.Office.Interop.Outlook.OlItemType.olNoteItem)
-                    GetOutlookMAPIFolders(outlookContactFolders, outlookNoteFolders, mapi);
-
-            }
-        }
-
-        private void ClearSettings()
-        {
-            SetSyncOption(0);
-            UserName.Text = Password.Text = "";
-            autoSyncCheckBox.Checked = runAtStartupCheckBox.Checked = reportSyncResultCheckBox.Checked = false;
-            autoSyncInterval.Value = 120;
-            _proxy.ClearSettings();
-        }
-        // Fill lists of sync profiles
-        private bool fillSyncProfileItems()
-        {
-            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey);
-            bool vReturn = false;
-
-            cmbSyncProfile.Items.Clear();
-            cmbSyncProfile.Items.Add("[Add new profile...]");
-
-            foreach (string subKeyName in regKeyAppRoot.GetSubKeyNames())
-            {
-                cmbSyncProfile.Items.Add(subKeyName);
-            }
-
-            if (string.IsNullOrEmpty(syncProfile))
-                syncProfile = "Default";
-
-            if (cmbSyncProfile.Items.Count == 1)
-                cmbSyncProfile.Items.Add(syncProfile);
-            else
-                vReturn = true;
-
-            cmbSyncProfile.Items.Add("[Configuration manager...]");
-            cmbSyncProfile.Text = syncProfile;
-
-            return vReturn;
-        }
-                
-
-        private void LoadSettings(string _profile)
-        {
-            RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey  + (_profile != null ? ('\\' + _profile) : "")  );
-
-            if (regKeyAppRoot.GetValue("SyncOption") != null)
-            {
-                syncOption = (SyncOption)regKeyAppRoot.GetValue("SyncOption");
-                SetSyncOption((int)syncOption);
-            }
-
-            if (regKeyAppRoot.GetValue("Username") != null)
-            {
-                UserName.Text = regKeyAppRoot.GetValue("Username") as string;
-                if (regKeyAppRoot.GetValue("Password") != null)
-                    Password.Text = Encryption.DecryptPassword(UserName.Text, regKeyAppRoot.GetValue("Password") as string);
-            }
-            if (regKeyAppRoot.GetValue("AutoSync") != null)
-                autoSyncCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoSync"));
-            if (regKeyAppRoot.GetValue("AutoSyncInterval") != null)
-                autoSyncInterval.Value = Convert.ToDecimal(regKeyAppRoot.GetValue("AutoSyncInterval"));
-            if (regKeyAppRoot.GetValue("AutoStart") != null)
-                runAtStartupCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("AutoStart"));
-            if (regKeyAppRoot.GetValue("ReportSyncResult") != null)
-                reportSyncResultCheckBox.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("ReportSyncResult"));            
-            if (regKeyAppRoot.GetValue("SyncDeletion") != null)
-                btSyncDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncDeletion"));
-            if (regKeyAppRoot.GetValue("PromptDeletion") != null)
-                btPromptDelete.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("PromptDeletion"));        
-            if (regKeyAppRoot.GetValue("SyncNotes") != null)
-                btSyncNotes.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncNotes"));
-            if (regKeyAppRoot.GetValue("SyncContacts") != null)
-                btSyncContacts.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("SyncContacts"));
-            if (regKeyAppRoot.GetValue("SyncContactsFolder") != null)
-                contactFoldersComboBox.SelectedValue = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
-            if (regKeyAppRoot.GetValue("SyncNotesFolder") != null)
-                noteFoldersComboBox.SelectedValue = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
-            if (regKeyAppRoot.GetValue("UseFileAs") != null)
-                chkUseFileAs.Checked = Convert.ToBoolean(regKeyAppRoot.GetValue("UseFileAs"));                
-
-            autoSyncCheckBox_CheckedChanged(null, null);
-            btSyncContacts_CheckedChanged(null, null);
-            btSyncNotes_CheckedChanged(null, null);
-
-            _proxy.LoadSettings(_profile);
-        }
-
-		private void SaveSettings()
-		{
-            SaveSettings(cmbSyncProfile.Text);
-		}
-
-        private void SaveSettings(string profile)
-        {
-            if (!string.IsNullOrEmpty(profile))
-            {
-                syncProfile = cmbSyncProfile.Text;
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + profile);
-                regKeyAppRoot.SetValue("SyncOption", (int)syncOption);
- 
-                if (!string.IsNullOrEmpty(UserName.Text))
-                {
-                    regKeyAppRoot.SetValue("Username", UserName.Text);
-                    if (!string.IsNullOrEmpty(Password.Text))
-                        regKeyAppRoot.SetValue("Password", Encryption.EncryptPassword(UserName.Text, Password.Text));
-                }
-                regKeyAppRoot.SetValue("AutoSync", autoSyncCheckBox.Checked.ToString());
-                regKeyAppRoot.SetValue("AutoSyncInterval", autoSyncInterval.Value.ToString());
-                regKeyAppRoot.SetValue("AutoStart", runAtStartupCheckBox.Checked);
-                regKeyAppRoot.SetValue("ReportSyncResult", reportSyncResultCheckBox.Checked);
-                regKeyAppRoot.SetValue("SyncDeletion", btSyncDelete.Checked);
-                regKeyAppRoot.SetValue("PromptDeletion", btPromptDelete.Checked);
-                regKeyAppRoot.SetValue("SyncNotes", btSyncNotes.Checked);
-                regKeyAppRoot.SetValue("SyncContacts", btSyncContacts.Checked);
-                regKeyAppRoot.SetValue("UseFileAs", chkUseFileAs.Checked);
-
-                //if (btSyncContacts.Checked && contactFoldersComboBox.SelectedValue != null)
-                //    regKeyAppRoot.SetValue("SyncContactsFolder", contactFoldersComboBox.SelectedValue.ToString());
-                //if (btSyncNotes.Checked && noteFoldersComboBox.SelectedValue != null)
-                //    regKeyAppRoot.SetValue("SyncNotesFolder", noteFoldersComboBox.SelectedValue.ToString());
-
-                _proxy.SaveSettings(cmbSyncProfile.Text);
-            }
-        }
-
-
-        private bool ValidCredentials
-		{
-			get
-			{
-				bool userNameIsValid = Regex.IsMatch(UserName.Text, @"^(?'id'[a-z0-9\'\%\._\+\-]+)@(?'domain'[a-z0-9\'\%\._\+\-]+)\.(?'ext'[a-z]{2,6})$", RegexOptions.IgnoreCase);
-				bool passwordIsValid = !string.IsNullOrEmpty(Password.Text.Trim());
-                bool syncProfileIsValid = (cmbSyncProfile.SelectedIndex > 0 && cmbSyncProfile.SelectedIndex < cmbSyncProfile.Items.Count-1);
-                bool syncContactFolderIsValid = (contactFoldersComboBox.SelectedIndex >= 0 && contactFoldersComboBox.SelectedIndex < contactFoldersComboBox.Items.Count) || !btSyncContacts.Checked;
-                bool syncNoteFolderIsValid = (noteFoldersComboBox.SelectedIndex >= 0 && noteFoldersComboBox.SelectedIndex < noteFoldersComboBox.Items.Count) || !btSyncNotes.Checked;
-
-				setBgColor(UserName, userNameIsValid);
-				setBgColor(Password, passwordIsValid);
-                setBgColor(cmbSyncProfile, syncProfileIsValid);
-                setBgColor(contactFoldersComboBox, syncContactFolderIsValid);
-                setBgColor(noteFoldersComboBox, syncNoteFolderIsValid);
-
-
-                if (!userNameIsValid)
-                    toolTip.SetToolTip(UserName, "User is of wrong format, should be full Google Mail address, e.g. user@googelmail.com");
-                else
-                    toolTip.SetToolTip(UserName, String.Empty);
-                if (!passwordIsValid)
-                    toolTip.SetToolTip(Password, "Password is empty, please provide your Google Mail password");
-                else
-                    toolTip.SetToolTip(Password, String.Empty);               
-                                             
-
-                return userNameIsValid && passwordIsValid && syncProfileIsValid && syncContactFolderIsValid && syncNoteFolderIsValid;
-			}
-		}
-
-		private void setBgColor(Control box, bool isValid)
-		{
-			if (!isValid)
-				box.BackColor = Color.LightPink;
-			else
-				box.BackColor = Color.LightGreen;
-		}
-
-		private void syncButton_Click(object sender, EventArgs e)
-		{
-			Sync();
-		}
-		private void Sync()
-		{
-			try
-			{
-				if (!ValidCredentials)
-					return;
-
-				ThreadStart starter = new ThreadStart(Sync_ThreadStarter);
-				Thread thread = new Thread(starter);
-				thread.Start();
-
-				// wait for thread to start
-				while (!thread.IsAlive)
-					Thread.Sleep(1);
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.Handle(ex);
-			}
-		}
-
-		private void Sync_ThreadStarter()
-		{
-            try
-            {
-                TimerSwitch(false);                
-
-                //if the contacts or notes folder has changed ==> Reset matches (to not delete contacts or notes on the one or other side)                
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(AppRootKey + "\\" + syncProfile);
-                string oldSyncContactsFolder = regKeyAppRoot.GetValue("SyncContactsFolder") as string;
-                string oldSyncNotesFolder = regKeyAppRoot.GetValue("SyncNotesFolder") as string;
-
-                //only reset notes if NotesFolder changed and reset contacts if ContactsFolder changed
-                bool syncContacts = !string.IsNullOrEmpty(oldSyncContactsFolder) && !oldSyncContactsFolder.Equals(this.syncContactsFolder) && btSyncContacts.Checked;
-                bool syncNotes = !string.IsNullOrEmpty(oldSyncNotesFolder) && !oldSyncNotesFolder.Equals(this.syncNotesFolder) && btSyncNotes.Checked;                                
-                if (syncContacts || syncNotes)
-                    ResetMatches(syncContacts, syncNotes);
-                
-                //Then save the Contacts and Notes Folders used at last sync
-                if (btSyncContacts.Checked)
-                    regKeyAppRoot.SetValue("SyncContactsFolder", this.syncContactsFolder);
-                if (btSyncNotes.Checked)
-                    regKeyAppRoot.SetValue("SyncNotesFolder", this.syncNotesFolder);
-
-                SetLastSyncText("Syncing...");
-                notifyIcon.Text = Application.ProductName + "\nSyncing...";
-
-                fillSyncFolderItems();
-
-                SetFormEnabled(false);
-
-                if (sync == null)
-                {
-                    sync = new Syncronizer();
-                    sync.DuplicatesFound += new Syncronizer.DuplicatesFoundHandler(OnDuplicatesFound);
-                    sync.ErrorEncountered += new Syncronizer.ErrorNotificationHandler(OnErrorEncountered);
-                }
-
-                Logger.ClearLog();
-                SetSyncConsoleText("");
-                Logger.Log("Sync started (" + syncProfile + ").", EventType.Information);
-                //SetSyncConsoleText(Logger.GetText());
-                sync.SyncProfile = syncProfile;
-                Syncronizer.SyncContactsFolder  = this.syncContactsFolder;
-                Syncronizer.SyncNotesFolder = this.syncNotesFolder;
-
-                sync.SyncOption = syncOption;
-                sync.SyncDelete = btSyncDelete.Checked;
-                sync.PromptDelete = btPromptDelete.Checked && btSyncDelete.Checked;
-                sync.UseFileAs = chkUseFileAs.Checked;
-                sync.SyncNotes = btSyncNotes.Checked;
-                sync.SyncContacts = btSyncContacts.Checked;
-
-                if (!sync.SyncContacts && !sync.SyncNotes)
-                {
-                    SetLastSyncText("Sync failed.");
-                    notifyIcon.Text = Application.ProductName + "\nSync failed";
-
-                    string messageText = "Neither notes nor contacts are switched on for syncing. Please choose at least one option. Sync aborted!";
-                    Logger.Log(messageText, EventType.Error);
-                    ShowForm();
-                    ShowBalloonToolTip("Error", messageText, ToolTipIcon.Error, 5000);
-                    return;
-                }
-
-
-                sync.LoginToGoogle(UserName.Text, Password.Text);
-                sync.LoginToOutlook();
-
-                sync.Sync();
-
-                lastSync = DateTime.Now;
-                SetLastSyncText("Last synced at " + lastSync.ToString());
-
-                string message = string.Format("Sync complete.\r\n Synced:  {1} out of {0}.\r\n Deleted:  {2}.\r\n Skipped: {3}.\r\n Errors:    {4}.", sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount);
-                Logger.Log(message, EventType.Information);
-                if (reportSyncResultCheckBox.Checked)
-                {
-                    /*
-                    notifyIcon.BalloonTipTitle = Application.ProductName;
-                    notifyIcon.BalloonTipText = string.Format("{0}. {1}", DateTime.Now, message);
-                    */
-                    ToolTipIcon icon;
-                    if (sync.ErrorCount > 0)
-                        icon = ToolTipIcon.Error;
-                    else if (sync.SkippedCount > 0)
-                        icon = ToolTipIcon.Warning;
-                    else
-                        icon = ToolTipIcon.Info;
-                    /*notifyIcon.ShowBalloonTip(5000);
-                    */
-                    ShowBalloonToolTip(Application.ProductName,
-                        string.Format("{0}. {1}", DateTime.Now, message),
-                        icon,
-                        5000);
-
-                }
-                string toolTip = string.Format("{0}\nLast sync: {1}", Application.ProductName, DateTime.Now.ToString("dd.MM. HH:mm"));
-                if (sync.ErrorCount + sync.SkippedCount > 0)
-                    toolTip += string.Format("\nWarnings: {0}.", sync.ErrorCount + sync.SkippedCount);
-                if (toolTip.Length >= 64)
-                    toolTip = toolTip.Substring(0, 63);
-                notifyIcon.Text = toolTip;
-            }
-            catch (Google.GData.Client.GDataRequestException ex)
-            {
-                SetLastSyncText("Sync failed.");
-                notifyIcon.Text = Application.ProductName + "\nSync failed";
-
-                //string responseString = (null != ex.InnerException) ? ex.ResponseString : ex.Message;
-
-                if (ex.InnerException is System.Net.WebException)
-                {
-                    string message = "Cannot connect to Google, please check for available internet connection and proxy settings if applicable: " + ex.InnerException.Message + "\r\n" + ex.ResponseString;
-                    Logger.Log(message, EventType.Warning);
-                    ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
-                }
-                else
-                {
-                    ErrorHandler.Handle(ex);
-                }
-            }
-            catch (Google.GData.Client.InvalidCredentialsException)
-            {
-                SetLastSyncText("Sync failed.");
-                notifyIcon.Text = Application.ProductName + "\nSync failed";
-
-                string message = "The credentials (Google Account username and/or password) are invalid, please correct them in the settings form before you sync again";
-                Logger.Log(message, EventType.Error);
-                ShowForm();
-                ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
-
-            }
-            catch (Exception ex)
-            {
-                SetLastSyncText("Sync failed.");
-                notifyIcon.Text = Application.ProductName + "\nSync failed";
-
-                if (ex is COMException)
-                {
-                    string message = "Outlook exception, please assure that Outlook is running and not closed when syncing";
-                    Logger.Log(message + ": " + ex.Message, EventType.Warning);
-                    ShowBalloonToolTip("Error", message, ToolTipIcon.Error, 5000);
-                }
-                else
-                {
-                    ErrorHandler.Handle(ex);
-                }
-            }							
-			finally
-			{                        
-                lastSync = DateTime.Now;
-                TimerSwitch(true);
-				SetFormEnabled(true);
-                if (sync != null)
-                {
+                    // log out from Outlook
+                    context.StatusIcon = ToolTipIcon.Info;
+                    context.StatusText = Resources.SettingsForm_OutlookLogoff;
+                    worker.ReportProgress(progress, context);
                     sync.LogoffOutlook();
-                    sync.LogoffGoogle();
-                    sync = null;
+                    progress += 10;
                 }
-			}
-		}
-
-        public void ShowBalloonToolTip(string title, string message, ToolTipIcon icon, int timeout)
-        {
-            //if user is active on workstation
-            if(boolShowBalloonTip)
-            {
-                notifyIcon.BalloonTipTitle = title;
-			    notifyIcon.BalloonTipText = message;
-			    notifyIcon.BalloonTipIcon = icon;
-			    notifyIcon.ShowBalloonTip(timeout);
             }
+            finally
+            {
+                // log out from Google
+                context.StatusIcon = ToolTipIcon.Info;
+                context.StatusText = Resources.SettingsForm_GoogleLogoff;
+                worker.ReportProgress(progress, context);
+                sync.LogoffGoogle();
+                progress += 10;
+            }
+
+            // finalizing
+            context.StatusIcon = ToolTipIcon.Info;
+            context.StatusText = Resources.SettingsForm_FinalizeSync;
+            worker.ReportProgress(progress, context);
+            context.StatusIcon = sync.ErrorCount > 0 ? ToolTipIcon.Error : sync.SkippedCount > 0 ? ToolTipIcon.Warning : ToolTipIcon.Info;
+            context.StatusText = string.Format(Resources.SettingsForm_SyncResult, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount);
+            e.Result = context;
+            progress += 5;
+
+            // log the result
+            Logger.Log(string.Format("Worker ended ({0}%).", progress), EventType.Debug);
         }
 
-		void Logger_LogUpdated(string Message)
-		{
-			AppendSyncConsoleText(Message);
-		}
-
-		void OnErrorEncountered(string title, Exception ex, EventType eventType)
-		{
-			// do not show ErrorHandler, as there may be multiple exceptions that would nag the user
-			Logger.Log(ex.ToString(), EventType.Error);
-			string message = String.Format("Error Saving Contact: {0}.\nPlease report complete ErrorMessage from Log to the Tracker\nat https://sourceforge.net/tracker/?group_id=369321", ex.Message);
-            ShowBalloonToolTip(title,message,ToolTipIcon.Error,5000);
-			/*notifyIcon.BalloonTipTitle = title;
-			notifyIcon.BalloonTipText = message;
-			notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-			notifyIcon.ShowBalloonTip(5000);*/
-		}
-
-		void OnDuplicatesFound(string title, string message)
-		{
-            Logger.Log(message, EventType.Warning);
-            ShowBalloonToolTip(title,message,ToolTipIcon.Warning,5000);
-            /*
-			notifyIcon.BalloonTipTitle = title;
-			notifyIcon.BalloonTipText = message;
-			notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
-			notifyIcon.ShowBalloonTip(5000);
-             */
-		}
-
-        void OnNotificationReceived(string message)
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            SetLastSyncText(message);           
-        }
-
-		public void SetFormEnabled(bool enabled)
-		{
-			if (this.InvokeRequired)
-			{
-				SwitchHandler h = new SwitchHandler(SetFormEnabled);
-				this.Invoke(h, new object[] { enabled });
-			}
-			else
-			{
-				resetMatchesLinkLabel.Enabled = enabled;
-				settingsGroupBox.Enabled = enabled;
-				syncButton.Enabled = enabled;
-			}
-		}
-		public void SetLastSyncText(string text)
-		{
-			if (this.InvokeRequired)
-			{
-				TextHandler h = new TextHandler(SetLastSyncText);
-				this.Invoke(h, new object[] { text });
-			}
-			else
-				lastSyncLabel.Text = text;
-		}
-		public void SetSyncConsoleText(string text)
-		{
-			if (this.InvokeRequired)
-			{
-				TextHandler h = new TextHandler(SetSyncConsoleText);
-				this.Invoke(h, new object[] { text });
-			}
-			else
+            // reflect the new worker status and handle its result
+            UpdateWorkerStatus();
+            if (e.Error == null)
             {
-				syncConsole.Text = text;
-                //Scroll to bottom to always see the last log entry
-                syncConsole.SelectionStart = syncConsole.TextLength;
-                syncConsole.ScrollToCaret();
-            }
+                // get the context
+                var context = (SyncContext)e.Result;
 
-		}
-		public void AppendSyncConsoleText(string text)
-		{
-			if (this.InvokeRequired)
-			{
-				TextHandler h = new TextHandler(AppendSyncConsoleText);
-				this.Invoke(h, new object[] { text });
-			}
-			else
-            {
-				syncConsole.Text += text;
-                //Scroll to bottom to always see the last log entry
-                syncConsole.SelectionStart = syncConsole.TextLength;
-                syncConsole.ScrollToCaret();
-            }
-		}
-		public void TimerSwitch(bool value)
-		{
-			if (this.InvokeRequired)
-			{
-				SwitchHandler h = new SwitchHandler(TimerSwitch);
-				this.Invoke(h, new object[] { value });
-			}
-			else
-			{
-                //If PC resumes or unlocks or is started, give him 5 minutes to recover everything before the sync starts
-                if (lastSync <= DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0))
-                    lastSync = DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
-				autoSyncInterval.Enabled = autoSyncCheckBox.Checked && value;
-				syncTimer.Enabled = autoSyncCheckBox.Checked && value;
-				nextSyncLabel.Visible = autoSyncCheckBox.Checked &&  value;          				
-			}
-		}
-
-        protected override void WndProc(ref System.Windows.Forms.Message m)
-		{
-            //Logger.Log(m.Msg, EventType.Information);
-            switch(m.Msg) 
-            {
-                //System shutdown
-                case WinAPIMethods.WM_QUERYENDSESSION:
-                    requestClose = true;
-                    break;
-                /*case WinAPIMethods.WM_WTSSESSION_CHANGE:
-                    {
-                        int value = m.WParam.ToInt32();
-                        //User Session locked
-                        if (value == WinAPIMethods.WTS_SESSION_LOCK)
-                        {
-                            Console.WriteLine("Session Lock",EventType.Information);
-                            //OnSessionLock();
-                            boolShowBalloonTip = false; // Do something when locked
-                        }
-                        //User Session unlocked
-                        else if (value == WinAPIMethods.WTS_SESSION_UNLOCK)
-                        {
-                            Console.WriteLine("Session Unlock", EventType.Information);
-                            //OnSessionUnlock();
-                            boolShowBalloonTip = true; // Do something when unlocked
-                            TimerSwitch(true);
-                        }
-                     break;
-                    }
-                
-                
-                case WinAPIMethods.WM_POWERBROADCAST:
-                    {
-                        if (m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMEAUTOMATIC ||
-                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMECRITICAL ||
-                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMESTANDBY ||
-                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMRESUMESUSPEND ||
-                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBYFAILED ||
-                            m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBYFAILED)
-                        {                            
-                            TimerSwitch(true);
-                        }
-                        else if (m.WParam.ToInt32() == WinAPIMethods.PBT_APMSUSPEND ||
-                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMSTANDBY ||
-                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSTANDBY ||
-                                 m.WParam.ToInt32() == WinAPIMethods.PBT_APMQUERYSUSPEND)
-                        {
-                            TimerSwitch(false);
-                        }
-                            
-
-                        break;
-                    }*/
-                default:
-                    break;
-            }
-            //Show Window from Tray
-            if (m.Msg == WinAPIMethods.WM_GCSM_SHOWME)
-                ShowForm();
-			base.WndProc(ref m);
-		} 
-
-		private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			if (!requestClose)
-			{
-				SaveSettings();
-				e.Cancel = true;
-			}
-			HideForm();
-		}
-		private void SettingsForm_FormClosed(object sender, FormClosedEventArgs e)
-		{
-			try
-			{
-				if (sync != null)
-					sync.LogoffOutlook();
-
-				SaveSettings();
-
-				notifyIcon.Dispose();
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.Handle(ex);
-			}
-		}
-
-		private void syncOptionBox_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			try
-			{
-				int index = syncOptionBox.SelectedIndex;
-				if (index == -1)
-					return;
-
-				SetSyncOption(index);
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.Handle(ex);
-			}
-		}
-		private void SetSyncOption(int index)
-		{
-			syncOption = (SyncOption)index;
-			for (int i = 0; i < syncOptionBox.Items.Count; i++)
-			{
-				if (i == index)
-					syncOptionBox.SetItemCheckState(i, CheckState.Checked);
-				else
-					syncOptionBox.SetItemCheckState(i, CheckState.Unchecked);
-			}
-		}
-
-		private void SettingsForm_Resize(object sender, EventArgs e)
-		{
-			if (WindowState == FormWindowState.Minimized)
-				Hide();
-
-		}
-
-		private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-		{
-			if (WindowState == FormWindowState.Normal)
-				HideForm();
-			else
-				ShowForm();
-		}
-
-		private void autoSyncCheckBox_CheckedChanged(object sender, EventArgs e)
-		{
-            lastSync = DateTime.Now.AddSeconds(300) - new TimeSpan(0, (int)autoSyncInterval.Value, 0);
-            TimerSwitch(true);
-		}
-
-		private void syncTimer_Tick(object sender, EventArgs e)
-		{
-			
-			TimeSpan syncTime = DateTime.Now - lastSync;
-			TimeSpan limit = new TimeSpan(0, (int)autoSyncInterval.Value, 0);
-            if (syncTime < limit)
-            {
-                TimeSpan diff = limit - syncTime;
-                string str = "Next sync in";
-                if (diff.Hours != 0)
-                    str += " " + diff.Hours + " h";
-                if (diff.Minutes != 0 || diff.Hours != 0)
-                    str += " " + diff.Minutes + " min";
-                if (diff.Seconds != 0)
-                    str += " " + diff.Seconds + " s";
-                nextSyncLabel.Text = str;
-            }
-            else
-            {
-                Sync();
-            }
-		}
-
-		private void resetMatchesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-
-			// force deactivation to show up
-			Application.DoEvents();
-			try
-			{
-                ResetMatches(btSyncContacts.Checked,btSyncNotes.Checked);                
-			}
-			catch (Exception ex)
-            {
-                SetLastSyncText("Reset Matches failed");
-                Logger.Log("Reset Matches failed", EventType.Error);
-				ErrorHandler.Handle(ex);
-			}
-			finally
-			{                
-                lastSync = DateTime.Now;
-                TimerSwitch(true);
-				SetFormEnabled(true);
-                this.hideButton.Enabled = true;
-                if (sync != null)
+                // update the last sync time if the user name hasn't changed
+                if (context.UserName == Settings.Default.UserName)
                 {
-                    sync.LogoffOutlook();
-                    sync.LogoffGoogle();
-                    sync = null;
+                    var isDirty = Settings.Default.IsDirty;
+                    Settings.Default.LastSync = DateTime.Now;
+                    if (!isDirty)
+                        Settings.Default.Save();
                 }
-			}
-		}
 
-        private void ResetMatches(bool syncContacts, bool syncNotes)
-        {
-            TimerSwitch(false);
-
-            SetLastSyncText("Resetting matches...");
-            notifyIcon.Text = Application.ProductName + "\nResetting matches...";
-
-            fillSyncFolderItems();
-
-            SetFormEnabled(false);
-            //this.hideButton.Enabled = false;
-
-            if (sync == null)
-            {
-                sync = new Syncronizer();
-            }
-
-            Logger.ClearLog();
-            SetSyncConsoleText("");
-            Logger.Log("Reset Matches started  (" + syncProfile + ").", EventType.Information);
-
-            sync.SyncNotes = syncNotes;
-            sync.SyncContacts = syncContacts;
-
-            Syncronizer.SyncContactsFolder = syncContactsFolder;
-            Syncronizer.SyncNotesFolder = syncNotesFolder;
-            sync.SyncProfile = syncProfile;
-
-            sync.LoginToGoogle(UserName.Text, Password.Text);
-            sync.LoginToOutlook();
-
-            
-
-            //Load matches, but match them by properties, not sync id
-
-            if (sync.SyncContacts)
-            {
-                sync.LoadContacts();
-                sync.ResetContactMatches();
-            }
-
-
-            if (sync.SyncNotes)
-            {
-                sync.LoadNotes();
-                sync.ResetNoteMatches();
-            }
-
-
-
-            lastSync = DateTime.Now;
-            SetLastSyncText("Matches reset at " + lastSync.ToString());
-            Logger.Log("Matches reset.", EventType.Information);
-        }
-
-        private delegate void InvokeCallback(); 
-
-        private void ShowForm()
-        {
-            if (this.InvokeRequired)
-            {
-                Invoke(new InvokeCallback(ShowForm));
+                // set the result text
+                UpdateNotificationStatus(Text + Environment.NewLine + context.StatusText, context.StatusText, context.StatusIcon, context.Interactive);
             }
             else
             {
-                Show();
-                fillSyncFolderItems();
-                Activate();
-                WindowState = FormWindowState.Normal;
+                // log and show the error
+                Logger.Log(e.Error.ToString(), EventType.Error);
+                UpdateNotificationStatus(Text + Environment.NewLine + e.Error.Message, e.Error.Message, ToolTipIcon.Error, true);
+                MessageBox.Show(e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-		private void HideForm()
-		{
-			WindowState = FormWindowState.Minimized;
-			Hide();
-		}
 
-		private void toolStripMenuItem1_Click(object sender, EventArgs e)
-		{
-			ShowForm();
-            this.Activate();
-		}
-		private void toolStripMenuItem3_Click(object sender, EventArgs e)
-		{
-			HideForm();
-		}
-		private void toolStripMenuItem2_Click(object sender, EventArgs e)
-		{
-			requestClose = true;
-			Close();
-		}
-		private void toolStripMenuItem5_Click(object sender, EventArgs e)
-		{
-			AboutBox about = new AboutBox();
-			about.Show();
-		}
-		private void toolStripMenuItem4_Click(object sender, EventArgs e)
-		{
-			Sync();
-		}
+        private void Cancel_Click(object sender, EventArgs e)
+        {
+            // hide the form and reset its content
+            Hide();
+            Settings.Default.Reload();
+        }
 
-		private void SettingsForm_Load(object sender, EventArgs e)
-		{
-			if (string.IsNullOrEmpty(UserName.Text) ||
-				string.IsNullOrEmpty(Password.Text) ||
-                string.IsNullOrEmpty(cmbSyncProfile.Text) /*||
-                string.IsNullOrEmpty(contactFoldersComboBox.Text)*/ )
-			{
-				// this is the first load, show form
-				ShowForm();
-				UserName.Focus();
-                ShowBalloonToolTip(Application.ProductName,
-                        "Application started and visible in your PC's system tray, click on this balloon or the icon below to open the settings form and enter your Google credentials there.",
-                        ToolTipIcon.Info,
-                        5000);
-			}
-			else
-				HideForm();
-		}
+        private void Save_Click(object sender, EventArgs e)
+        {
+            // hide the form, save the settings and start a new sync
+            Hide();
+            Settings.Default.Save();
+            Sync(false, true);
+        }
 
-		private void runAtStartupCheckBox_CheckedChanged(object sender, EventArgs e)
-		{
-            string regKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-            try
+        private void SyncMenuItem_Click(object sender, EventArgs e)
+        {
+            // start a new sync
+            Sync(false, true);
+        }
+
+        private void OptionsMenuItem_Click(object sender, EventArgs e)
+        {
+            // show the form and activate it
+            Show();
+            Activate();
+        }
+
+        private void ExitMenuItem_Click(object sender, EventArgs e)
+        {
+            // exit the application
+            Application.Exit();
+        }
+
+        private void WorkTimer_Tick(object sender, EventArgs e)
+        {
+            // animate the notification icon
+            Notifications.Icon = WorkIcons[(int)WorkTimer.Tag];
+            WorkTimer.Tag = ((int)WorkTimer.Tag + 1) % WorkIcons.Length;
+        }
+
+        private void Notifications_MouseClick(object sender, MouseEventArgs e)
+        {
+            // start the timer to differentiate between single and double click
+            if (e.Button == MouseButtons.Left && !DoubleClickTimer.Enabled)
             {
-                RegistryKey regKeyAppRoot = Registry.CurrentUser.CreateSubKey(regKey);
+                DoubleClickTimer.Interval = SystemInformation.DoubleClickTime;
+                DoubleClickTimer.Enabled = true;
+            }
+        }
 
-                if (runAtStartupCheckBox.Checked)
+        private void Notifications_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // stop the timer and call the options action
+            if (e.Button == MouseButtons.Left && DoubleClickTimer.Enabled)
+            {
+                DoubleClickTimer.Enabled = false;
+                OptionsMenuItem_Click(sender, e);
+            }
+        }
+
+        private void DoubleClickTimer_Tick(object sender, EventArgs e)
+        {
+            // stop the timer and show the balloon, if this isn't a lingering tick
+            if (DoubleClickTimer.Enabled)
+            {
+                DoubleClickTimer.Enabled = false;
+                if (!string.IsNullOrEmpty(Notifications.BalloonTipText))
+                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT);
+            }
+        }
+    }
+
+    namespace Properties
+    {
+        internal sealed partial class Settings
+        {
+            private bool isDirty = false;
+
+            protected override void OnSettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
+            {
+                // set the dirty state if the change hasn't been cancelled
+                base.OnSettingChanging(sender, e);
+                if (!e.Cancel)
+                    this.IsDirty = true;
+            }
+
+            protected override void OnSettingsSaving(object sender, CancelEventArgs e)
+            {
+                // reset the dirty flag if the save operation hasn't been cancelled
+                base.OnSettingsSaving(sender, e);
+                if (!e.Cancel)
+                    this.IsDirty = false;
+            }
+
+            public override object this[string propertyName]
+            {
+                get
                 {
-                    // add to registry
-                    regKeyAppRoot.SetValue("GoogleContactSync", Application.ExecutablePath);
+                    // return the current value
+                    return base[propertyName];
                 }
-                else
+                set
                 {
-                    // remove from registry
-                    regKeyAppRoot.DeleteValue("GoogleContactSync");
+                    // compare the values and set the new one if it's different
+                    if (!object.Equals(value, base[propertyName]))
+                        base[propertyName] = value;
                 }
             }
-            catch (Exception ex)
+
+            public new void Reset()
             {
-                ErrorHandler.Handle(new Exception("Error saving 'Run program at startup' settings into Registry key '" + regKey + "'",ex));
+                this.IsDirty = false;
+                base.Reset();
             }
-		}
 
-		private void UserName_TextChanged(object sender, EventArgs e)
-		{
-			ValidateSyncButton();
-		}
-		private void Password_TextChanged(object sender, EventArgs e)
-		{
-			ValidateSyncButton();
-		}
-
-		private void ValidateSyncButton()
-		{
-			syncButton.Enabled = ValidCredentials;
-		}
-
-		private void deleteDuplicatesButton_Click(object sender, EventArgs e)
-		{
-			//DeleteDuplicatesForm f = new DeleteDuplicatesForm(_sync
-		}		       
-
-		private void Donate_Click(object sender, EventArgs e)
-		{
-			System.Diagnostics.Process.Start("https://sourceforge.net/project/project_donations.php?group_id=369321");
-		}
-
-		private void Donate_MouseEnter(object sender, EventArgs e)
-		{
-			Donate.BackColor = System.Drawing.Color.LightGray;
-		}
-
-		private void Donate_MouseLeave(object sender, EventArgs e)
-		{
-			Donate.BackColor = System.Drawing.Color.Transparent;
-		}
-
-		private void hideButton_Click(object sender, EventArgs e)
-		{
-			this.Close();
-		}
-
-		private void proxySettingsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-            if (_proxy != null) _proxy.ShowDialog();
-        }
-
-		private void SettingsForm_HelpButtonClicked(object sender, CancelEventArgs e)
-		{
-			ShowHelp();
-		}
-
-		private void SettingsForm_HelpRequested(object sender, HelpEventArgs hlpevent)
-		{
-			ShowHelp();
-		}
-
-		private void ShowHelp()
-		{
-			// go to the page showing the help and howto instructions
-			Process.Start("http://googlesyncmod.sourceforge.net/");
-		}
-
-        private void btSyncContacts_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!btSyncContacts.Checked && !btSyncNotes.Checked)
+            public new void Reload()
             {
-                MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on notes for syncing now).", "No sync switched on");
-                btSyncNotes.Checked = true;
+                this.IsDirty = false;
+                base.Reload();
             }
-            contactFoldersComboBox.Visible = btSyncContacts.Checked;
-        }
 
-        private void btSyncNotes_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!btSyncContacts.Checked && !btSyncNotes.Checked)
+            public new void Upgrade()
             {
-                MessageBox.Show("Neither notes nor contacts are switched on for syncing. Please choose at least one option (automatically switched on contacts for syncing now).", "No sync switched on");
-                btSyncContacts.Checked = true;
+                this.IsDirty = false;
+                base.Upgrade();
             }
-            noteFoldersComboBox.Visible = btSyncNotes.Checked;
-        }
-    	
-        private void cmbSyncProfile_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ComboBox comboBox = (ComboBox)sender;
 
-            if ((0 == comboBox.SelectedIndex) || (comboBox.SelectedIndex == (comboBox.Items.Count - 1))) {
-                ConfigurationManagerForm _configs = new ConfigurationManagerForm();
-
-                if (0 == comboBox.SelectedIndex && _configs != null)
+            public bool IsDirty
+            {
+                get { return this.isDirty; }
+                private set
                 {
-                    syncProfile = _configs.AddProfile();
-                    ClearSettings();
+                    // update the flag if it has changed and notify any listeners
+                    if (value == this.isDirty)
+                        return;
+                    this.isDirty = value;
+                    this.OnPropertyChanged(this, new PropertyChangedEventArgs("IsDirty"));
                 }
-                
-                if (comboBox.SelectedIndex == (comboBox.Items.Count - 1) && _configs != null)
-                    _configs.ShowDialog();
-
-                fillSyncProfileItems();
-
-                comboBox.Text = syncProfile;
-                SaveSettings();
-            }
-            if (comboBox.SelectedIndex < 0)
-                MessageBox.Show("Please select Sync Profile.", "No sync switched on");
-            else
-            {
-                //ClearSettings();
-                LoadSettings(comboBox.Text);
-                syncProfile = comboBox.Text;
-            }
-
-            ValidateSyncButton();
-        }
-
-        private void contacFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string message = "Select the Outlook Contacts folder you want to sync";
-            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
-            {
-                syncContactsFolder = (sender as ComboBox).SelectedValue.ToString();
-                toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
-            }
-            else
-            {
-                syncContactsFolder = "";
-                toolTip.SetToolTip((sender as ComboBox), message);
-            }
-            ValidateSyncButton();
-
-            
-        }
-
-        private void noteFoldersComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string message = "Select the Outlook Notes folder you want to sync";
-            if ((sender as ComboBox).SelectedIndex >= 0 && (sender as ComboBox).SelectedIndex < (sender as ComboBox).Items.Count && (sender as ComboBox).SelectedItem is OutlookFolder)
-            {
-                syncNotesFolder = (sender as ComboBox).SelectedValue.ToString();
-                toolTip.SetToolTip((sender as ComboBox), message + ":\r\n" + ((OutlookFolder)(sender as ComboBox).SelectedItem).DisplayName);
-            }
-            else
-            {
-                syncNotesFolder = "";
-                toolTip.SetToolTip((sender as ComboBox), message);
-            }
-
-            ValidateSyncButton();
-
-            
-        }
-
-        private void btSyncDelete_CheckedChanged(object sender, EventArgs e)
-        {
-            btPromptDelete.Visible = btSyncDelete.Checked;
-            btPromptDelete.Checked = btSyncDelete.Checked;
-        }
-
-        private void pictureBoxExit_Click(object sender, EventArgs e)
-        {
-            if (DialogResult.Yes == MessageBox.Show("Do you really want to exit " + Application.ProductName + "? This will also stop the service performing automatic synchronizaton in the background. If you only want to hide the settings form, use the 'Hide' Button instead.", "Exit " + Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question))
-            {
-                requestClose = true;
-                Close();
             }
         }
-
-        private void SystemEvents_PowerModeSwitch(Object sender, PowerModeChangedEventArgs e)
-        {
-            if (e.Mode == PowerModes.Suspend)
-            {
-                TimerSwitch(false);
-            }
-            else if (e.Mode == PowerModes.Resume)
-            {
-                TimerSwitch(true);
-            }
-        }
-
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
-        {
-            if (e.Reason == SessionSwitchReason.SessionLock)
-            {
-                boolShowBalloonTip = false;
-            }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
-            {
-                boolShowBalloonTip = true;
-                TimerSwitch(true);
-            }
-        }
-
-	}
+    }
 }

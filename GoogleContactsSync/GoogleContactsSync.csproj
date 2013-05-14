@@ -1,96 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E43CE572-6694-461D-A4DC-2DB768A7665A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GoContactSyncMod</RootNamespace>
-    <AssemblyName>GOContactSync</AssemblyName>
+    <AssemblyName>GoogleContactsSync</AssemblyName>
     <ApplicationIcon>contacts-sync.ico</ApplicationIcon>
-    <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
     <SignManifests>false</SignManifests>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;debug</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;debug</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;debug</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.GData.Client, Version=1.7.0.12891, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
@@ -118,28 +62,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AboutBox.Designer.cs">
-      <DependentUpon>AboutBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AddEditProfile.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AddEditProfile.designer.cs">
-      <DependentUpon>AddEditProfile.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ConfigurationManager.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigurationManager.designer.cs">
-      <DependentUpon>ConfigurationManager.cs</DependentUpon>
-    </Compile>
     <Compile Include="ConflictResolverForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -147,26 +74,12 @@
       <DependentUpon>ConflictResolverForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ConflictResolver.cs" />
-    <Compile Include="ContactPreview.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ContactPreview.Designer.cs">
-      <DependentUpon>ContactPreview.cs</DependentUpon>
-    </Compile>
     <Compile Include="ContactPropertiesUtils.cs" />
     <Compile Include="ContactsMatcher.cs" />
     <Compile Include="ContactSync.cs" />
-    <Compile Include="DeleteDuplicatesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DeleteDuplicatesForm.Designer.cs">
-      <DependentUpon>DeleteDuplicatesForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="DuplicateDataException.cs" />
-    <Compile Include="Encryption.cs" />
-    <Compile Include="ErrorHandler.cs" />
     <Compile Include="IConflictResolver.cs" />
-    <Compile Include="ILogger.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="NotePropertiesUtils.cs" />
     <Compile Include="NotesMatcher.cs" />
     <Compile Include="OutlookContactInfo.cs" />
@@ -175,11 +88,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ProxySettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ProxySettings.designer.cs">
-      <DependentUpon>ProxySettings.cs</DependentUpon>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
@@ -189,36 +101,13 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VersionInformation.cs" />
-    <Compile Include="WinAPIMethods.cs" />
-    <EmbeddedResource Include="AboutBox.resx">
-      <DependentUpon>AboutBox.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AddEditProfile.resx">
-      <DependentUpon>AddEditProfile.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ConfigurationManager.resx">
-      <DependentUpon>ConfigurationManager.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ConflictResolverForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ConflictResolverForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ContactPreview.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ContactPreview.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DeleteDuplicatesForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>DeleteDuplicatesForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ProxySettings.resx">
-      <DependentUpon>ProxySettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SettingsForm.resx">
       <SubType>Designer</SubType>
@@ -231,37 +120,26 @@
     <None Include="COPYING.rtf" />
     <Compile Include="Syncronizer.cs" />
     <Compile Include="Utilities.cs" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="contacts-sync.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\system-log-out.png" />
+    <Content Include="contacts-sync.ico" />
+    <None Include="Resources\Idle.ico" />
+    <None Include="Resources\Work_12.ico" />
+    <None Include="Resources\Work_11.ico" />
+    <None Include="Resources\Work_10.ico" />
+    <None Include="Resources\Work_09.ico" />
+    <None Include="Resources\Work_08.ico" />
+    <None Include="Resources\Work_07.ico" />
+    <None Include="Resources\Work_06.ico" />
+    <None Include="Resources\Work_05.ico" />
+    <None Include="Resources\Work_04.ico" />
+    <None Include="Resources\Work_03.ico" />
+    <None Include="Resources\Work_02.ico" />
+    <None Include="Resources\Work_01.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
