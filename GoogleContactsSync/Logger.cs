@@ -20,7 +20,7 @@ namespace GoContactSyncMod
         {
             get
             {
-                var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Google Contacts Sync");
+                var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Google\Google Contacts Sync");
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
                 return folder;
