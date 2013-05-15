@@ -17,5 +17,8 @@
     <Setting Name="SyncMode" Type="GoContactSyncMod.SyncOption" Scope="User">
       <Value Profile="(Default)">MergeOutlookWins</Value>
     </Setting>
+    <Setting Name="IsFirstSync" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

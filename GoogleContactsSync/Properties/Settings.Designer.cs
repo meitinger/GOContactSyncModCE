@@ -80,5 +80,17 @@ namespace GoContactSyncMod.Properties {
                 this["SyncMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsFirstSync {
+            get {
+                return ((bool)(this["IsFirstSync"]));
+            }
+            set {
+                this["IsFirstSync"] = value;
+            }
+        }
     }
 }

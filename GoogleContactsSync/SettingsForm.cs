@@ -8,14 +8,15 @@ using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
 using GoContactSyncMod.Properties;
+using System.Threading;
 
 namespace GoContactSyncMod
 {
     internal partial class SettingsForm : Form
     {
-        private const int BALLOON_TIMEOUT = 5000;
         private static readonly IntPtr HWND_BROADCAST = new IntPtr(0xffff);
         private static readonly int WM_GCSM_SHOWME = RegisterWindowMessage("WM_GCSM_SHOWME");
+        private static readonly TimeSpan BalloonTimeout = TimeSpan.FromSeconds(5);
         private static readonly Icon[] WorkIcons = new Icon[] { 
             Resources.Work_01, 
             Resources.Work_02, 
@@ -47,13 +48,68 @@ namespace GoContactSyncMod
 
         private class SyncContext
         {
-            public WorkerTasks Tasks;
-            public string UserName;
-            public byte[] Password;
-            public SyncOption Mode;
-            public bool Interactive;
-            public ToolTipIcon StatusIcon;
-            public string StatusText;
+            private DateTime lastImportantReport;
+            private string statusText;
+            private ToolTipIcon statusIcon;
+
+            public SyncContext(Settings settings, WorkerTasks task, bool interactive)
+            {
+                // check the arguments and store the values
+                if (settings == null)
+                    throw new ArgumentNullException("settings");
+                if (settings.IsFirstSync)
+                    task |= WorkerTasks.ResetMatches;
+                Tasks = task;
+                UserName = settings.UserName;
+                Password = settings.Password;
+                Mode = settings.SyncMode;
+                Interactive = interactive;
+            }
+
+            public WorkerTasks Tasks { get; private set; }
+            public string UserName { get; private set; }
+            public byte[] Password { get; private set; }
+            public SyncOption Mode { get; private set; }
+            public bool Interactive { get; private set; }
+
+            public void GetLastReport(out string text, out ToolTipIcon icon)
+            {
+                // make sure that there has been a report and return it
+                if (statusText == null)
+                    throw new InvalidOperationException();
+                lock (this)
+                {
+                    text = statusText;
+                    icon = statusIcon;
+                }
+            }
+
+            public void Report(BackgroundWorker worker, string text, ToolTipIcon icon, bool isImportant = false)
+            {
+                // check the input values
+                if (worker == null)
+                    throw new ArgumentNullException("worker");
+                if (text == null)
+                    throw new ArgumentNullException("text");
+
+                // wait for important reports to go away if we operate interactively
+                if (Interactive)
+                {
+                    var timespanSinceLastImportantReport = DateTime.Now - lastImportantReport;
+                    if (timespanSinceLastImportantReport < BalloonTimeout)
+                        Thread.Sleep(BalloonTimeout - timespanSinceLastImportantReport);
+                    if (isImportant)
+                        lastImportantReport = DateTime.Now;
+                }
+
+                // make these changes within a lock and report the progress
+                lock (this)
+                {
+                    statusText = text;
+                    statusIcon = icon;
+                }
+                worker.ReportProgress(0, this);
+            }
         }
 
         public static void ShowRemote()
@@ -75,8 +131,6 @@ namespace GoContactSyncMod
             catch (CryptographicException) { return string.Empty; }
         }
 
-        private readonly string StatusFormat;
-
         public SettingsForm()
         {
             // create all components, listeners and bindings
@@ -87,18 +141,15 @@ namespace GoContactSyncMod
             // set the proper title texts
             Text = string.Format(Text, Application.ProductVersion);
             Notifications.BalloonTipTitle = Text;
-            StatusFormat = Notifications.Text;
 
             // do the stuff that is usually done by event handlers
-            UpdateNotificationStatus(Text, null, ToolTipIcon.None, false);
+            UpdateNotificationStatus(string.Empty, ToolTipIcon.None, false);
             UpdateWorkerStatus();
             UpdateSaveStatus();
 
             // try to upgrade the settings if there's no user name
             if (string.IsNullOrEmpty(Settings.Default.UserName))
-            {
                 Settings.Default.Upgrade();
-            }
         }
 
         private void CreateBindings()
@@ -155,14 +206,13 @@ namespace GoContactSyncMod
             base.WndProc(ref m);
         }
 
-        private void UpdateNotificationStatus(string text, string balloonText, ToolTipIcon balloonIcon, bool showBalloon)
+        private void UpdateNotificationStatus(string balloonText, ToolTipIcon balloonIcon, bool showBalloon)
         {
-            // if the text is too long make it shorter
+            // generate the hint text and make it shorter if necessary
+            var text = string.IsNullOrEmpty(balloonText) ? Text : (Text + Environment.NewLine + balloonText);
             while (text.Length >= 64)
             {
                 var newLine = text.LastIndexOf(Environment.NewLine);
-                if (newLine == -1)
-                    newLine = text.LastIndexOf('\n');
                 if (newLine == -1)
                 {
                     text = text.Substring(0, 60) + "...";
@@ -178,7 +228,7 @@ namespace GoContactSyncMod
 
             // show the balloon if requested
             if (showBalloon)
-                Notifications.ShowBalloonTip(BALLOON_TIMEOUT);
+                Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds);
         }
 
         private void Sync(bool onlyResetMatches, bool interactive)
@@ -187,7 +237,7 @@ namespace GoContactSyncMod
             if (Worker.IsBusy)
             {
                 if (interactive)
-                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_SyncPending, ToolTipIcon.Info);
+                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds, Text, Resources.SettingsForm_SyncPending, ToolTipIcon.Info);
                 return;
             }
 
@@ -202,7 +252,7 @@ namespace GoContactSyncMod
                         Save.Focus();
                     else
                         Cancel.Focus();
-                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_UnsavedSettings, ToolTipIcon.Info);
+                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds, Text, Resources.SettingsForm_UnsavedSettings, ToolTipIcon.Info);
                 }
                 return;
             }
@@ -216,21 +266,13 @@ namespace GoContactSyncMod
                     Show();
                     Activate();
                     UserName.Focus();
-                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT, Text, Resources.SettingsForm_SettingsIncomplete, ToolTipIcon.Info);
+                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds, Text, Resources.SettingsForm_SettingsIncomplete, ToolTipIcon.Info);
                 }
                 return;
             }
 
             // start the worker and update the UI
-            Worker.RunWorkerAsync(new SyncContext()
-            {
-                // always reset the matches if this is the first sync
-                Tasks = onlyResetMatches ? WorkerTasks.ResetMatches : Settings.Default.LastSync == DateTime.MinValue ? (WorkerTasks.ResetMatches | WorkerTasks.Synchronize) : WorkerTasks.Synchronize,
-                UserName = Settings.Default.UserName,
-                Password = Settings.Default.Password,
-                Mode = Settings.Default.SyncMode,
-                Interactive = interactive,
-            });
+            Worker.RunWorkerAsync(new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive));
             UpdateWorkerStatus();
         }
 
@@ -283,9 +325,9 @@ namespace GoContactSyncMod
             switch (e.PropertyName)
             {
                 case "UserName":
-                    // if the user name was changed (and the settings are dirty) then reset the last sync time
+                    // if the user name was changed (and the settings are dirty, ie. not reloaded etc) then reset the last sync time
                     if (settings.IsDirty)
-                        settings.LastSync = DateTime.MinValue;
+                        settings.IsFirstSync = true;
                     break;
                 case "IsDirty":
                     break;
@@ -322,24 +364,27 @@ namespace GoContactSyncMod
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            // set the status message
+            // retrieve the last report and update the notification status
             var context = (SyncContext)e.UserState;
-            UpdateNotificationStatus(string.Format(StatusFormat, context.StatusText, e.ProgressPercentage), context.StatusText, context.StatusIcon, context.Interactive);
+            string text;
+            ToolTipIcon icon;
+            context.GetLastReport(out text, out icon);
+            UpdateNotificationStatus(text, icon, context.Interactive);
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var worker = (BackgroundWorker)sender;
-            var context = (SyncContext)e.Argument;
-            int progress = 0;
-
             // log the start
             Logger.Log("Worker started.", EventType.Debug);
 
+            // create vars
+            var worker = (BackgroundWorker)sender;
+            var context = (SyncContext)e.Argument;
+            e.Result = context;
+            string duplicates = null;
+
             // initialize the syncer
-            context.StatusIcon = ToolTipIcon.Info;
-            context.StatusText = Resources.SettingsForm_InitializeSync;
-            worker.ReportProgress(progress, context);
+            context.Report(worker, Resources.SettingsForm_InitializeSync, ToolTipIcon.Info);
             var sync = new Syncronizer()
             {
                 SyncProfile = WindowsIdentity.GetCurrent().User.Value,
@@ -354,114 +399,93 @@ namespace GoContactSyncMod
             {
                 // log the error and report it through the worker
                 Logger.Log(ex.Message, type);
+                ToolTipIcon icon;
                 switch (type)
                 {
-                    case EventType.Information: context.StatusIcon = ToolTipIcon.Info; break;
-                    case EventType.Error: context.StatusIcon = ToolTipIcon.Error; break;
-                    case EventType.Warning: context.StatusIcon = ToolTipIcon.Warning; break;
-                    default: context.StatusIcon = ToolTipIcon.None; break;
+                    case EventType.Information: icon = ToolTipIcon.Info; break;
+                    case EventType.Error: icon = ToolTipIcon.Error; break;
+                    case EventType.Warning: icon = ToolTipIcon.Warning; break;
+                    default: icon = ToolTipIcon.None; break;
                 }
-                context.StatusText = ex.Message;
-                worker.ReportProgress(progress, context);
+                context.Report(worker, ex.Message, icon, true);
             };
-            progress += 5;
+            sync.DuplicatesFound += (title, text) => duplicates = text;
 
             // log into Google
-            context.StatusIcon = ToolTipIcon.Info;
-            context.StatusText = Resources.SettingsForm_GoogleLogon;
-            worker.ReportProgress(progress, context);
+            context.Report(worker, Resources.SettingsForm_GoogleLogon, ToolTipIcon.Info);
             sync.LoginToGoogle(context.UserName, DecodePassword(context.Password));
-            progress += 10;
             try
             {
                 // access Outlook
-                context.StatusIcon = ToolTipIcon.Info;
-                context.StatusText = Resources.SettingsForm_OutlookLogon;
-                worker.ReportProgress(progress, context);
+                context.Report(worker, Resources.SettingsForm_OutlookLogon, ToolTipIcon.Info);
                 sync.LoginToOutlook();
-                progress += 10;
                 try
                 {
+                    // set the proper folder (this is necessary since some parts of ContactsMatcher don't check for null or empty)
+                    Syncronizer.SyncContactsFolder = Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID;
+
                     // reset matches
-                    context.StatusIcon = ToolTipIcon.Info;
-                    context.StatusText = Resources.SettingsForm_ResetMatches;
                     if ((context.Tasks & WorkerTasks.ResetMatches) != 0)
                     {
-                        worker.ReportProgress(progress, context);
+                        context.Report(worker, Resources.SettingsForm_ResetMatches, ToolTipIcon.Info);
                         sync.LoadContacts();
                         sync.ResetContactMatches();
                     }
-                    progress += 25;
 
                     // sync
-                    context.StatusIcon = ToolTipIcon.Info;
-                    context.StatusText = Resources.SettingsForm_SyncContacts;
                     if ((context.Tasks & WorkerTasks.Synchronize) != 0)
                     {
-                        worker.ReportProgress(progress, context);
+                        context.Report(worker, Resources.SettingsForm_SyncContacts, ToolTipIcon.Info);
                         sync.Sync();
                     }
-                    progress += 25;
                 }
                 finally
                 {
                     // log out from Outlook
-                    context.StatusIcon = ToolTipIcon.Info;
-                    context.StatusText = Resources.SettingsForm_OutlookLogoff;
-                    worker.ReportProgress(progress, context);
+                    context.Report(worker, Resources.SettingsForm_OutlookLogoff, ToolTipIcon.Info);
                     sync.LogoffOutlook();
-                    progress += 10;
                 }
             }
             finally
             {
                 // log out from Google
-                context.StatusIcon = ToolTipIcon.Info;
-                context.StatusText = Resources.SettingsForm_GoogleLogoff;
-                worker.ReportProgress(progress, context);
+                context.Report(worker, Resources.SettingsForm_GoogleLogoff, ToolTipIcon.Info);
                 sync.LogoffGoogle();
-                progress += 10;
             }
 
             // finalizing
-            context.StatusIcon = ToolTipIcon.Info;
-            context.StatusText = Resources.SettingsForm_FinalizeSync;
-            worker.ReportProgress(progress, context);
-            context.StatusIcon = sync.ErrorCount > 0 ? ToolTipIcon.Error : sync.SkippedCount > 0 ? ToolTipIcon.Warning : ToolTipIcon.Info;
-            context.StatusText = string.Format(Resources.SettingsForm_SyncResult, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount);
-            e.Result = context;
-            progress += 5;
+            context.Report
+            (
+                worker,
+                string.Format(string.IsNullOrEmpty(duplicates) ? Resources.SettingsForm_SyncResult : Resources.SettingsForm_SyncResultWithDuplicates, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount, duplicates),
+                sync.ErrorCount > 0 ? ToolTipIcon.Error : (sync.SkippedCount > 0 || !string.IsNullOrEmpty(duplicates)) ? ToolTipIcon.Warning : ToolTipIcon.Info,
+                true
+            );
 
             // log the result
-            Logger.Log(string.Format("Worker ended ({0}%).", progress), EventType.Debug);
+            Logger.Log("Worker ended.", EventType.Debug);
         }
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            // reflect the new worker status and handle its result
+            var context = e.Error == null ? (SyncContext)e.Result : null;
+
+            // reflect the new worker status
             UpdateWorkerStatus();
-            if (e.Error == null)
-            {
-                // get the context
-                var context = (SyncContext)e.Result;
 
-                // update the last sync time if the user name hasn't changed
-                if (context.UserName == Settings.Default.UserName)
-                {
-                    var isDirty = Settings.Default.IsDirty;
-                    Settings.Default.LastSync = DateTime.Now;
-                    if (!isDirty)
-                        Settings.Default.Save();
-                }
+            // update the settings (set the last sync time and reset the first sync flag - before displaying any dialog boxes!)
+            var wasDirty = Settings.Default.IsDirty;
+            Settings.Default.LastSync = DateTime.Now;
+            if (context != null && context.UserName == Settings.Default.UserName)
+                Settings.Default.IsFirstSync = false;
+            if (!wasDirty)
+                Settings.Default.Save();
 
-                // set the result text
-                UpdateNotificationStatus(Text + Environment.NewLine + context.StatusText, context.StatusText, context.StatusIcon, context.Interactive);
-            }
-            else
+            // log and display the error to the user
+            if (context == null)
             {
-                // log and show the error
                 Logger.Log(e.Error.ToString(), EventType.Error);
-                UpdateNotificationStatus(Text + Environment.NewLine + e.Error.Message, e.Error.Message, ToolTipIcon.Error, true);
+                UpdateNotificationStatus(e.Error.Message, ToolTipIcon.Error, true);
                 MessageBox.Show(e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -534,7 +558,7 @@ namespace GoContactSyncMod
             {
                 DoubleClickTimer.Enabled = false;
                 if (!string.IsNullOrEmpty(Notifications.BalloonTipText))
-                    Notifications.ShowBalloonTip(BALLOON_TIMEOUT);
+                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds);
             }
         }
     }

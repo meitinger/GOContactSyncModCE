@@ -121,32 +121,29 @@
   <data name="Idle" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Idle.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="SettingsForm_FinalizeSync" xml:space="preserve">
-    <value>Finalizing</value>
-  </data>
   <data name="SettingsForm_GoogleLogoff" xml:space="preserve">
-    <value>Logging off Google</value>
+    <value>Logging off Google...</value>
   </data>
   <data name="SettingsForm_GoogleLogon" xml:space="preserve">
-    <value>Logging into Google</value>
+    <value>Logging into Google...</value>
   </data>
   <data name="SettingsForm_InitializeSync" xml:space="preserve">
-    <value>Initializing</value>
+    <value>Initializing...</value>
   </data>
   <data name="SettingsForm_OutlookLogoff" xml:space="preserve">
-    <value>Logging off Outlook</value>
+    <value>Logging off Outlook...</value>
   </data>
   <data name="SettingsForm_OutlookLogon" xml:space="preserve">
-    <value>Logging into Outlook</value>
+    <value>Logging into Outlook...</value>
   </data>
   <data name="SettingsForm_ResetMatches" xml:space="preserve">
-    <value>Resetting Matches</value>
+    <value>Resetting Matches...</value>
   </data>
   <data name="SettingsForm_SettingsIncomplete" xml:space="preserve">
     <value>Please fill out the settings form.</value>
   </data>
   <data name="SettingsForm_SyncContacts" xml:space="preserve">
-    <value>Syncing</value>
+    <value>Syncing...</value>
   </data>
   <data name="SettingsForm_SyncPending" xml:space="preserve">
     <value>Already in progress.</value>
@@ -157,6 +154,15 @@
  Deleted: {3}
  Skipped: {4}
  Errors: {5}</value>
+  </data>
+  <data name="SettingsForm_SyncResultWithDuplicates" xml:space="preserve">
+    <value>Last sync: {0:t}.
+ Synced: {2} out of {1}
+ Deleted: {3}
+ Skipped: {4}
+ Errors: {5}
+
+{6}</value>
   </data>
   <data name="SettingsForm_UnsavedSettings" xml:space="preserve">
     <value>Please save or cancel the changes to the settings first.</value>

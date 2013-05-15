@@ -68,16 +68,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Finalizing ähnelt.
-        /// </summary>
-        internal static string SettingsForm_FinalizeSync {
-            get {
-                return ResourceManager.GetString("SettingsForm_FinalizeSync", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Logging off Google ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Logging off Google... ähnelt.
         /// </summary>
         internal static string SettingsForm_GoogleLogoff {
             get {
@@ -86,7 +77,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Logging into Google ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Logging into Google... ähnelt.
         /// </summary>
         internal static string SettingsForm_GoogleLogon {
             get {
@@ -95,7 +86,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Initializing ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Initializing... ähnelt.
         /// </summary>
         internal static string SettingsForm_InitializeSync {
             get {
@@ -104,7 +95,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Logging off Outlook ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Logging off Outlook... ähnelt.
         /// </summary>
         internal static string SettingsForm_OutlookLogoff {
             get {
@@ -113,7 +104,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Logging into Outlook ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Logging into Outlook... ähnelt.
         /// </summary>
         internal static string SettingsForm_OutlookLogon {
             get {
@@ -122,7 +113,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Resetting Matches ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Resetting Matches... ähnelt.
         /// </summary>
         internal static string SettingsForm_ResetMatches {
             get {
@@ -140,7 +131,7 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Syncing ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Syncing... ähnelt.
         /// </summary>
         internal static string SettingsForm_SyncContacts {
             get {
@@ -167,6 +158,21 @@ namespace GoContactSyncMod.Properties {
         internal static string SettingsForm_SyncResult {
             get {
                 return ResourceManager.GetString("SettingsForm_SyncResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t}.
+        /// Synced: {2} out of {1}
+        /// Deleted: {3}
+        /// Skipped: {4}
+        /// Errors: {5}
+        ///
+        ///{6} ähnelt.
+        /// </summary>
+        internal static string SettingsForm_SyncResultWithDuplicates {
+            get {
+                return ResourceManager.GetString("SettingsForm_SyncResultWithDuplicates", resourceCulture);
             }
         }
         

@@ -104,7 +104,6 @@ namespace GoContactSyncMod
             // Notifications
             // 
             this.Notifications.ContextMenuStrip = this.NotificationMenu;
-            this.Notifications.Text = "Google Contacts Sync - {0} ({1}%)";
             this.Notifications.Visible = true;
             this.Notifications.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Notifications_MouseClick);
             this.Notifications.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Notifications_MouseDoubleClick);
@@ -456,7 +455,7 @@ namespace GoContactSyncMod
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SettingsForm";
-            this.Text = "Google Contacts Sync - {0}";
+            this.Text = "Google Contacts Sync {0}";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForm_FormClosing);
             this.Shown += new System.EventHandler(this.SettingsForm_Shown);
             this.NotificationMenu.ResumeLayout(false);
