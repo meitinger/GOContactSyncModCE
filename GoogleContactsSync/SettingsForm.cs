@@ -48,9 +48,10 @@ namespace GoContactSyncMod
 
         private class SyncContext
         {
-            private DateTime lastImportantReport;
-            private string statusText;
-            private ToolTipIcon statusIcon;
+            private readonly ManualResetEvent confirmReport = new ManualResetEvent(false);
+            private DateTime lastImportantReport = DateTime.MinValue;
+            private string statusText = null;
+            private ToolTipIcon statusIcon = ToolTipIcon.None;
 
             public SyncContext(Settings settings, WorkerTasks task, bool interactive)
             {
@@ -71,6 +72,16 @@ namespace GoContactSyncMod
             public byte[] Password { get; private set; }
             public SyncOption Mode { get; private set; }
             public bool Interactive { get; private set; }
+
+            public void ConfirmReport(string text, ToolTipIcon icon)
+            {
+                // set the event to cancel the current wait if it's the right report
+                lock (this)
+                {
+                    if (text == statusText && icon == statusIcon)
+                        confirmReport.Set();
+                }
+            }
 
             public void GetLastReport(out string text, out ToolTipIcon icon)
             {
@@ -97,7 +108,7 @@ namespace GoContactSyncMod
                 {
                     var timespanSinceLastImportantReport = DateTime.Now - lastImportantReport;
                     if (timespanSinceLastImportantReport < BalloonTimeout)
-                        Thread.Sleep(BalloonTimeout - timespanSinceLastImportantReport);
+                        confirmReport.WaitOne(BalloonTimeout - timespanSinceLastImportantReport);
                     if (isImportant)
                         lastImportantReport = DateTime.Now;
                 }
@@ -107,6 +118,7 @@ namespace GoContactSyncMod
                 {
                     statusText = text;
                     statusIcon = icon;
+                    confirmReport.Reset();
                 }
                 worker.ReportProgress(0, this);
             }
@@ -174,9 +186,9 @@ namespace GoContactSyncMod
             CreateOptionBinding(OutlookToGoogle, SyncOption.OutlookToGoogleOnly);
 
             // bind the interval control
-            var syncIntervalBinding = new Binding("Value", Settings.Default, "SyncInterval", true, DataSourceUpdateMode.OnPropertyChanged);
-            syncIntervalBinding.Parse += (sender, e) => e.Value = TimeSpan.FromMinutes((int)((decimal)e.Value));
-            syncIntervalBinding.Format += (sender, e) => e.Value = (decimal)(int)((TimeSpan)e.Value).TotalMinutes;
+            var syncIntervalBinding = new Binding("Text", Settings.Default, "SyncInterval", true, DataSourceUpdateMode.OnPropertyChanged);
+            syncIntervalBinding.Parse += (sender, e) => e.Value = TimeSpan.FromMinutes(int.Parse((string)e.Value));
+            syncIntervalBinding.Format += (sender, e) => e.Value = ((int)((TimeSpan)e.Value).TotalMinutes).ToString();
             SyncInterval.DataBindings.Add(syncIntervalBinding);
         }
 
@@ -272,7 +284,13 @@ namespace GoContactSyncMod
             }
 
             // start the worker and update the UI
-            Worker.RunWorkerAsync(new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive));
+            var context = new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive);
+            Notifications.BalloonTipClicked += (sender, e) =>
+            {
+                var notifyIcon = (NotifyIcon)sender;
+                context.ConfirmReport(notifyIcon.BalloonTipText, notifyIcon.BalloonTipIcon);
+            };
+            Worker.RunWorkerAsync(context);
             UpdateWorkerStatus();
         }
 
