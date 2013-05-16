@@ -162,7 +162,7 @@
  Skipped: {4}
  Errors: {5}
 
-{6}</value>
+Duplicates in Outlook have been found and noted in the log file. They have to be deleted before they can be synchronized with Google.</value>
   </data>
   <data name="SettingsForm_UnsavedSettings" xml:space="preserve">
     <value>Please save or cancel the changes to the settings first.</value>

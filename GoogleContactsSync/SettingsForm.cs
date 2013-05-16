@@ -399,7 +399,7 @@ namespace GoContactSyncMod
             var worker = (BackgroundWorker)sender;
             var context = (SyncContext)e.Argument;
             e.Result = context;
-            string duplicates = null;
+            bool duplicates = false;
 
             // initialize the syncer
             context.Report(worker, Resources.SettingsForm_InitializeSync, ToolTipIcon.Info);
@@ -427,7 +427,12 @@ namespace GoContactSyncMod
                 }
                 context.Report(worker, ex.Message, icon, true);
             };
-            sync.DuplicatesFound += (title, text) => duplicates = text;
+            sync.DuplicatesFound += (title, text) =>
+            {
+                // log all duplicates and set the flag
+                Logger.Log(text, EventType.Warning);
+                duplicates = true;
+            };
 
             // log into Google
             context.Report(worker, Resources.SettingsForm_GoogleLogon, ToolTipIcon.Info);
@@ -475,8 +480,8 @@ namespace GoContactSyncMod
             context.Report
             (
                 worker,
-                string.Format(string.IsNullOrEmpty(duplicates) ? Resources.SettingsForm_SyncResult : Resources.SettingsForm_SyncResultWithDuplicates, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount, duplicates),
-                sync.ErrorCount > 0 ? ToolTipIcon.Error : (sync.SkippedCount > 0 || !string.IsNullOrEmpty(duplicates)) ? ToolTipIcon.Warning : ToolTipIcon.Info,
+                string.Format(duplicates ? Resources.SettingsForm_SyncResultWithDuplicates : Resources.SettingsForm_SyncResult, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount),
+                sync.ErrorCount > 0 ? ToolTipIcon.Error : (sync.SkippedCount > 0 || duplicates) ? ToolTipIcon.Warning : ToolTipIcon.Info,
                 true
             );
 

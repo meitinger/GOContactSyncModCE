@@ -168,7 +168,7 @@ namespace GoContactSyncMod.Properties {
         /// Skipped: {4}
         /// Errors: {5}
         ///
-        ///{6} ähnelt.
+        ///Duplicates in Outlook have been found and noted in the log file. They have to be deleted before they can be synchronized with Google. ähnelt.
         /// </summary>
         internal static string SettingsForm_SyncResultWithDuplicates {
             get {
