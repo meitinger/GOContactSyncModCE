@@ -195,17 +195,14 @@ namespace GoContactSyncMod
         private void UpdateNotificationStatus(string balloonText, ToolTipIcon balloonIcon, bool showBalloon)
         {
             // generate the hint text and make it shorter if necessary
-            var text = string.IsNullOrEmpty(balloonText) ? Text : (Text + Environment.NewLine + balloonText);
-            while (text.Length >= 64)
+            var text = Text;
+            if (!string.IsNullOrEmpty(balloonText))
             {
-                var newLine = text.LastIndexOf(Environment.NewLine);
-                if (newLine == -1)
-                {
-                    text = text.Substring(0, 60) + "...";
-                    break;
-                }
-                text = text.Substring(0, newLine);
+                var newLine = balloonText.IndexOf(Environment.NewLine);
+                text += Environment.NewLine + (newLine > -1 ? balloonText.Substring(0, newLine) : balloonText);
             }
+            if (text.Length >= 64)
+                text = text.Substring(0, 60) + "...";
 
             // assign the values
             Notifications.Text = text;
@@ -431,7 +428,7 @@ namespace GoContactSyncMod
             }
 
             // finalizing
-            var successful = sync.ErrorCount > 0 || sync.SkippedCountNotMatches > 0;
+            var successful = sync.ErrorCount == 0 && sync.SkippedCountNotMatches == 0;
             context.Report
             (
                 worker,
@@ -462,7 +459,7 @@ namespace GoContactSyncMod
             if (context == null)
             {
                 Logger.Log(e.Error.ToString(), EventType.Error);
-                UpdateNotificationStatus(e.Error.Message, ToolTipIcon.Error, true);
+                UpdateNotificationStatus(string.Format(Resources.SettingsForm_SyncFailed, Settings.Default.LastSync, e.Error.Message), ToolTipIcon.Error, true);
                 MessageBox.Show(e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

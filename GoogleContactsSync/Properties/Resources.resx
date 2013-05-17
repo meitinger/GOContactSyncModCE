@@ -145,6 +145,13 @@
   <data name="SettingsForm_SyncContacts" xml:space="preserve">
     <value>Syncing...</value>
   </data>
+  <data name="SettingsForm_SyncFailed" xml:space="preserve">
+    <value>Last sync: {0:t} (failed)
+
+{1}
+
+For further information refer to the log file.</value>
+  </data>
   <data name="SettingsForm_SyncIncomplete" xml:space="preserve">
     <value>Last sync: {0:t} (incomplete)
 

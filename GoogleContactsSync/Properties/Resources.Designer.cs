@@ -140,6 +140,19 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t} (failed)
+        ///
+        ///{1}
+        ///
+        ///For further information refer to the log file. ähnelt.
+        /// </summary>
+        internal static string SettingsForm_SyncFailed {
+            get {
+                return ResourceManager.GetString("SettingsForm_SyncFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t} (incomplete)
         ///
         ///Succeeded:
