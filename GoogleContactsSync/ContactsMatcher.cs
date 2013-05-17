@@ -55,8 +55,11 @@ namespace GoContactSyncMod
                     if (olc == null)
                     {
                         Logger.Log("Empty Outlook contact found (maybe distribution list). Skipping", EventType.Warning);
-                        sync.SkippedCount++;
-                        sync.SkippedCountNotMatches++;
+                        if (olc as Outlook.DistListItem == null)
+                        {
+                            sync.SkippedCount++;
+                            sync.SkippedCountNotMatches++;
+                        }
                         continue;
                     }
 				}
@@ -475,8 +478,7 @@ namespace GoContactSyncMod
                     // no telephone and email
                     
                     //ToDo: For now I use the ResolveDelete function, because it is almost the same, maybe we introduce a separate function for this ans also include DeleteGoogleAlways checkbox
-                    var r = new ConflictResolver();
-                    DeleteResolution res = r.ResolveDelete(entry);
+                    var res = sync.PromptDelete ? new ConflictResolver().ResolveDelete(entry) : DeleteResolution.DeleteGoogle;
                     if (res == DeleteResolution.DeleteGoogle || res == DeleteResolution.DeleteGoogleAlways)
                     {
                         ContactPropertiesUtils.SetGoogleOutlookContactId(sync.SyncProfile, entry, "-1"); //just set a dummy Id to delete this entry later on
