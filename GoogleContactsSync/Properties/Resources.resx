@@ -145,27 +145,37 @@
   <data name="SettingsForm_SyncContacts" xml:space="preserve">
     <value>Syncing...</value>
   </data>
-  <data name="SettingsForm_SyncPending" xml:space="preserve">
-    <value>Already in progress.</value>
-  </data>
-  <data name="SettingsForm_SyncResult" xml:space="preserve">
-    <value>Last sync: {0:t}.
- Synced: {2} out of {1}
- Deleted: {3}
- Skipped: {4}
- Errors: {5}</value>
-  </data>
-  <data name="SettingsForm_SyncResultWithDuplicates" xml:space="preserve">
-    <value>Last sync: {0:t}.
- Synced: {2} out of {1}
- Deleted: {3}
- Skipped: {4}
- Errors: {5}
+  <data name="SettingsForm_SyncIncomplete" xml:space="preserve">
+    <value>Last sync: {0:t} (incomplete)
 
-Duplicates in Outlook have been found and noted in the log file. They have to be deleted before they can be synchronized with Google.</value>
+Succeeded:
+  Updated: {2}
+  Deleted: {3}
+
+Failed:
+  Finding matches: {4}
+  Applying changes: {5}
+
+For further information refer to the log file.</value>
+  </data>
+  <data name="SettingsForm_SyncSuccessful" xml:space="preserve">
+    <value>Last sync: {0:t}
+  Updated: {2}
+  Deleted: {3}</value>
+  </data>
+  <data name="SettingsForm_SyncSuccessfulWithDuplicates" xml:space="preserve">
+    <value>Last sync: {0:t}
+  Updated: {2}
+  Deleted: {3}
+
+Duplicates have been found that cannot be synced.
+For further information refer to the log file.</value>
   </data>
   <data name="SettingsForm_UnsavedSettings" xml:space="preserve">
     <value>Please save or cancel the changes to the settings first.</value>
+  </data>
+  <data name="SettingsForm_WorkerIsBusy" xml:space="preserve">
+    <value>Already in progress.</value>
   </data>
   <data name="Work_01" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Work_01.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

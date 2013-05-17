@@ -26,6 +26,7 @@ namespace GoContactSyncMod.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("02:00:00")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public global::System.TimeSpan SyncInterval {
             get {
                 return ((global::System.TimeSpan)(this["SyncInterval"]));
@@ -38,6 +39,7 @@ namespace GoContactSyncMod.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string UserName {
             get {
                 return ((string)(this["UserName"]));
@@ -49,6 +51,7 @@ namespace GoContactSyncMod.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public byte[] Password {
             get {
                 return ((byte[])(this["Password"]));
@@ -60,6 +63,7 @@ namespace GoContactSyncMod.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public global::System.DateTime LastSync {
             get {
                 return ((global::System.DateTime)(this["LastSync"]));
@@ -72,6 +76,7 @@ namespace GoContactSyncMod.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("MergeOutlookWins")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public global::GoContactSyncMod.SyncOption SyncMode {
             get {
                 return ((global::GoContactSyncMod.SyncOption)(this["SyncMode"]));
@@ -84,6 +89,7 @@ namespace GoContactSyncMod.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public bool IsFirstSync {
             get {
                 return ((bool)(this["IsFirstSync"]));

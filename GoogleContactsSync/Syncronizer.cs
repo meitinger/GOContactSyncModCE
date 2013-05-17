@@ -2476,7 +2476,7 @@ namespace GoContactSyncMod
 
             try
             {
-                contactsFolder = OutlookNameSpace.GetFolderFromID(syncContactsFolder);
+                contactsFolder = string.IsNullOrEmpty(syncContactsFolder) ? OutlookNameSpace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts) : OutlookNameSpace.GetFolderFromID(syncContactsFolder);
                 items = contactsFolder.Items;
                 outlookContact = items.Add(Outlook.OlItemType.olContactItem) as Outlook.ContactItem;
             }

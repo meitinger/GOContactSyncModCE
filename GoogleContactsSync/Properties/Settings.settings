@@ -2,22 +2,22 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GoContactSyncMod.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="SyncInterval" Type="System.TimeSpan" Scope="User">
+    <Setting Name="SyncInterval" Roaming="true" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">02:00:00</Value>
     </Setting>
-    <Setting Name="UserName" Type="System.String" Scope="User">
+    <Setting Name="UserName" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="Password" Type="System.Byte[]" Scope="User">
+    <Setting Name="Password" Roaming="true" Type="System.Byte[]" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LastSync" Type="System.DateTime" Scope="User">
+    <Setting Name="LastSync" Roaming="true" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="SyncMode" Type="GoContactSyncMod.SyncOption" Scope="User">
+    <Setting Name="SyncMode" Roaming="true" Type="GoContactSyncMod.SyncOption" Scope="User">
       <Value Profile="(Default)">MergeOutlookWins</Value>
     </Setting>
-    <Setting Name="IsFirstSync" Type="System.Boolean" Scope="User">
+    <Setting Name="IsFirstSync" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

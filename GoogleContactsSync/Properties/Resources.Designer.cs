@@ -140,39 +140,46 @@ namespace GoContactSyncMod.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Already in progress. ähnelt.
-        /// </summary>
-        internal static string SettingsForm_SyncPending {
-            get {
-                return ResourceManager.GetString("SettingsForm_SyncPending", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t}.
-        /// Synced: {2} out of {1}
-        /// Deleted: {3}
-        /// Skipped: {4}
-        /// Errors: {5} ähnelt.
-        /// </summary>
-        internal static string SettingsForm_SyncResult {
-            get {
-                return ResourceManager.GetString("SettingsForm_SyncResult", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t}.
-        /// Synced: {2} out of {1}
-        /// Deleted: {3}
-        /// Skipped: {4}
-        /// Errors: {5}
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t} (incomplete)
         ///
-        ///Duplicates in Outlook have been found and noted in the log file. They have to be deleted before they can be synchronized with Google. ähnelt.
+        ///Succeeded:
+        ///  Updated: {2}
+        ///  Deleted: {3}
+        ///
+        ///Failed:
+        ///  Finding matches: {4}
+        ///  Applying changes: {5}
+        ///
+        ///For further information refer to the log file. ähnelt.
         /// </summary>
-        internal static string SettingsForm_SyncResultWithDuplicates {
+        internal static string SettingsForm_SyncIncomplete {
             get {
-                return ResourceManager.GetString("SettingsForm_SyncResultWithDuplicates", resourceCulture);
+                return ResourceManager.GetString("SettingsForm_SyncIncomplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t}
+        ///  Updated: {2}
+        ///  Deleted: {3} ähnelt.
+        /// </summary>
+        internal static string SettingsForm_SyncSuccessful {
+            get {
+                return ResourceManager.GetString("SettingsForm_SyncSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last sync: {0:t}
+        ///  Updated: {2}
+        ///  Deleted: {3}
+        ///
+        ///Duplicates have been found that cannot be synced.
+        ///For further information refer to the log file. ähnelt.
+        /// </summary>
+        internal static string SettingsForm_SyncSuccessfulWithDuplicates {
+            get {
+                return ResourceManager.GetString("SettingsForm_SyncSuccessfulWithDuplicates", resourceCulture);
             }
         }
         
@@ -182,6 +189,15 @@ namespace GoContactSyncMod.Properties {
         internal static string SettingsForm_UnsavedSettings {
             get {
                 return ResourceManager.GetString("SettingsForm_UnsavedSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Already in progress. ähnelt.
+        /// </summary>
+        internal static string SettingsForm_WorkerIsBusy {
+            get {
+                return ResourceManager.GetString("SettingsForm_WorkerIsBusy", resourceCulture);
             }
         }
         

@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using GoContactSyncMod.Properties;
-using System.Threading;
 
 namespace GoContactSyncMod
 {
@@ -48,8 +48,7 @@ namespace GoContactSyncMod
 
         private class SyncContext
         {
-            private readonly ManualResetEvent confirmReport = new ManualResetEvent(false);
-            private DateTime lastImportantReport = DateTime.MinValue;
+            private readonly AutoResetEvent statusSeen = new AutoResetEvent(false);
             private string statusText = null;
             private ToolTipIcon statusIcon = ToolTipIcon.None;
 
@@ -73,29 +72,17 @@ namespace GoContactSyncMod
             public SyncOption Mode { get; private set; }
             public bool Interactive { get; private set; }
 
-            public void ConfirmReport(string text, ToolTipIcon icon)
-            {
-                // set the event to cancel the current wait if it's the right report
-                lock (this)
-                {
-                    if (text == statusText && icon == statusIcon)
-                        confirmReport.Set();
-                }
-            }
-
             public void GetLastReport(out string text, out ToolTipIcon icon)
             {
                 // make sure that there has been a report and return it
                 if (statusText == null)
                     throw new InvalidOperationException();
-                lock (this)
-                {
-                    text = statusText;
-                    icon = statusIcon;
-                }
+                text = statusText;
+                icon = statusIcon;
+                statusSeen.Set();
             }
 
-            public void Report(BackgroundWorker worker, string text, ToolTipIcon icon, bool isImportant = false)
+            public void Report(BackgroundWorker worker, string text, ToolTipIcon icon)
             {
                 // check the input values
                 if (worker == null)
@@ -103,24 +90,11 @@ namespace GoContactSyncMod
                 if (text == null)
                     throw new ArgumentNullException("text");
 
-                // wait for important reports to go away if we operate interactively
-                if (Interactive)
-                {
-                    var timespanSinceLastImportantReport = DateTime.Now - lastImportantReport;
-                    if (timespanSinceLastImportantReport < BalloonTimeout)
-                        confirmReport.WaitOne(BalloonTimeout - timespanSinceLastImportantReport);
-                    if (isImportant)
-                        lastImportantReport = DateTime.Now;
-                }
-
-                // make these changes within a lock and report the progress
-                lock (this)
-                {
-                    statusText = text;
-                    statusIcon = icon;
-                    confirmReport.Reset();
-                }
+                // report it and wait for it to be retrieved
+                statusText = text;
+                statusIcon = icon;
                 worker.ReportProgress(0, this);
+                statusSeen.WaitOne();
             }
         }
 
@@ -249,7 +223,7 @@ namespace GoContactSyncMod
             if (Worker.IsBusy)
             {
                 if (interactive)
-                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds, Text, Resources.SettingsForm_SyncPending, ToolTipIcon.Info);
+                    Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds, Text, Resources.SettingsForm_WorkerIsBusy, ToolTipIcon.Info);
                 return;
             }
 
@@ -284,13 +258,7 @@ namespace GoContactSyncMod
             }
 
             // start the worker and update the UI
-            var context = new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive);
-            Notifications.BalloonTipClicked += (sender, e) =>
-            {
-                var notifyIcon = (NotifyIcon)sender;
-                context.ConfirmReport(notifyIcon.BalloonTipText, notifyIcon.BalloonTipIcon);
-            };
-            Worker.RunWorkerAsync(context);
+            Worker.RunWorkerAsync(new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive));
             UpdateWorkerStatus();
         }
 
@@ -414,19 +382,8 @@ namespace GoContactSyncMod
                 SyncContacts = true,
             };
             sync.ErrorEncountered += (title, ex, type) =>
-            {
-                // log the error and report it through the worker
+                // simply log the error (it's counted by the Syncronizer)
                 Logger.Log(ex.Message, type);
-                ToolTipIcon icon;
-                switch (type)
-                {
-                    case EventType.Information: icon = ToolTipIcon.Info; break;
-                    case EventType.Error: icon = ToolTipIcon.Error; break;
-                    case EventType.Warning: icon = ToolTipIcon.Warning; break;
-                    default: icon = ToolTipIcon.None; break;
-                }
-                context.Report(worker, ex.Message, icon, true);
-            };
             sync.DuplicatesFound += (title, text) =>
             {
                 // log all duplicates and set the flag
@@ -444,9 +401,6 @@ namespace GoContactSyncMod
                 sync.LoginToOutlook();
                 try
                 {
-                    // set the proper folder (this is necessary since some parts of ContactsMatcher don't check for null or empty)
-                    Syncronizer.SyncContactsFolder = Syncronizer.OutlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts).EntryID;
-
                     // reset matches
                     if ((context.Tasks & WorkerTasks.ResetMatches) != 0)
                     {
@@ -477,12 +431,12 @@ namespace GoContactSyncMod
             }
 
             // finalizing
+            var successful = sync.ErrorCount > 0 || sync.SkippedCountNotMatches > 0;
             context.Report
             (
                 worker,
-                string.Format(duplicates ? Resources.SettingsForm_SyncResultWithDuplicates : Resources.SettingsForm_SyncResult, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCount, sync.ErrorCount),
-                sync.ErrorCount > 0 ? ToolTipIcon.Error : (sync.SkippedCount > 0 || duplicates) ? ToolTipIcon.Warning : ToolTipIcon.Info,
-                true
+                string.Format(!successful ? Resources.SettingsForm_SyncIncomplete : duplicates ? Resources.SettingsForm_SyncSuccessfulWithDuplicates : Resources.SettingsForm_SyncSuccessful, DateTime.Now, sync.TotalCount, sync.SyncedCount, sync.DeletedCount, sync.SkippedCountNotMatches, sync.ErrorCount),
+                successful ? ToolTipIcon.Info : ToolTipIcon.Warning
             );
 
             // log the result
@@ -522,10 +476,11 @@ namespace GoContactSyncMod
 
         private void Save_Click(object sender, EventArgs e)
         {
-            // hide the form, save the settings and start a new sync
+            // hide the form, save the settings and start the first sync
             Hide();
             Settings.Default.Save();
-            Sync(false, true);
+            if (Settings.Default.IsFirstSync)
+                Sync(false, true);
         }
 
         private void SyncMenuItem_Click(object sender, EventArgs e)
