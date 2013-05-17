@@ -54,12 +54,15 @@ namespace GoContactSyncMod
 					olc = sync.OutlookContacts[i] as Outlook.ContactItem;
                     if (olc == null)
                     {
-                        Logger.Log("Empty Outlook contact found (maybe distribution list). Skipping", EventType.Warning);
-                        if (olc as Outlook.DistListItem == null)
+                        var dli = sync.OutlookContacts[i] as Outlook.DistListItem;
+                        if (dli != null)
                         {
-                            sync.SkippedCount++;
-                            sync.SkippedCountNotMatches++;
+                            Marshal.ReleaseComObject(dli);
+                            continue;
                         }
+                        Logger.Log("Empty Outlook contact found. Skipping", EventType.Warning);
+                        sync.SkippedCount++;
+                        sync.SkippedCountNotMatches++;
                         continue;
                     }
 				}
