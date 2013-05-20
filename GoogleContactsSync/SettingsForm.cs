@@ -49,8 +49,9 @@ namespace GoContactSyncMod
         private class SyncContext
         {
             private readonly AutoResetEvent statusSeen = new AutoResetEvent(false);
-            private string statusText = null;
-            private ToolTipIcon statusIcon = ToolTipIcon.None;
+            private bool statusUnseen = false;
+            private string statusText;
+            private ToolTipIcon statusIcon;
 
             public SyncContext(Settings settings, WorkerTasks task, bool interactive)
             {
@@ -75,10 +76,14 @@ namespace GoContactSyncMod
             public void GetLastReport(out string text, out ToolTipIcon icon)
             {
                 // make sure that there has been a report and return it
-                if (statusText == null)
-                    throw new InvalidOperationException();
-                text = statusText;
-                icon = statusIcon;
+                lock (statusSeen)
+                {
+                    if (!statusUnseen)
+                        throw new InvalidOperationException();
+                    text = statusText;
+                    icon = statusIcon;
+                    statusUnseen = false;
+                }
                 statusSeen.Set();
             }
 
@@ -87,12 +92,16 @@ namespace GoContactSyncMod
                 // check the input values
                 if (worker == null)
                     throw new ArgumentNullException("worker");
-                if (text == null)
+                if (string.IsNullOrEmpty(text))
                     throw new ArgumentNullException("text");
 
                 // report it and wait for it to be retrieved
-                statusText = text;
-                statusIcon = icon;
+                lock (statusSeen)
+                {
+                    statusText = text;
+                    statusIcon = icon;
+                    statusUnseen = true;
+                }
                 worker.ReportProgress(0, this);
                 statusSeen.WaitOne();
             }
@@ -214,7 +223,7 @@ namespace GoContactSyncMod
                 Notifications.ShowBalloonTip((int)BalloonTimeout.TotalMilliseconds);
         }
 
-        private void Sync(bool onlyResetMatches, bool interactive)
+        private void Sync(WorkerTasks task, bool interactive = true)
         {
             // don't do nothin' if we're already syncing
             if (Worker.IsBusy)
@@ -255,7 +264,7 @@ namespace GoContactSyncMod
             }
 
             // start the worker and update the UI
-            Worker.RunWorkerAsync(new SyncContext(Settings.Default, onlyResetMatches ? WorkerTasks.ResetMatches : WorkerTasks.Synchronize, interactive));
+            Worker.RunWorkerAsync(new SyncContext(Settings.Default, task, interactive));
             UpdateWorkerStatus();
         }
 
@@ -324,13 +333,13 @@ namespace GoContactSyncMod
         {
             // resync if the necessary amount of time has elapsed
             if (DateTime.Now - Settings.Default.LastSync > Settings.Default.SyncInterval)
-                Sync(false, false);
+                Sync(WorkerTasks.Synchronize, false);
         }
 
         private void ResetMatches_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             // intiate reset matches
-            Sync(true, true);
+            Sync(WorkerTasks.ResetMatches);
         }
 
         private void GoogleContactsSignup_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -477,13 +486,13 @@ namespace GoContactSyncMod
             Hide();
             Settings.Default.Save();
             if (Settings.Default.IsFirstSync)
-                Sync(false, true);
+                Sync(WorkerTasks.Synchronize);
         }
 
         private void SyncMenuItem_Click(object sender, EventArgs e)
         {
             // start a new sync
-            Sync(false, true);
+            Sync(WorkerTasks.Synchronize);
         }
 
         private void OptionsMenuItem_Click(object sender, EventArgs e)
