@@ -502,6 +502,12 @@ namespace GoContactSyncMod
             Activate();
         }
 
+        private void ShowLogMenuItem_Click(object sender, EventArgs e)
+        {
+            // display the log file
+            Logger.Show();
+        }
+
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
             // exit the application

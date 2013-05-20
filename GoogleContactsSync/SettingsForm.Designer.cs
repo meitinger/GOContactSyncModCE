@@ -66,6 +66,7 @@ namespace GoContactSyncMod
             this.Worker = new System.ComponentModel.BackgroundWorker();
             this.WorkTimer = new System.Windows.Forms.Timer(this.components);
             this.DoubleClickTimer = new System.Windows.Forms.Timer(this.components);
+            this.ShowLogMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NotificationMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ContactsImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SyncInterval)).BeginInit();
@@ -114,39 +115,40 @@ namespace GoContactSyncMod
             this.SyncMenuItem,
             this.FirstMenuSeparator,
             this.OptionsMenuItem,
+            this.ShowLogMenuItem,
             this.SecondMenuSeparator,
             this.ExitMenuItem});
             this.NotificationMenu.Name = "systemTrayMenu";
-            this.NotificationMenu.Size = new System.Drawing.Size(112, 82);
+            this.NotificationMenu.Size = new System.Drawing.Size(153, 126);
             // 
             // SyncMenuItem
             // 
             this.SyncMenuItem.Name = "SyncMenuItem";
-            this.SyncMenuItem.Size = new System.Drawing.Size(111, 22);
+            this.SyncMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SyncMenuItem.Text = "Sync";
             this.SyncMenuItem.Click += new System.EventHandler(this.SyncMenuItem_Click);
             // 
             // FirstMenuSeparator
             // 
             this.FirstMenuSeparator.Name = "FirstMenuSeparator";
-            this.FirstMenuSeparator.Size = new System.Drawing.Size(108, 6);
+            this.FirstMenuSeparator.Size = new System.Drawing.Size(149, 6);
             // 
             // OptionsMenuItem
             // 
             this.OptionsMenuItem.Name = "OptionsMenuItem";
-            this.OptionsMenuItem.Size = new System.Drawing.Size(111, 22);
+            this.OptionsMenuItem.Size = new System.Drawing.Size(152, 22);
             this.OptionsMenuItem.Text = "Options";
             this.OptionsMenuItem.Click += new System.EventHandler(this.OptionsMenuItem_Click);
             // 
             // SecondMenuSeparator
             // 
             this.SecondMenuSeparator.Name = "SecondMenuSeparator";
-            this.SecondMenuSeparator.Size = new System.Drawing.Size(108, 6);
+            this.SecondMenuSeparator.Size = new System.Drawing.Size(149, 6);
             // 
             // ExitMenuItem
             // 
             this.ExitMenuItem.Name = "ExitMenuItem";
-            this.ExitMenuItem.Size = new System.Drawing.Size(111, 22);
+            this.ExitMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ExitMenuItem.Text = "Exit";
             this.ExitMenuItem.Click += new System.EventHandler(this.ExitMenuItem_Click);
             // 
@@ -414,6 +416,13 @@ namespace GoContactSyncMod
             // 
             this.DoubleClickTimer.Tick += new System.EventHandler(this.DoubleClickTimer_Tick);
             // 
+            // ShowLogMenuItem
+            // 
+            this.ShowLogMenuItem.Name = "ShowLogMenuItem";
+            this.ShowLogMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ShowLogMenuItem.Text = "Show Log";
+            this.ShowLogMenuItem.Click += new System.EventHandler(this.ShowLogMenuItem_Click);
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.Save;
@@ -505,6 +514,7 @@ namespace GoContactSyncMod
         private System.ComponentModel.BackgroundWorker Worker;
         private System.Windows.Forms.Timer WorkTimer;
         private System.Windows.Forms.Timer DoubleClickTimer;
+        private System.Windows.Forms.ToolStripMenuItem ShowLogMenuItem;
 
     }
 }
