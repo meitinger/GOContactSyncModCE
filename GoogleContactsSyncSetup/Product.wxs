@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="Google Contacts Sync" Language="1033" Version="!(bind.fileVersion.GoogleContactsSync.exe)" Manufacturer="WebGear Ltd, Create Software, Stru.be, saller.NET" UpgradeCode="0EBD5E7D5F664B84A4F21D818FA2718E" Codepage="1252">
+    <Package Id="*" InstallerVersion="200" Compressed="yes" Platform="$(var.Platform)" InstallScope="perUser" />
+    <Media Id="1" Cabinet="GoogleContactsSync.cab" EmbedCab="yes" CompressionLevel="high" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPPRODUCTICON" Value="GoogleContactsSync.exe" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of Google Contacts Sync is already installed." />
+    <Icon Id="GoogleContactsSync.exe" SourceFile="$(var.GoogleContactsSync.ProjectDir)\contacts-sync.ico" />
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramMenuFolder" />
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="GoogleFolder" Name="Google">
+          <Directory Id="GoogleContactsSyncFolder" Name="Google Contacts Sync" />
+        </Directory>
+      </Directory>
+    </Directory>
+    <Feature Id="GoogleContactsSync" Level="1">
+      <!-- Main -->
+      <Component Guid="4E22B7C141F34F22A05BB620B5C6D0F7" Directory="GoogleContactsSyncFolder">
+        <File Id="GoogleContactsSync.exe" KeyPath="yes" Source="$(var.GoogleContactsSync.TargetDir)\GoogleContactsSync.exe">
+          <Shortcut Id="GoogleContactsSync.exe" Advertise="yes" Name="Google Contacts Sync" Directory="ProgramMenuFolder" Description="Seamlessly synchronizes Google Contacts with Outlook." Icon="GoogleContactsSync.exe" />
+        </File>
+        <File Id="GoogleContactsSync.exe.config" Source="$(var.GoogleContactsSync.TargetDir)\GoogleContactsSync.exe.config" CompanionFile="GoogleContactsSync.exe" />
+        <RemoveFolder Id="GoogleContactsSyncFolder" Directory="GoogleContactsSyncFolder" On="uninstall" />
+        <RemoveFolder Id="GoogleFolder" Directory="GoogleFolder" On="uninstall" />
+      </Component>
+      <!-- Google -->
+      <?foreach Assembly in AccessControl;Client;Contacts;Documents;Extensions?>
+      <Component Directory="GoogleContactsSyncFolder">
+        <File Id="Google.GData.$(var.Assembly).dll" KeyPath="yes" Source="..\GoogleAPI\Google.GData.$(var.Assembly).dll" />
+      </Component>
+      <?endforeach?>
+      <Component Directory="GoogleContactsSyncFolder">
+        <File Id="Newtonsoft.Json.dll" KeyPath="yes" Source="..\GoogleAPI\Newtonsoft.Json.dll" />
+      </Component>
+      <!-- Outlook -->
+      <Component Directory="GoogleContactsSyncFolder">
+        <File Id="Microsoft.Office.Interop.Outlook.dll" KeyPath="yes" Source="..\OutlookAPI\Microsoft.Office.Interop.Outlook.dll" />
+      </Component>
+      <Component Directory="GoogleContactsSyncFolder">
+        <File Id="Office.dll" KeyPath="yes" Source="..\OutlookAPI\Office.dll" />
+      </Component>
+      <!-- Autorun -->
+      <Component Directory="GoogleContactsSyncFolder">
+        <RegistryValue Id="Autorun.reg" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="Google Contacts Sync" Value="&quot;[GoogleContactsSyncFolder]GoogleContactsSync.exe&quot;" Type="string" />
+      </Component>
+    </Feature>
+  </Product>
+</Wix>
