@@ -5,6 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleContactsSync", "Googl
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "GoogleContactsSyncSetup", "GoogleContactsSyncSetup\GoogleContactsSyncSetup.wixproj", "{3E7C9392-5069-4FB1-9548-710E4B19FF3A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{88049F51-F7BC-454D-A107-1E36FBA8E6DC}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
