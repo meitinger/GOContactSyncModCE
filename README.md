@@ -1,6 +1,6 @@
 GO Contact Sync Mod CE
 ======================
-This is a fork of (*GO Contact Sync Mod*)[http://sourceforge.net/projects/googlesyncmod/]
+This is a fork of [*GO Contact Sync Mod*](http://sourceforge.net/projects/googlesyncmod/)
 which in turn is a fork of the no longer maintained *GO Contact Sync* project.
 The *CE* stands for *corporate edition*, which shouldn't imply any commercial
 intentions, but rather what kind of end users this fork is tailored to.
